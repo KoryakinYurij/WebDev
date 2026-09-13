@@ -1,0 +1,23 @@
+# Web Design Knowledge
+
+Короткие переиспользуемые правила для следующих сайтов этого репозитория.
+
+## Источники
+- Сначала первичные: спецификации, WCAG/WAI, MDN/web.dev, официальная документация библиотек.
+- Curated checklists — вторичный контроль, не архитектурная истина.
+- Pattern libraries и showcase-репозитории — источник идей, не норматив.
+- Awesome-списки — только discovery: из них переходить к первичному источнику.
+
+## Эскалация реализации
+1. Семантический HTML + responsive CSS + design tokens.
+2. CSS/WAAPI для простого движения.
+3. Motion для React-layout, gestures и exit/layout transitions.
+4. GSAP/ScrollTrigger только для сложного pin/scrub/timeline.
+5. Three/WebGL только когда 3D действительно является частью идеи; обязателен fallback.
+
+## Гейты
+- reduced-motion не должен загружать/инициализировать тяжёлую декоративную сцену.
+- Проверять desktop, mobile, low-quality, horizontal overflow и ошибки консоли.
+- Serious/critical a11y ошибки не отключать тестом — исправлять причину.
+- Следить за gzip-budget, а не только сырым размером чанка.
+- Автотесты дополняют визуальную проверку, но не заменяют её.

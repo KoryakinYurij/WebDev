@@ -1,5 +1,5 @@
 /* СГЕНЕРИРОВАНО scripts/build-tokens.mjs — не редактировать руками. */
-/* Источник: tokens/design.tokens.json (формат DTCG) */
+/* Источник: tokens/design.tokens.json (DTCG + namespaced CSS extension). */
 
 @theme {
   --color-ink: #06060a;
@@ -9,7 +9,7 @@
   --color-line: #2a2a38;
   --color-fg: #f2f2f7;
   --color-fg-dim: #a3a3b8;
-  --color-fg-faint: #6a6a80;
+  --color-fg-faint: #808096;
   --color-accent-lime: #d4ff3f;
   --color-accent-magenta: #ff2e88;
   --color-accent-indigo: #5b3cff;

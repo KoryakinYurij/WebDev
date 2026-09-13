@@ -7,11 +7,11 @@
 |---|---|---|
 | `Eneryleen/ai-web-design-codex` | Правила scroll-driven опыта, стек-дерево решений, бюджеты motion, reduced-motion, перф-дисциплина | Архитектура всего сайта, `src/lib/*` |
 | `design-tokens/community-group` (DTCG) | Формат `$type` / `$value` / алиасы `{group.token}` | `tokens/design.tokens.json` |
-| `alexpate/awesome-design-systems` | Паттерн «токены → примитивы → секции», единый API у всех motion-хуков | `src/components/ui/*` |
+| `alexpate/awesome-design-systems` | Discovery-список; переходить к первичным дизайн-системам, не использовать как норматив | `src/components/ui/*` |
 | `ibelick/motion-primitives` | Микро-интерактив: layout-анимации, magnetic-кнопки, AnimatePresence c stable key | `MagneticButton`, `MethodSwitch`, `Nav` |
-| `sergey-pimenov/awesome-web-animation` | Карта инструментов + идеи текстовых эффектов (Blotter / shuffle-text) | `ScrambleText`, `VelocityBand` |
+| `sergey-pimenov/awesome-web-animation` | Discovery-список для поиска инструментов/примеров (Blotter / shuffle-text) | `ScrambleText`, `VelocityBand` |
 | `sergey-pimenov` / `mrdoob/three.js` | Three.js только для одного signature-момента | `src/three/heroField.ts` |
-| `thedaviddias/Front-End-Performance-Checklist` + `madebymustafa/inclusive-design-checklist` | Перф- и a11y-гейты ниже | Раздел «Гейты» |
+| `thedaviddias/Front-End-Performance-Checklist` + `Heydon/inclusive-design-checklist` | Перф- и a11y-гейты ниже | Раздел «Гейты» |
 
 ## 1. Стек-решение (из animation-libraries-stack)
 
@@ -22,7 +22,7 @@
 | Hover/focus/reveal, простые входы | CSS `@keyframes` + `transition` | 0 KB, компоновщик |
 | Прогресс чтения, простой parallax | Нативный CSS `animation-timeline: scroll()/view()` | уходит с main-thread |
 | Микро-интерактив, жесты, layout-анимации, exit | **Motion** (`motion/react`) | MIT, декларативность, `useReducedMotion` |
-| Pin + scrub, горизонтальный скролл, timelane | **GSAP + ScrollTrigger** | единственный вменяемый вариант для pinning |
+| Pin + scrub, горизонтальный скролл, timelane | **GSAP + ScrollTrigger** | сложный pin/scrub/timeline после CSS/WAAPI/Motion |
 | Инерционный скролл | **Lenis** (~3 KB) | сохраняет `position: sticky` и a11y |
 | Полноэкранный шейдер + облако точек | **Three.js** | один signature-момент, больше нигде |
 
@@ -74,8 +74,14 @@
 
 ## 6. Токены (DTCG)
 
-`tokens/design.tokens.json` — единственный источник правды. `scripts/build-tokens.mjs` генерирует:
+`tokens/design.tokens.json` — единственный источник правды. Перед генерацией `scripts/validate-tokens.mjs` проверяет поддерживаемый DTCG-поднабор. `scripts/build-tokens.mjs` генерирует:
 - `src/styles/tokens.css` → блок `@theme` для Tailwind v4 (утилиты `bg-*`, `text-*`, `font-*`, `ease-*` появляются автоматически);
 - `src/generated/tokens.ts` → типизированный объект для JS (цвета уходят в шейдер и в canvas-частицы, чтобы графика физически не могла разъехаться с палитрой интерфейса).
 
 Алиасы (`{color.accent.lime}`) резолвятся на этапе сборки — в рантайм попадают только конечные значения.
+
+## 7. Автоматический quality gate
+
+`npm run check` = build + gzip bundle budget + Playwright. Проверяются desktop 1440×900, mobile 390×844, reduced-motion без загрузки Three, low-quality и axe serious/critical.
+
+Reusable правила для следующих сайтов: [`WEB-DESIGN-KNOWLEDGE.md`](WEB-DESIGN-KNOWLEDGE.md).

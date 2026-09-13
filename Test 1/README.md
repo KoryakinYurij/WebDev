@@ -15,7 +15,9 @@ npm install
 npm run dev        # генерация токенов + vite dev server
 npm run typecheck  # tsc --noEmit
 npm run build      # токены + typecheck + прод-сборка
-npm run tokens     # только пересборка токенов
+npm run tokens     # validate + генерация токенов
+npm run test:e2e   # Playwright: desktop/mobile/reduced/low-quality/a11y
+npm run check      # build + bundle budget + e2e
 ```
 
 ## Что откуда взято
@@ -104,19 +106,17 @@ src/components/               секции; ui/ — примитивы (Reveal, 
 | **Desktop > 1280 px: композиция целиком** | ⚠️ **не проверено** — вьюпорт превью 750×672; логика пинов проверена понижением брейкпоинтов, но desktop-раскладка не увидена |
 | **Мобильный 375–430 px** | ⚠️ **не проверено** — ниже 768 px риск переполнения крупной типографики героя |
 | **`quality: 'low'`** (mediump-шейдер, меньше частиц) | ⚠️ **не проверено** — а именно этот путь получают мобильные посетители |
-| Автоматический аудит Lighthouse / axe | ⚠️ **не запускался** |
-| Тесты (генератор токенов, дымовые) | ⚠️ **отсутствуют** |
+| axe serious/critical | ✅ автоматизировано Playwright |
+| Токены + browser smoke tests | ✅ автоматизировано |
 
 ## Известные отклонения от кодека
 
 - Reveal-анимации сделаны через `whileInView` (IntersectionObserver в Motion), а не через
   нативный `animation-timeline: view()`. Нативный вариант уходит с main-thread и остаётся
   ближайшим улучшением; нативный `scroll()` использован для полосы прогресса в шапке.
-- DTCG поддержан частично: нет `$extensions`, композитных типов (`shadow`, `typography`)
-  и наследования `$type` от группы.
+- DTCG core-значения используются для цветов/dimensions/durations; fluid CSS `clamp()` хранится как namespaced extension и имеет валидный core fallback.
 - `AnimatePresence` используется только в модалке настроек; секции сознательно живут без
   exit-анимаций — на выходе из вьюпорта дешевле не анимировать вообще.
 - Наклон ленты привязан к скорости скролла с потолком 1.1° и коэффициентом 0.09:
   обычное колесо даёт 0.3—0.6°, а не упирается в потолок на первом рывке.
-- Основной чанк ~127 KB gzip (React + Motion). Переход на `motion/react-m` + `LazyMotion`
-  снял бы около 25 KB.
+- Размеры контролируются `npm run bundle:check`; текущий лимит всего JS — 350 KB gzip.

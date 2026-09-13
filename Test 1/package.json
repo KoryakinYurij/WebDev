@@ -4,11 +4,15 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "tokens": "node scripts/build-tokens.mjs",
+    "tokens": "npm run validate:tokens && node scripts/build-tokens.mjs",
     "dev": "npm run tokens && vite",
     "typecheck": "tsc --noEmit",
     "build": "npm run tokens && tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "validate:tokens": "node scripts/validate-tokens.mjs",
+    "bundle:check": "node scripts/check-bundle.mjs",
+    "test:e2e": "playwright test",
+    "check": "npm run build && npm run bundle:check && npm run test:e2e"
   },
   "dependencies": {
     "gsap": "^3.15.0",
@@ -19,6 +23,8 @@
     "three": "^0.186.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^22.20.2",
     "@types/react": "^19.3.0",

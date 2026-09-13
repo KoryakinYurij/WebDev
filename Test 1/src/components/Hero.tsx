@@ -25,6 +25,12 @@ export function Hero() {
 
   /* --- WebGL-сцена: создаём один раз на качество, живёт вне React-рендера --- */
   useEffect(() => {
+    if (reduced) {
+      fieldRef.current?.dispose()
+      fieldRef.current = null
+      return
+    }
+
     let cancelled = false
     let observer: ResizeObserver | undefined
 
@@ -82,7 +88,7 @@ export function Hero() {
       fieldRef.current?.dispose()
       fieldRef.current = null
     }
-  }, [quality])
+  }, [quality, reduced])
 
   /* Интенсивность читаем в кадре: слайдер в пульте меняет картинку без пересборки сцены. */
   useRafLoop(
@@ -122,7 +128,7 @@ export function Hero() {
       aria-labelledby="hero-title"
       className="relative isolate min-h-[100svh] overflow-clip"
     >
-      {failed ? (
+      {reduced || failed ? (
         <div
           aria-hidden="true"
           className="absolute inset-0"

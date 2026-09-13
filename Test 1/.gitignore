@@ -6,3 +6,6 @@ dist/
 
 # Превью-сервер пишет сюда свой лог разработки
 .vite/
+
+playwright-report/
+test-results/
