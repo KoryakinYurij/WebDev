@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.dev.log
+*.local
+.DS_Store
+
+# Превью-сервер пишет сюда свой лог разработки
+.vite/

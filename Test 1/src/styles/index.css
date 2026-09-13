@@ -1,0 +1,175 @@
+@import 'tailwindcss';
+/* Официальные стили Lenis: снимают конфликт со scroll-behavior и держат height: auto. */
+@import 'lenis/dist/lenis.css';
+@import './tokens.css';
+
+/* ------------------------------------------------------------------ *
+ * base — вёрстка обязана читаться без анимации и без JS
+ * ------------------------------------------------------------------ */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    /* overflow-x: clip, а не hidden — hidden ломает CSS scroll-seeking и sticky */
+    overflow-x: clip;
+    /*
+     * Гуттер под полосу прокрутки зарезервирован всегда.
+     * Иначе открытие модального окна (html overflow: hidden) прячет полосу,
+     * контент расширяется на её ширину и вся страница прыгает вбок.
+     */
+    scrollbar-gutter: stable;
+    scrollbar-color: var(--color-line) var(--color-ink);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    overflow-x: clip;
+    background-color: var(--color-ink);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.55;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: none;
+  }
+
+  h1,
+  h2,
+  h3,
+  p,
+  figure {
+    margin: 0;
+  }
+
+  button,
+  input,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+
+  ::selection {
+    background: var(--color-accent-lime);
+    color: var(--color-ink);
+  }
+
+  /* Фокус никогда не отключаем — только рисуем сами */
+  :focus-visible {
+    outline: 2px solid var(--color-accent-lime);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Базовая альтернатива для reduced-motion: анимации не просто быстрые,
+     а выключены целиком, и контент показан в финальном состоянии. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .u-container {
+    width: 100%;
+    max-width: 96rem;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 4.5rem);
+  }
+
+  /* Моно-лейбл: единственный разрешённый «технический» текст */
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-fg-dim);
+  }
+
+  /* Тонкая сетка на фоне — задаёт «измеримость» кадра */
+  .grid-lines {
+    background-image:
+      linear-gradient(to right, color-mix(in srgb, var(--color-line) 60%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--color-line) 60%, transparent) 1px, transparent 1px);
+    background-size: 72px 72px;
+  }
+
+  .hairline {
+    border-color: color-mix(in srgb, var(--color-line) 90%, transparent);
+  }
+
+  /* Плёночное зерно: дешёвый способ убрать «пластиковость» плоских градиентов */
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+  }
+
+  .edge-fade {
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  }
+}
+
+@layer utilities {
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--stack-gap, 1rem);
+  }
+
+  /* Нативный горизонтальный скролл-снап: путь по умолчанию на тач-устройствах
+     вместо hijacked pin-скролла */
+  .snap-x-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .snap-x-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .snap-x-item {
+    scroll-snap-align: start;
+    flex: 0 0 min(82vw, 26rem);
+  }
+}
+
+/* Прогресс секции на нативном CSS-timeline: уходит с main-thread.
+   animation-timeline объявляется ПОСЛЕ шортката animation — иначе шорткат сбрасывает её в auto. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    .native-progress {
+      transform-origin: left center;
+      animation: native-progress-grow linear both;
+      animation-timeline: scroll(root block);
+    }
+
+    @keyframes native-progress-grow {
+      from {
+        transform: scaleX(0);
+      }
+      to {
+        transform: scaleX(1);
+      }
+    }
+  }
+}

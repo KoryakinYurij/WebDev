@@ -1,0 +1,72 @@
+/* СГЕНЕРИРОВАНО scripts/build-tokens.mjs — не редактировать руками. */
+/* Источник: tokens/design.tokens.json (формат DTCG) */
+
+@theme {
+  --color-ink: #06060a;
+  --color-void: #000000;
+  --color-surface: #0d0d14;
+  --color-surface-raised: #15151f;
+  --color-line: #2a2a38;
+  --color-fg: #f2f2f7;
+  --color-fg-dim: #a3a3b8;
+  --color-fg-faint: #6a6a80;
+  --color-accent-lime: #d4ff3f;
+  --color-accent-magenta: #ff2e88;
+  --color-accent-indigo: #5b3cff;
+  --color-accent-cyan: #00e8ff;
+  --color-signal-ok: #6dff8a;
+  --color-signal-warn: #ffb02e;
+  --font-sans: "Space Grotesk", Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --text-mega: clamp(3.4rem, 13.5vw, 15rem);
+  --text-display: clamp(2.4rem, 7.2vw, 7rem);
+  --text-title: clamp(1.75rem, 4vw, 3.4rem);
+  --text-heading: clamp(1.25rem, 2.2vw, 1.9rem);
+  --text-body: clamp(1rem, 1.05vw, 1.15rem);
+  --text-small: 0.875rem;
+  --text-label: 0.6875rem;
+  --spacing-3xs: 0.25rem;
+  --spacing-2xs: 0.5rem;
+  --spacing-xs: 0.75rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2.5rem;
+  --spacing-xl: clamp(3rem, 6vw, 6rem);
+  --spacing-2xl: clamp(5rem, 11vw, 12rem);
+  --spacing-3xl: clamp(7rem, 18vw, 20rem);
+  --radius-sm: 6px;
+  --radius-md: 14px;
+  --radius-lg: 26px;
+  --radius-pill: 999px;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-quart: cubic-bezier(0.5, 0, 0.75, 0);
+  --ease-in-out: cubic-bezier(0.83, 0, 0.17, 1);
+  --ease-swift: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:root {
+  --border-hair: 1px;
+  --border-thick: 2px;
+  --dur-instant: 90ms;
+  --dur-fast: 180ms;
+  --dur-base: 300ms;
+  --dur-reveal: 380ms;
+  --dur-slow: 700ms;
+  --dur-cinematic: 1400ms;
+  --z-base: 0;
+  --z-content: 10;
+  --z-overlay: 40;
+  --z-nav: 60;
+  --z-cursor: 90;
+  --m-reveal-duration: 380;
+  --m-stagger: 46;
+  --m-parallax-bg: 0.28;
+  --m-parallax-mid: 0.5;
+  --m-parallax-fg: 0.72;
+  --m-particles: 900;
+  --m-particles-low: 260;
+  --m-hero-points: 6000;
+  --m-hero-points-low: 2000;
+}
