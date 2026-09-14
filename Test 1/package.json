@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "validate:tokens": "node scripts/validate-tokens.mjs",
     "bundle:check": "node scripts/check-bundle.mjs",
+    "og": "node scripts/build-og.mjs",
     "test:e2e": "playwright test",
     "check": "npm run build && npm run bundle:check && npm run test:e2e"
   },

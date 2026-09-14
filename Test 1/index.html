@@ -10,6 +10,41 @@
       name="description"
       content="MINDFIELD — 12 протоколов внимания без эзотерики. Кинетический скролл-опыт о том, как медитация становится нагрузкой."
     />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!--
+      Относительные адреса здесь намеренно: домен проекта пока не зафиксирован,
+      а выдуманный абсолютный URL хуже относительного — краулер сам развернёт его
+      против адреса страницы. На деплое canonical/og:url/og:image заменяются
+      на абсолютные (см. README, «Что осталось на деплой»).
+    -->
+    <!--
+      canonical и og:url появятся здесь вместе с боевым доменом. Относительный `href="/"`
+      не годится: Vite трактует href у <link> как ассет и падает на чтении каталога.
+      Ссылки на картинки ниже — относительные намеренно: домен не зафиксирован,
+      а выдуманный абсолютный адрес хуже, чем относительный (краулер развернёт его
+      против адреса страницы).
+    -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Mindfield" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:title" content="MINDFIELD — тишина не бывает бесплатной" />
+    <meta
+      property="og:description"
+      content="12 протоколов внимания без таймеров и обещаний покоя. Кинетический скролл-опыт о том, как медитация становится нагрузкой."
+    />
+    <meta property="og:image" content="/og.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Тишина не бывает бесплатной — 12 протоколов, 40 минут, без таймеров" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MINDFIELD — тишина не бывает бесплатной" />
+    <meta
+      name="twitter:description"
+      content="12 протоколов внимания без таймеров и обещаний покоя."
+    />
+    <meta name="twitter:image" content="/og.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
