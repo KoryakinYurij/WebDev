@@ -11,7 +11,7 @@ const LINKS = [
   { id: 'scale', label: 'Шкала протоколов' },
   { id: 'chronicle', label: 'Хроника сессии' },
   { id: 'field', label: 'Поле внимания' },
-  { id: 'hold', label: 'Точка удержания' },
+  { id: 'noise', label: 'Шум и сборка' },
   { id: 'objections', label: 'Возражения' },
 ]
 

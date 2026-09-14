@@ -11,7 +11,7 @@ import { Depth } from './components/Depth'
 import { Scale } from './components/Scale'
 import { Chronicle } from './components/Chronicle'
 import { Field } from './components/Field'
-import { Hold } from './components/Hold'
+import { Noise } from './components/Noise'
 import { Objections } from './components/Objections'
 import { Footer } from './components/Footer'
 
@@ -46,7 +46,7 @@ export function App() {
           <Scale />
           <Chronicle />
           <Field />
-          <Hold />
+          <Noise />
           <Objections />
         </main>
 

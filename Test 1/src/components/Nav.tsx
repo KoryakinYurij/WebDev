@@ -18,7 +18,7 @@ const SECTIONS = [
   { id: 'scale', label: 'Шкала' },
   { id: 'chronicle', label: 'Хроника' },
   { id: 'field', label: 'Поле' },
-  { id: 'hold', label: 'Удержание' },
+  { id: 'noise', label: 'Шум' },
 ] as const
 
 export function Nav() {
@@ -79,7 +79,8 @@ export function Nav() {
         className={`pointer-events-auto flex items-center justify-between gap-4 px-[clamp(1rem,4vw,4.5rem)] transition-[padding,background-color,backdrop-filter] duration-300 ease-out ${
           scrolled ? 'border-b border-line/60 bg-ink/72 py-3 backdrop-blur-xl' : 'py-5'
         }`}
-        initial={{ y: -32, opacity: 0 }}
+        /* При reduced шапка стоит на месте сразу — как и весь остальной контент. */
+        initial={reduced ? false : { y: -32, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: revealSeconds + 0.2, ease: easeOutExpo, delay: 0.1 }}
       >
