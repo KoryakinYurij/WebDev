@@ -100,7 +100,7 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
         <motion.div
           data-lenis-prevent
           className="fixed inset-0 z-[80] flex items-start justify-center overflow-y-auto p-4 sm:items-center"
-          initial={{ opacity: 0 }}
+          initial={reduced ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: seconds(durations.base), ease: easeOutExpo }}
@@ -118,8 +118,17 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
             aria-modal="true"
             aria-labelledby={`${sliderId}-title`}
             tabIndex={-1}
-            className="relative w-full max-w-xl border border-line bg-surface/95 p-lg outline-none"
-            initial={{ opacity: 0, y: 18, scale: 0.985 }}
+            /*
+             * Ширина задана числом, а не `max-w-xl`, и это не стилистическая прихоть.
+             * Наш `@theme` переопределяет пространство `--spacing-*` собственными именами,
+             * а Tailwind резолвит `max-w-xl` именно через `--spacing-xl` — то есть
+             * через `clamp(3rem, 6vw, 6rem)`. Модалка выходила полосой в 48—86 px:
+             * Slider влезал, а тумблеры уезжали за край. Проверено замером:
+             * `getComputedStyle(panel).maxWidth` возвращал 48 px при вьюпорте 734 px.
+             * То же правило касается любых `max-w-sm|md|lg|2xl` — их в проекте быть не должно.
+             */
+            className="relative w-full max-w-[36rem] border border-line bg-surface/95 p-lg outline-none"
+            initial={reduced ? false : { opacity: 0, y: 18, scale: 0.985 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.99 }}
             transition={{ duration: seconds(durations.reveal), ease: easeOutExpo }}

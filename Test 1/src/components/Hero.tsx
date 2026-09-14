@@ -188,9 +188,16 @@ export function Hero() {
         </h1>
 
         <div className="flex flex-wrap items-end justify-between gap-lg">
+          {/*
+           * Появление копирайта гейтится на reduced так же, как в `Reveal`.
+           * Без гейта при системном «меньше движения» посетитель всё равно ждал 0.5—0.6 с
+           * и получал фейд — а axe, снимая страницу в этот момент, мерил контраст
+           * по полупрозрачной кнопке (ink на композите lime/ink = 2.68:1 вместо 4.5:1)
+           * и валил гейт через раз.
+           */}
           <motion.p
             className="max-w-[46ch] text-body text-fg-dim"
-            initial={{ opacity: 0, y: 16 }}
+            initial={reduced ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: seconds(durations.slow), delay: 0.5, ease: easeOutExpo }}
           >
@@ -200,7 +207,7 @@ export function Hero() {
 
           <motion.div
             className="flex flex-wrap items-center gap-3"
-            initial={{ opacity: 0, y: 16 }}
+            initial={reduced ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: seconds(durations.slow), delay: 0.62, ease: easeOutExpo }}
           >
