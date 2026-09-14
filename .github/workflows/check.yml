@@ -1,0 +1,42 @@
+name: check
+
+# Гейты проекта имеют смысл только если их кто-то запускает.
+# `npm run check` = сборка (токены + typecheck + vite) + бюджет бандла + Playwright.
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+defaults:
+  run:
+    working-directory: Test 1
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Test 1/package-lock.json
+
+      - run: npm ci
+
+      # Браузер ставится отдельно от зависимостей: в node_modules его нет.
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm run check
+
+      # Отчёт и трейсы нужны только когда что-то упало.
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            Test 1/playwright-report
+            Test 1/test-results
+          retention-days: 7
