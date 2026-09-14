@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "version": "0.2.0",
+  "environment": "prism-offline",
+  "max_packet_words": 4500,
+  "core": "web-library/CORE.md",
+  "checks": "web-library/checks/review.md",
+  "core_resources": ["w3c-contrast", "w3c-reflow", "mdn-reduced-motion"],
+  "profiles": {
+    "scroll-story": {
+      "path": "web-library/profiles/scroll-story.md",
+      "status": "experimental",
+      "required_modules": ["visual-direction", "scroll-motion"],
+      "reason": "Бриф требует линейного рассказа с осмысленной скролл-сценой."
+    }
+  },
+  "modules": {
+    "visual-direction": {
+      "path": "web-library/modules/visual-direction.md",
+      "requires": [],
+      "conflicts": [],
+      "resources": ["carbon-typography"],
+      "reason": "Нужно связать содержание с композицией без постоянного шаблона."
+    },
+    "scroll-motion": {
+      "path": "web-library/modules/scroll-motion.md",
+      "requires": [],
+      "conflicts": [],
+      "resources": ["mdn-scroll", "mdn-intersection", "mdn-reduced-motion", "mdn-animation-timeline", "webdev-animation"],
+      "reason": "Требуются состояния прокрутки, статический fallback и уменьшение движения."
+    }
+  }
+}

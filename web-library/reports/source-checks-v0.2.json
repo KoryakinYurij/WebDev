@@ -1,0 +1,28 @@
+{
+  "checked_at": "2026-09-14T13:31:36.257374+00:00",
+  "method": "Arithmetic from the inspected raw example, not execution of the external repository",
+  "typography_guide_url": "https://raw.githubusercontent.com/Eneryleen/ai-web-design-codex/main/00-foundations/typography-systems.md",
+  "example": "clamp(1rem, 0.9375rem + 0.2083vw, 1.125rem)",
+  "assumed_root_px": 16,
+  "values": [
+    {
+      "viewport_css_px": 320,
+      "preferred_px": 15.66656,
+      "clamped_px": 16
+    },
+    {
+      "viewport_css_px": 1280,
+      "preferred_px": 17.666240000000002,
+      "clamped_px": 17.666240000000002
+    }
+  ],
+  "declared_upper_px": 18,
+  "upper_matches_claim": false,
+  "large_text_css_px": {
+    "regular_18pt": 24.0,
+    "bold_14pt": 18.666666666666668
+  },
+  "primary_contrast_source": "https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html",
+  "browser_validation": "not_run",
+  "repository_wide_audit": "not_run"
+}

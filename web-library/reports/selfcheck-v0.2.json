@@ -1,0 +1,187 @@
+{
+  "status": "pass",
+  "count": 44,
+  "checks": [
+    {
+      "name": "syntax:web-library/tools/library.py.txt",
+      "status": "pass"
+    },
+    {
+      "name": "syntax:web-library/tools/audit_local.py.txt",
+      "status": "pass"
+    },
+    {
+      "name": "deterministic",
+      "status": "pass"
+    },
+    {
+      "name": "baseline_isolated",
+      "status": "pass"
+    },
+    {
+      "name": "core_without_profile",
+      "status": "pass"
+    },
+    {
+      "name": "profile_routing",
+      "status": "pass"
+    },
+    {
+      "name": "retired_guides_excluded",
+      "status": "pass"
+    },
+    {
+      "name": "runtime_not_selected",
+      "status": "pass"
+    },
+    {
+      "name": "deduplication",
+      "status": "pass"
+    },
+    {
+      "name": "unknown_module",
+      "status": "pass"
+    },
+    {
+      "name": "cycle",
+      "status": "pass"
+    },
+    {
+      "name": "conflict",
+      "status": "pass"
+    },
+    {
+      "name": "unknown_profile",
+      "status": "pass"
+    },
+    {
+      "name": "unknown_environment",
+      "status": "pass"
+    },
+    {
+      "name": "unknown_capabilities",
+      "status": "pass"
+    },
+    {
+      "name": "path_traversal",
+      "status": "pass"
+    },
+    {
+      "name": "absolute_path",
+      "status": "pass"
+    },
+    {
+      "name": "duplicate_json_fields",
+      "status": "pass"
+    },
+    {
+      "name": "inactive_resource:motion-primitives",
+      "status": "pass"
+    },
+    {
+      "name": "inactive_resource:ai-typography",
+      "status": "pass"
+    },
+    {
+      "name": "inactive_resource:ai-scroll",
+      "status": "pass"
+    },
+    {
+      "name": "incomplete_card",
+      "status": "pass"
+    },
+    {
+      "name": "tested_without_evidence",
+      "status": "pass"
+    },
+    {
+      "name": "context_budget",
+      "status": "pass"
+    },
+    {
+      "name": "prism_sync:no_final_lf",
+      "status": "pass"
+    },
+    {
+      "name": "prism_validation:no_final_lf",
+      "status": "pass"
+    },
+    {
+      "name": "prism_sync:crlf",
+      "status": "pass"
+    },
+    {
+      "name": "prism_validation:crlf",
+      "status": "pass"
+    },
+    {
+      "name": "sources_only_does_not_read_reports",
+      "status": "pass"
+    },
+    {
+      "name": "meaningful_spaces_retained",
+      "status": "pass"
+    },
+    {
+      "name": "internal_blank_lines_retained",
+      "status": "pass"
+    },
+    {
+      "name": "content_change_detected",
+      "status": "pass"
+    },
+    {
+      "name": "run_template",
+      "status": "pass"
+    },
+    {
+      "name": "unexecuted_acceptance_rejected",
+      "status": "pass"
+    },
+    {
+      "name": "unexecuted_score_rejected",
+      "status": "pass"
+    },
+    {
+      "name": "synthetic_report_shape_only",
+      "status": "pass"
+    },
+    {
+      "name": "acceptance_blocks:fail",
+      "status": "pass"
+    },
+    {
+      "name": "acceptance_blocks:not_run",
+      "status": "pass"
+    },
+    {
+      "name": "acceptance_requires:human_review_evidence",
+      "status": "pass"
+    },
+    {
+      "name": "acceptance_requires:browser_evidence",
+      "status": "pass"
+    },
+    {
+      "name": "acceptance_requires:checks",
+      "status": "pass"
+    },
+    {
+      "name": "duplicate_run_check",
+      "status": "pass"
+    },
+    {
+      "name": "second_round_cannot_reuse_first",
+      "status": "pass"
+    },
+    {
+      "name": "whole_library",
+      "status": "pass"
+    }
+  ],
+  "scope": "Reproducible local contract checks; synthetic accepted report exists only in memory",
+  "hash_policy": "utf8-lf-single-final-newline-v1",
+  "tool_text_sha256": "d5d1771626af2a7fab0fea64ed9939cadca0e42ae29559af99c918aefc26e8f9",
+  "browser_validation": "not_run",
+  "website_quality_experiment": "not_run"
+}

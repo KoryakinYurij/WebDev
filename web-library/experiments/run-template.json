@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "status": "not_run",
+  "brief_id": null,
+  "arm": null,
+  "repeat": null,
+  "packet_manifest": null,
+  "model_exact": null,
+  "model_settings": null,
+  "tools_and_versions": [],
+  "started_at": null,
+  "finished_at": null,
+  "elapsed_minutes": null,
+  "token_usage": null,
+  "user_rounds": null,
+  "internal_revisions": null,
+  "context_contaminated": null,
+  "artifacts": [],
+  "checks": [],
+  "source_reads": [],
+  "browser_evidence": [],
+  "visual_scores": {
+    "clarity": null,
+    "appropriateness": null,
+    "composition_typography": null,
+    "motion_purpose": null
+  },
+  "human_review_evidence": [],
+  "second_visual_scores": {
+    "clarity": null,
+    "appropriateness": null,
+    "composition_typography": null,
+    "motion_purpose": null
+  },
+  "first_pass_accepted": null,
+  "substantial_fixes": [],
+  "second_prompt_exact": null,
+  "second_pass_accepted": null,
+  "failure_categories": [],
+  "limitations": ["Шаблон: запуск ещё не выполнен; null означает неизвестное."]
+}

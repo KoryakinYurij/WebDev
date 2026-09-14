@@ -1,0 +1,76 @@
+(node:29056) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+npm notice run mindfield@0.1.0 dev
+npm notice run npm run tokens && vite --host 127.0.0.1 --port 5173
+(node:28292) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+npm notice run mindfield@0.1.0 tokens
+npm notice run npm run validate:tokens && node scripts/build-tokens.mjs
+(node:31232) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+npm notice run mindfield@0.1.0 validate:tokens
+npm notice run node scripts/validate-tokens.mjs
+(node:16896) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21864) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21716) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m2:06:42 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 2 errors:
+
+[31m[PARSE_ERROR] [0mMissing initializer in const declaration
+     [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/components/Protocol.tsx:363:13 [38;5;246m][0m
+     [38;5;246m│[0m
+ [38;5;246m363 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249mo[0m[38;5;249mn[0m[38;5;249ms[0m[38;5;249mt[0m[38;5;249m [0mcurrent[38;5;249m [0m[38;5;249ms[0m[38;5;249mu[0m[38;5;249mr[0m[38;5;249mf[0m[38;5;249ma[0m[38;5;249mc[0m[38;5;249me[0m[38;5;249m [0m[38;5;249m=[0m[38;5;249m [0m[38;5;249ms[0m[38;5;249mu[0m[38;5;249mr[0m[38;5;249mf[0m[38;5;249ma[0m[38;5;249mc[0m[38;5;249me[0m[38;5;249m.[0m[38;5;249mc[0m[38;5;249mu[0m[38;5;249mr[0m[38;5;249mr[0m[38;5;249me[0m[38;5;249mn[0m[38;5;249mt[0m
+ [38;5;240m    │[0m             ───┬───  
+ [38;5;240m    │[0m                ╰───── 
+ [38;5;240m    │[0m 
+ [38;5;240m    │[0m [38;5;115mHelp[0m: Add an initializer (e.g. ` = undefined`) here
+[38;5;246m─────╯[0m
+
+[31m[PARSE_ERROR] [0mExpected a semicolon or an implicit semicolon after a statement, but found none
+     [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/components/Protocol.tsx:363:20 [38;5;246m][0m
+     [38;5;246m│[0m
+ [38;5;246m363 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249mo[0m[38;5;249mn[0m[38;5;249ms[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249mc[0m[38;5;249mu[0m[38;5;249mr[0m[38;5;249mr[0m[38;5;249me[0m[38;5;249mn[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249ms[0m[38;5;249mu[0m[38;5;249mr[0m[38;5;249mf[0m[38;5;249ma[0m[38;5;249mc[0m[38;5;249me[0m[38;5;249m [0m[38;5;249m=[0m[38;5;249m [0m[38;5;249ms[0m[38;5;249mu[0m[38;5;249mr[0m[38;5;249mf[0m[38;5;249ma[0m[38;5;249mc[0m[38;5;249me[0m[38;5;249m.[0m[38;5;249mc[0m[38;5;249mu[0m[38;5;249mr[0m[38;5;249mr[0m[38;5;249me[0m[38;5;249mn[0m[38;5;249mt[0m
+ [38;5;240m    │[0m                    │ 
+ [38;5;240m    │[0m                    ╰─ 
+ [38;5;240m    │[0m 
+ [38;5;240m    │[0m [38;5;115mHelp[0m: Try inserting a semicolon here
+[38;5;246m─────╯[0m
+[39m
+  Plugin: [35mvite:oxc[39m
+  File: [36mD:/Code AI/Projects/WebDev/Test 1/src/components/Protocol.tsx[39m
+      at transformWithOxc (file:///D:/Code%20AI/Projects/WebDev/Test%201/node_modules/vite/dist/node/chunks/node.js:7208:19)
+      at TransformPluginContext.transform (file:///D:/Code%20AI/Projects/WebDev/Test%201/node_modules/vite/dist/node/chunks/node.js:7280:26)
+      at EnvironmentPluginContainer.transform (file:///D:/Code%20AI/Projects/WebDev/Test%201/node_modules/vite/dist/node/chunks/node.js:8172:51)
+      at async loadAndTransform (file:///D:/Code%20AI/Projects/WebDev/Test%201/node_modules/vite/dist/node/chunks/node.js:19634:26)
+      at async viteTransformMiddleware (file:///D:/Code%20AI/Projects/WebDev/Test%201/node_modules/vite/dist/node/chunks/node.js:19853:20)
+[2m2:06:56 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 2 errors:
+
+[31m[PARSE_ERROR] [0mExpected corresponding JSX closing tag for 'div'.
+     [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/components/Protocol.tsx:552:7 [38;5;246m][0m
+     [38;5;246m│[0m
+ [38;5;246m430 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m<[0mdiv
+ [38;5;240m    │[0m        ─┬─  
+ [38;5;240m    │[0m         ╰─── Opened here
+ [38;5;240m    │[0m 
+ [38;5;246m552 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m<[0m[38;5;249m/[0msection[38;5;249m>[0m
+ [38;5;240m    │[0m       ───┬───  
+ [38;5;240m    │[0m          ╰───── Expected `</div>`
+[38;5;246m─────╯[0m
+
+[31m[PARSE_ERROR] [0mUnexpected token. Did you mean `{'}'}` or `&rbrace;`?
+     [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/components/Protocol.tsx:554:1 [38;5;246m][0m
+     [38;5;246m│[0m
+ [38;5;246m554 │[0m [38;5;249m}[0m
+ [38;5;240m    │[0m │ 
+ [38;5;240m    │[0m ╰─ 
+[38;5;246m─────╯[0m
+[39m
+  Plugin: [35mvite:oxc[39m
+  File: [36mD:/Code AI/Projects/WebDev/Test 1/src/components/Protocol.tsx[39m
+      at transformWithOxc (file:///D:/Code%20AI/Projects/WebDev/Test%201/node_modules/vite/dist/node/chunks/node.js:7208:19)
+      at TransformPluginContext.transform (file:///D:/Code%20AI/Projects/WebDev/Test%201/node_modules/vite/dist/node/chunks/node.js:7280:26)
+      at EnvironmentPluginContainer.transform (file:///D:/Code%20AI/Projects/WebDev/Test%201/node_modules/vite/dist/node/chunks/node.js:8172:51)
+      at async loadAndTransform (file:///D:/Code%20AI/Projects/WebDev/Test%201/node_modules/vite/dist/node/chunks/node.js:19634:26)
+      at async viteTransformMiddleware (file:///D:/Code%20AI/Projects/WebDev/Test%201/node_modules/vite/dist/node/chunks/node.js:19853:20)

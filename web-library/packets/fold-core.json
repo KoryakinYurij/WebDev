@@ -1,0 +1,85 @@
+{
+  "schema_version": 2,
+  "library_version": "0.2.0",
+  "brief_id": "fold",
+  "arm": "core",
+  "environment": "prism-offline",
+  "selected_modules": [],
+  "selected_resources": [
+    "w3c-contrast",
+    "w3c-reflow",
+    "mdn-reduced-motion"
+  ],
+  "selection_reasons": [
+    {
+      "id": "core",
+      "reason": "Вариант включает общий процесс и одинаковые проверки."
+    }
+  ],
+  "excluded_resources": [
+    {
+      "id": "mdn-scroll",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    },
+    {
+      "id": "mdn-intersection",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    },
+    {
+      "id": "ai-scroll",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    },
+    {
+      "id": "ai-typography",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    },
+    {
+      "id": "gsap-scrolltrigger",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    },
+    {
+      "id": "playwright-visual",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    },
+    {
+      "id": "design-systems-index",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    },
+    {
+      "id": "performance-checklist",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    },
+    {
+      "id": "motion-primitives",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    },
+    {
+      "id": "carbon-typography",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    },
+    {
+      "id": "mdn-animation-timeline",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    },
+    {
+      "id": "webdev-animation",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    }
+  ],
+  "word_count": 2229,
+  "word_budget": 4500,
+  "hash_policy": "utf8-lf-single-final-newline-v1",
+  "input_text_sha256": {
+    "web-library/experiments/briefs/fold.json": "f079bd3dbec9f2617dbcde13895d5a826467bb2744c26ae8ac8794efa3198e6b",
+    "web-library/registry.json": "8d8b89b732c0cf695619679868b821dda17fa4d7f8d677222120dc6795e79c50",
+    "web-library/resources/catalog.json": "c2404b84753d122fe14cc3272fb84dd18cfc0c243c3848e690e7ed845eed3c6b",
+    "web-library/ENVIRONMENT.md": "e1fb141016b84428480a32ce8cae55490ced28a31de06b0c45609827fac56830",
+    "web-library/CORE.md": "6313eed1d852fe823b9a4f6017ace37340e68e5e8bd3c3132ed99835330d0d75",
+    "web-library/checks/review.md": "775df7f69064fcc0e1c6655f4206f26c03b82a1274e29ee4a9c1d6362562908f",
+    "web-library/tools/library.py.txt": "d5d1771626af2a7fab0fea64ed9939cadca0e42ae29559af99c918aefc26e8f9"
+  },
+  "packet_text_sha256": "e7c749933b7e7afba0d30a9faa80d65cacbc54c9f2f42af2f2522b4b7c5cf442",
+  "browser_validation": "not_run",
+  "human_design_review": "not_run",
+  "experiment_status": "prepared_not_executed"
+}

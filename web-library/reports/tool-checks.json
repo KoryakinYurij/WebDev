@@ -1,0 +1,101 @@
+{
+  "checked_at": "2026-09-14T05:59:39.013601+00:00",
+  "method": "In-memory smoke and negative checks; no websites generated",
+  "checks": [
+    {
+      "name": "python_syntax:library.py.txt",
+      "status": "pass"
+    },
+    {
+      "name": "python_syntax:audit_local.py.txt",
+      "status": "pass"
+    },
+    {
+      "name": "deterministic_packet_and_manifest",
+      "status": "pass"
+    },
+    {
+      "name": "baseline_isolated",
+      "status": "pass"
+    },
+    {
+      "name": "core_has_no_profile",
+      "status": "pass"
+    },
+    {
+      "name": "profile_routes_two_modules",
+      "status": "pass"
+    },
+    {
+      "name": "unused_runtime_excluded",
+      "status": "pass"
+    },
+    {
+      "name": "duplicate_modules_deduplicated",
+      "status": "pass"
+    },
+    {
+      "name": "unknown_module_rejected",
+      "status": "pass"
+    },
+    {
+      "name": "cycle_rejected",
+      "status": "pass"
+    },
+    {
+      "name": "conflict_rejected",
+      "status": "pass"
+    },
+    {
+      "name": "profile_unsupported_rejected",
+      "status": "pass"
+    },
+    {
+      "name": "environment_unsupported_rejected",
+      "status": "pass"
+    },
+    {
+      "name": "capabilities_unsupported_rejected",
+      "status": "pass"
+    },
+    {
+      "name": "path_traversal_rejected",
+      "status": "pass"
+    },
+    {
+      "name": "absolute_path_rejected",
+      "status": "pass"
+    },
+    {
+      "name": "candidate_in_active_registry_rejected",
+      "status": "pass"
+    },
+    {
+      "name": "incomplete_card_rejected",
+      "status": "pass"
+    },
+    {
+      "name": "tested_without_evidence_rejected",
+      "status": "pass"
+    },
+    {
+      "name": "context_budget_enforced",
+      "status": "pass"
+    },
+    {
+      "name": "full_library_validation",
+      "status": "pass"
+    },
+    {
+      "name": "existing_site_unchanged",
+      "status": "pass"
+    }
+  ],
+  "count": 22,
+  "website_ab_test": "not_run",
+  "browser_validation": "not_run",
+  "input_sha256": {
+    "web-library/tools/audit_local.py.txt": "0b7b91505b8555fd72b33626aa5fb52bcb67326e2f6e6a0a34a74eca66dc89cd",
+    "web-library/tools/library.py.txt": "9b1d6ddf555c83c12f9926b939a0e0656c725bc2db305a724e9d02285d6e4941"
+  }
+}

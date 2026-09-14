@@ -1,0 +1,140 @@
+{
+  "scope": "Existing local site; not a baseline generation and not a quality benchmark",
+  "checked_at": "2026-09-14T05:56:49.816421+00:00",
+  "input_sha256": {
+    "Index.html.txt": "4754995a0df110c7c6760bad8f116e120f9f25231d9291cf500e53c1dcce56cb",
+    "build.py.txt": "1da563249cd7d31edd9b5b3d710dbbaeec4068fcf3f7bc470f3d2e42dd910a93",
+    "src/page.html.txt": "d3c268feb9b7de54a22380a8e9cd94fe6f60a1be876061859b78c049c2681728",
+    "src/styles.css.txt": "80f615f9b878a9474f64a9c35ec876e3310714caf556743eb6b2b9acb8e1e34a",
+    "src/motion.css.txt": "66963fd8eda651a6fefc89cfdaca6b6b45c622edf0798b42169932e3e8086f04",
+    "src/app.js.txt": "7d5f7f82c670b1e405fdec4697f4d19132c224b49904eaff23d335cffd8e4c91",
+    "src/effects.js.txt": "3f8d0b39331665acd0110ffbe78c33c9151b9b5350cb562d2c7e3d770363168a"
+  },
+  "html_bytes": 73937,
+  "checks": [
+    {
+      "id": "assembly_equal",
+      "status": "fail",
+      "evidence": {
+        "method": "Reproduce reviewed substitutions in memory; do not execute or overwrite build.py.txt",
+        "markers": {
+          "{{STYLES}}": 1,
+          "{{SCRIPT}}": 1
+        },
+        "equal_after_newline_normalization": false,
+        "equal_nonblank_lines": true,
+        "reconstructed_utf8_bytes": 72815
+      }
+    },
+    {
+      "id": "unique_ids",
+      "status": "pass",
+      "evidence": {
+        "count": 51,
+        "duplicates": []
+      }
+    },
+    {
+      "id": "anchor_targets",
+      "status": "pass",
+      "evidence": {
+        "count": 14,
+        "missing": []
+      }
+    },
+    {
+      "id": "aria_idrefs",
+      "status": "pass",
+      "evidence": {
+        "missing": []
+      }
+    },
+    {
+      "id": "document_basics",
+      "status": "pass",
+      "evidence": {
+        "h1": 1,
+        "main": 1,
+        "sections": 9,
+        "lang": "ru"
+      }
+    },
+    {
+      "id": "static_resource_references",
+      "status": "pass",
+      "evidence": {
+        "references": [],
+        "scope": "HTML resource attributes and CSS url() tokens; not JS or all possible CSS resource syntax"
+      }
+    },
+    {
+      "id": "css_basic_parse",
+      "status": "pass",
+      "evidence": {
+        "errors": [],
+        "scope": "Top-level parser only; not semantic CSS validation or rendering"
+      }
+    },
+    {
+      "id": "js_parse:src/app.js.txt",
+      "status": "pass",
+      "evidence": {
+        "stdout": "Parsed, not executed",
+        "stderr": "",
+        "scope": "Existing IIFE parsed as Function body, not executed; no DOM/browser check"
+      }
+    },
+    {
+      "id": "js_parse:src/effects.js.txt",
+      "status": "pass",
+      "evidence": {
+        "stdout": "Parsed, not executed",
+        "stderr": "",
+        "scope": "Existing IIFE parsed as Function body, not executed; no DOM/browser check"
+      }
+    },
+    {
+      "id": "browser_render",
+      "status": "not_run",
+      "evidence": "Not performed by this static audit"
+    },
+    {
+      "id": "keyboard_behavior",
+      "status": "not_run",
+      "evidence": "Not performed by this static audit"
+    },
+    {
+      "id": "responsive_visual",
+      "status": "not_run",
+      "evidence": "Not performed by this static audit"
+    },
+    {
+      "id": "reduced_motion_behavior",
+      "status": "not_run",
+      "evidence": "Not performed by this static audit"
+    },
+    {
+      "id": "offline_browser_launch",
+      "status": "not_run",
+      "evidence": "Not performed by this static audit"
+    },
+    {
+      "id": "performance_measurement",
+      "status": "not_run",
+      "evidence": "Not performed by this static audit"
+    },
+    {
+      "id": "human_design_review",
+      "status": "not_run",
+      "evidence": "Not performed by this static audit"
+    }
+  ],
+  "summary": {
+    "fail": 1,
+    "pass": 8,
+    "not_run": 7
+  },
+  "files_changed_by_audit": [
+    "web-library/reports/local-audit.json"
+  ]
+}

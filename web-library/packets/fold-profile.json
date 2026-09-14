@@ -1,0 +1,88 @@
+{
+  "schema_version": 2,
+  "library_version": "0.2.0",
+  "brief_id": "fold",
+  "arm": "profile",
+  "environment": "prism-offline",
+  "selected_modules": [
+    "visual-direction",
+    "scroll-motion"
+  ],
+  "selected_resources": [
+    "w3c-contrast",
+    "w3c-reflow",
+    "mdn-reduced-motion",
+    "carbon-typography",
+    "mdn-scroll",
+    "mdn-intersection",
+    "mdn-animation-timeline",
+    "webdev-animation"
+  ],
+  "selection_reasons": [
+    {
+      "id": "core",
+      "reason": "Вариант включает общий процесс и одинаковые проверки."
+    },
+    {
+      "id": "scroll-story",
+      "reason": "Бриф требует линейного рассказа с осмысленной скролл-сценой."
+    },
+    {
+      "id": "visual-direction",
+      "reason": "Нужно связать содержание с композицией без постоянного шаблона."
+    },
+    {
+      "id": "scroll-motion",
+      "reason": "Требуются состояния прокрутки, статический fallback и уменьшение движения."
+    }
+  ],
+  "excluded_resources": [
+    {
+      "id": "ai-scroll",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    },
+    {
+      "id": "ai-typography",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    },
+    {
+      "id": "gsap-scrolltrigger",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    },
+    {
+      "id": "playwright-visual",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    },
+    {
+      "id": "design-systems-index",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    },
+    {
+      "id": "performance-checklist",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    },
+    {
+      "id": "motion-primitives",
+      "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
+    }
+  ],
+  "word_count": 3583,
+  "word_budget": 4500,
+  "hash_policy": "utf8-lf-single-final-newline-v1",
+  "input_text_sha256": {
+    "web-library/experiments/briefs/fold.json": "f079bd3dbec9f2617dbcde13895d5a826467bb2744c26ae8ac8794efa3198e6b",
+    "web-library/registry.json": "8d8b89b732c0cf695619679868b821dda17fa4d7f8d677222120dc6795e79c50",
+    "web-library/resources/catalog.json": "c2404b84753d122fe14cc3272fb84dd18cfc0c243c3848e690e7ed845eed3c6b",
+    "web-library/ENVIRONMENT.md": "e1fb141016b84428480a32ce8cae55490ced28a31de06b0c45609827fac56830",
+    "web-library/CORE.md": "6313eed1d852fe823b9a4f6017ace37340e68e5e8bd3c3132ed99835330d0d75",
+    "web-library/checks/review.md": "775df7f69064fcc0e1c6655f4206f26c03b82a1274e29ee4a9c1d6362562908f",
+    "web-library/profiles/scroll-story.md": "838bd0371a5ef9c3fa1492d79e8c276580d6101b53506a144bb76a812772b816",
+    "web-library/modules/visual-direction.md": "0d13598ce9af0f4154ecfddc987df79a15063ee720b6ddc64c9436b7790d7d2b",
+    "web-library/modules/scroll-motion.md": "de0c2b453b26358d7f27e02157edbad672f9517e105d8b9472068ceb6e5db8b6",
+    "web-library/tools/library.py.txt": "d5d1771626af2a7fab0fea64ed9939cadca0e42ae29559af99c918aefc26e8f9"
+  },
+  "packet_text_sha256": "743f75d249f5f62169b587e1c3c89b54e88d33d84ac3a9111f1fc127adaf2ff6",
+  "browser_validation": "not_run",
+  "human_design_review": "not_run",
+  "experiment_status": "prepared_not_executed"
+}
