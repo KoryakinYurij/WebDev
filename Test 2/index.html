@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ru" data-motion="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Линия сгиба — мастерская бумажных объектов</title>
+<meta name="description" content="Линия сгиба — вымышленная мастерская бумажных объектов. Три состояния листа и первая самостоятельная проба: один сгиб обычного листа, без инструментов и опыта.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20fill='%23f7f3ea'/%3E%3Cpath%20d='M3%2024%20L29%2012%20L29%2020%20L3%2032%20Z'%20fill='%23ded3bd'%20stroke='%231a1917'%20stroke-width='1.6'/%3E%3Cpath%20d='M3%2024%20L29%2012'%20stroke='%23a33613'%20stroke-width='2.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a class="skip" href="#main">Перейти к содержанию</a>
+
+<header class="top">
+  <div class="wrap top__inner">
+    <a class="mark" href="#top"><span class="mark__rule" aria-hidden="true"></span>Линия сгиба</a>
+
+    <nav class="top__nav" aria-label="Разделы страницы">
+      <ul class="nav">
+        <li><a href="#states">Состояния</a></li>
+        <li><a href="#first-fold">Первая проба</a></li>
+        <li><a href="#faq">Вопросы</a></li>
+      </ul>
+    </nav>
+
+    <div class="motion">
+      <button type="button" class="motion__btn" id="motion-toggle" aria-pressed="false" aria-describedby="motion-note" hidden>Уменьшить движение</button>
+      <p class="motion__note" id="motion-note" hidden>Движение включено.</p>
+    </div>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <!-- 01. Начало: идея мастерской и главное действие -->
+  <section class="section hero" id="top" aria-labelledby="hero-title">
+    <div class="wrap hero__grid">
+      <div class="hero__text">
+        <p class="eyebrow">Мастерская бумажных объектов · демонстрационный сайт</p>
+        <h1 id="hero-title">Из плоскости — в форму</h1>
+        <p class="lede">Линия сгиба — вымышленная мастерская бумажных объектов. Здесь обычный лист становится поводом посмотреть на форму по-новому. Начните с одного сгиба: не нужны специальные инструменты или опыт.</p>
+        <p class="hero__actions">
+          <a class="btn btn--primary" href="#first-fold">Попробовать первый сгиб</a>
+          <a class="btn btn--quiet" href="#states">Три состояния листа</a>
+        </p>
+      </div>
+
+      <div class="hero__figure" aria-hidden="true">
+        <svg class="frame hero__svg" viewBox="0 0 520 380" aria-hidden="true" focusable="false">
+          <g class="sheet__marks">
+            <path d="M26 14 V38 M14 26 H38"/>
+            <path d="M494 14 V38 M482 26 H506"/>
+            <path d="M26 342 V366 M14 354 H38"/>
+            <path d="M494 342 V366 M482 354 H506"/>
+          </g>
+          <ellipse class="sheet__shadow" cx="278" cy="304" rx="188" ry="21"/>
+          <polygon class="sheet__face sheet__face--back" points="90,205 430,158 446,215 106,262"/>
+          <path class="sheet__ghost" d="M122 319 L462 272"/>
+          <polygon class="sheet__cast" points="108,220 448,173 450,187 110,234"/>
+          <polygon class="sheet__face sheet__face--lift" points="106,262 446,215 450,187 110,234"/>
+          <path class="sheet__guide" d="M122 319 L112 240"/>
+          <polygon class="sheet__arrow" points="110,234 117.2,246.1 106.4,247.7"/>
+          <path class="sheet__guide" d="M462 272 L452 193"/>
+          <polygon class="sheet__arrow" points="450,187 457.2,199.1 446.4,200.7"/>
+          <path class="sheet__crease" d="M106 262 L446 215"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-rule" role="presentation" aria-hidden="true"></div>
+
+  <!-- 02. Три состояния листа: единственная движущаяся сцена -->
+  <section class="section states" id="states" aria-labelledby="states-title">
+    <div class="wrap">
+      <header class="section-head">
+        <p class="eyebrow">01 · Последовательность</p>
+        <h2 id="states-title">Три состояния листа</h2>
+      </header>
+
+      <div class="scene" data-scene>
+        <ol class="stages">
+          <li class="stage" data-stage="0">
+            <div class="stage__figure" aria-hidden="true">
+              <svg class="frame" viewBox="0 0 460 320" aria-hidden="true" focusable="false">
+                <ellipse class="sheet__shadow" cx="239" cy="252" rx="176" ry="17"/>
+                <polygon class="sheet__edge" points="98,244 408,206 408,214 98,252"/>
+                <polygon class="sheet__face" points="70,140 380,104 408,206 98,244"/>
+              </svg>
+            </div>
+            <div class="stage__body">
+              <p class="stage__num" aria-hidden="true">01</p>
+              <h3 class="stage__title">Плоскость</h3>
+              <p class="stage__text">Перед вами чистый лист.</p>
+            </div>
+          </li>
+
+          <li class="stage" data-stage="1">
+            <div class="stage__figure" aria-hidden="true">
+              <svg class="frame" viewBox="0 0 460 320" aria-hidden="true" focusable="false">
+                <ellipse class="sheet__shadow" cx="239" cy="252" rx="176" ry="17"/>
+                <polygon class="sheet__edge" points="98,244 408,206 408,214 98,252"/>
+                <polygon class="sheet__face" points="70,140 380,104 408,206 98,244"/>
+                <polygon class="sheet__face sheet__face--front" points="84,192 394,155 408,206 98,244"/>
+                <path class="sheet__shaft" d="M239 176 L233.5 126"/>
+                <polygon class="sheet__arrow" points="232,118 239,130.2 228.1,131.6"/>
+                <path class="sheet__crease" d="M84 192 L394 155"/>
+              </svg>
+            </div>
+            <div class="stage__body">
+              <p class="stage__num" aria-hidden="true">02</p>
+              <h3 class="stage__title">Линия</h3>
+              <p class="stage__text">Сгиб задаёт направление.</p>
+            </div>
+          </li>
+
+          <li class="stage" data-stage="2">
+            <div class="stage__figure" aria-hidden="true">
+              <svg class="frame" viewBox="0 0 460 320" aria-hidden="true" focusable="false">
+                <ellipse class="sheet__shadow" cx="239" cy="252" rx="176" ry="17"/>
+                <polygon class="sheet__ghost" points="70,140 380,104 408,206 98,244"/>
+                <polygon class="sheet__face sheet__face--back" points="70,140 84,146 394,109 380,104"/>
+                <polygon class="sheet__face sheet__face--lift" points="98,244 84,146 394,109 408,206"/>
+                <path class="sheet__crease" d="M84 146 L394 109"/>
+              </svg>
+            </div>
+            <div class="stage__body">
+              <p class="stage__num" aria-hidden="true">03</p>
+              <h3 class="stage__title">Объём</h3>
+              <p class="stage__text">Приподнятая часть меняет силуэт.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-rule" role="presentation" aria-hidden="true"></div>
+
+  <!-- 03. Самостоятельная проба: три шага и схема с ручным состоянием -->
+  <section class="section try" id="first-fold" aria-labelledby="try-title">
+    <div class="wrap">
+      <header class="section-head">
+        <p class="eyebrow">02 · Проба</p>
+        <h2 id="try-title">Сначала попробуйте</h2>
+      </header>
+
+      <div class="try__grid">
+        <ol class="steps">
+          <li class="steps__item">
+            <p class="steps__num" aria-hidden="true">Шаг 1</p>
+            <p class="steps__text">Подготовьте обычный лист бумаги и свободное место на столе.</p>
+          </li>
+          <li class="steps__item">
+            <p class="steps__num" aria-hidden="true">Шаг 2</p>
+            <p class="steps__text">Сложите лист пополам и раскройте. Найдите получившуюся линию.</p>
+          </li>
+          <li class="steps__item">
+            <p class="steps__num" aria-hidden="true">Шаг 3</p>
+            <p class="steps__text">Приподнимите одну сторону и посмотрите, как меняется силуэт.</p>
+          </li>
+        </ol>
+
+        <figure class="scheme" id="scheme" data-fold="flat">
+          <div class="scheme__frame">
+            <svg class="frame scheme__svg" viewBox="0 0 420 300" role="img" aria-label="Схема листа бумаги и его сгиба">
+              <ellipse class="sheet__shadow" cx="219" cy="258" rx="164" ry="16"/>
+
+              <g class="scheme__layer scheme__layer--flat">
+                <polygon class="sheet__edge" points="82,246 382,212 382,220 82,254"/>
+                <polygon class="sheet__face" points="56,152 356,118 382,212 82,246"/>
+                <path class="sheet__guide" d="M69 199 L369 165"/>
+              </g>
+
+              <g class="scheme__layer scheme__layer--lift">
+                <path class="sheet__ghost" d="M82 246 L382 212"/>
+                <polygon class="sheet__cast" points="72,159 372,125 374,139 74,173"/>
+                <polygon class="sheet__face sheet__face--back" points="56,152 69,199 369,165 356,118"/>
+                <polygon class="sheet__face sheet__face--lift" points="69,199 369,165 374,139 74,173"/>
+                <path class="sheet__crease" d="M69 199 L369 165"/>
+              </g>
+            </svg>
+          </div>
+
+          <figcaption class="scheme__caption" id="scheme-caption" aria-live="polite">Схема: лист лежит плоско, линия сгиба только намечена.</figcaption>
+
+          <p class="scheme__control">
+            <button type="button" class="btn btn--primary" id="fold-btn" hidden>Показать сгиб</button>
+          </p>
+        </figure>
+      </div>
+
+      <p class="try__note">Это исследование формы, не экзамен на точность.</p>
+    </div>
+  </section>
+
+  <div class="section-rule" role="presentation" aria-hidden="true"></div>
+
+  <!-- 04. Частые вопросы -->
+  <section class="section faq" id="faq" aria-labelledby="faq-title">
+    <div class="wrap">
+      <header class="section-head">
+        <p class="eyebrow">03 · Вопросы</p>
+        <h2 id="faq-title">Частые вопросы</h2>
+      </header>
+
+      <dl class="faq__list">
+        <div class="faq__item">
+          <dt>Нужна ли специальная бумага?</dt>
+          <dd>Нет, для первой пробы подойдёт обычный лист.</dd>
+        </div>
+        <div class="faq__item">
+          <dt>Нужны ли ножницы и клей?</dt>
+          <dd>В этой пробе — нет.</dd>
+        </div>
+        <div class="faq__item">
+          <dt>Что делать дальше?</dt>
+          <dd>Повторите опыт с другим направлением сгиба и сравните силуэты.</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__inner">
+    <p class="foot__mark">Линия сгиба</p>
+
+    <nav class="foot__nav" aria-label="Разделы страницы в подвале">
+      <ul class="nav">
+        <li><a href="#states">Состояния</a></li>
+        <li><a href="#first-fold">Первая проба</a></li>
+        <li><a href="#faq">Вопросы</a></li>
+        <li><a href="#top">К началу</a></li>
+      </ul>
+    </nav>
+
+    <p class="foot__note">Линия сгиба — вымышленная мастерская. Это демонстрационная страница: регистрации, оплаты и расписания здесь нет.</p>
+  </div>
+</footer>
+
+<script src="main.js" defer></script>
+</body>
+</html>

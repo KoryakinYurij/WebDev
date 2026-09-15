@@ -1,0 +1,1048 @@
+<!doctype html>
+<html lang="ru" data-motion="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Линия сгиба — мастерская бумажных объектов</title>
+<meta name="description" content="Линия сгиба — вымышленная мастерская бумажных объектов. Три состояния листа и первая самостоятельная проба: один сгиб обычного листа, без инструментов и опыта.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20fill='%23f7f3ea'/%3E%3Cpath%20d='M3%2024%20L29%2012%20L29%2020%20L3%2032%20Z'%20fill='%23ded3bd'%20stroke='%231a1917'%20stroke-width='1.6'/%3E%3Cpath%20d='M3%2024%20L29%2012'%20stroke='%23a33613'%20stroke-width='2.4'/%3E%3C/svg%3E">
+<style>
+/* ==========================================================================
+   «Линия сгиба» — стили одного документа.
+   Порядок: токены → база → доступность → макет → шапка → разделы →
+   сцена → схема сгиба → вопросы → подвал → режимы движения и узкие экраны.
+   Внешних ссылок и шрифтов нет: только системные гарнитуры и локальные файлы.
+   ========================================================================== */
+
+/* --- Токены ------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  --paper:       #f7f3ea;
+  --paper-deep:  #efe8da;
+  --sheet:       #fdfbf6;
+  --sheet-light: #fffdf8;
+  --sheet-shade: #ded3bd;
+
+  --ink:         #1a1917;
+  --ink-soft:    #575148;
+  --ink-faint:   #8a8375;
+
+  --crease:      #a33613;
+  --crease-deep: #86290c;
+
+  /* Границы интерактивных элементов: не слабее 3:1 к бумаге. */
+  --edge:        #8a8375;
+  /* Декоративные волосяные линии: контраст не нормируется. */
+  --line:        rgba(26, 25, 23, 0.16);
+  --shade:       rgba(26, 25, 23, 0.10);
+
+  --maxw: 71rem;
+  --pad: clamp(1.1rem, 4vw, 3rem);
+  --header-h: 4rem;
+
+  --font-text: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+  --font-mono: ui-monospace, SFMono-Regular, "Cascadia Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+/* Кнопки и подписи, которые включает JavaScript, скрыты в базовой разметке.
+   Правило должно побеждать любой display из классов, иначе без JS останутся
+   видимые, но неработающие элементы управления. */
+[hidden] { display: none !important; }
+
+/* --- База --------------------------------------------------------------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  /* Якоря не уезжают под закреплённую шапку. */
+  scroll-padding-top: calc(var(--header-h) + 0.9rem);
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: 1.0625rem;
+  line-height: 1.62;
+  overflow-wrap: break-word;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+p { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+figure { margin: 0; }
+img, svg { max-width: 100%; }
+a { color: inherit; }
+
+/* Осмысленные ссылки в тексте всегда видны как ссылки, а не только по цвету. */
+main a:not(.btn) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  text-decoration-color: var(--crease);
+}
+
+/* --- Фокус и переходы --------------------------------------------------- */
+
+:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.skip {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.9rem;
+  z-index: 40;
+  padding: 0.6rem 0.95rem;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--edge);
+  border-radius: 3px;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-250%);
+  transition: transform 0.15s ease;
+}
+
+.skip:focus { transform: translateY(0); }
+
+/* --- Макет ------------------------------------------------------------- */
+
+.wrap {
+  width: min(100% - 2 * var(--pad), var(--maxw));
+  margin-inline: auto;
+}
+
+.section { padding-block: clamp(2.25rem, 7vh, 5rem); }
+.section-rule { height: 1px; background: linear-gradient(90deg, transparent, var(--line) 16%, var(--line) 84%, transparent); }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.section-head h2 { margin-top: 0.45rem; font-size: clamp(1.6rem, 4vw, 2.35rem); }
+
+.section-head::after {
+  content: "";
+  display: block;
+  width: 3.25rem;
+  height: 3px;
+  margin-top: 1.1rem;
+  border-radius: 2px;
+  background: var(--crease);
+}
+
+/* --- Кнопки ------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.55rem 1.4rem;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.btn--primary { background: var(--crease); color: var(--paper); }
+.btn--primary:hover { background: var(--crease-deep); }
+
+.btn--quiet { background: transparent; color: var(--ink); border-color: var(--edge); }
+.btn--quiet:hover { background: var(--paper-deep); border-color: var(--ink); }
+
+/* --- Шапка ------------------------------------------------------------- */
+
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+
+.top__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 1rem;
+  padding-block: 0.6rem;
+}
+
+.mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  text-decoration: none;
+}
+
+.mark__rule {
+  display: block;
+  width: 1.5rem;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--crease);
+}
+
+.top__nav { order: 3; width: 100%; }
+.nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0.1rem 0.3rem; }
+
+.nav a {
+  display: inline-block;
+  padding: 0.5rem 0.6rem;
+  border-radius: 3px;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+.nav a:hover { color: var(--ink); background: var(--paper-deep); }
+
+.motion {
+  order: 2;
+  margin-left: auto;
+  display: grid;
+  gap: 0.15rem;
+  justify-items: end;
+}
+
+.motion__btn {
+  min-height: 2.25rem;
+  padding: 0.35rem 0.85rem;
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.motion__btn:hover { border-color: var(--ink); background: var(--paper-deep); }
+.motion__btn[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.motion__btn:disabled { cursor: default; }
+
+.motion__note {
+  max-width: 15rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--ink-soft);
+  text-align: right;
+}
+
+/* --- Первый экран ------------------------------------------------------ */
+
+.hero { padding-block: clamp(1.6rem, 6vh, 4.25rem); }
+
+.hero__grid { display: grid; gap: clamp(1.5rem, 5vw, 3.25rem); align-items: center; }
+
+.hero h1 {
+  margin-block: 0.4rem 0.9rem;
+  font-size: clamp(1.95rem, 8vw, 4.1rem);
+}
+
+.lede {
+  max-width: 34rem;
+  font-size: clamp(1.0625rem, 1.5vw, 1.25rem);
+  color: var(--ink-soft);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: clamp(1.1rem, 3.5vh, 2rem);
+}
+
+/* --- Сцена: три состояния листа --------------------------------------- */
+
+.scene { margin-top: clamp(1.5rem, 4vh, 2.5rem); }
+
+.stage {
+  padding-block: clamp(1.5rem, 4vh, 2.5rem);
+  border-top: 1px solid var(--line);
+}
+
+.stage:last-child { border-bottom: 1px solid var(--line); }
+
+.stage__figure { max-width: 34rem; margin-bottom: 1.25rem; }
+
+.frame { display: block; width: 100%; height: auto; }
+
+.stage__body { max-width: 34rem; }
+
+.stage__num {
+  margin-bottom: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  color: var(--ink-soft);
+  transition: color 0.25s ease;
+}
+
+.stage__title { font-size: clamp(1.3rem, 2.6vw, 1.65rem); }
+.stage__text { margin-top: 0.4rem; color: var(--ink-soft); }
+
+/* Закреплённый вариант включает JavaScript и только при обычном режиме
+   движения; закрепление не влияет на содержание, только на подачу. */
+.scene.is-pinned {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
+}
+
+.scene.is-pinned .scene__stage {
+  position: sticky;
+  top: calc(var(--header-h) + 1.5rem);
+  display: grid;
+}
+
+.scene.is-pinned .scene__stage .frame {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.scene.is-pinned .scene__stage .frame.is-active { opacity: 1; visibility: visible; }
+
+.scene.is-pinned .stage {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 74vh;
+  padding-block: 2rem;
+  border-bottom: 0;
+}
+
+.scene.is-pinned .stage:last-child { border-bottom: 0; }
+.scene.is-pinned .stage__figure { display: none; }
+.scene.is-pinned .stage__body { max-width: 30rem; }
+
+.scene.is-pinned .stage__body {
+  padding-inline-start: clamp(1rem, 2vw, 1.5rem);
+  border-inline-start: 2px solid var(--line);
+  transition: border-color 0.25s ease;
+}
+
+.scene.is-pinned .stage.is-active .stage__body { border-inline-start-color: var(--crease); }
+.scene.is-pinned .stage.is-active .stage__num { color: var(--crease); }
+
+/* --- Самостоятельная проба -------------------------------------------- */
+
+.try__grid {
+  display: grid;
+  gap: clamp(2rem, 5vw, 3.25rem);
+  margin-top: clamp(1.5rem, 4vh, 2.25rem);
+}
+
+.steps { display: grid; gap: clamp(1.1rem, 3vh, 1.9rem); }
+
+.steps__item {
+  display: grid;
+  gap: 0.3rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line);
+}
+
+.steps__num {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--crease);
+}
+
+.steps__text { max-width: 30rem; font-size: clamp(1.0625rem, 1.5vw, 1.1875rem); }
+
+.try__note {
+  margin-top: clamp(1.5rem, 4vh, 2.25rem);
+  color: var(--ink-soft);
+  font-size: 0.9375rem;
+}
+
+/* Схема живёт отдельно от скролл-сцены: её состояние меняет только кнопка. */
+.scheme {
+  padding: clamp(1.1rem, 3vw, 1.75rem);
+  background: var(--paper-deep);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.scheme__frame {
+  padding: clamp(0.75rem, 2vw, 1.25rem);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+}
+
+.scheme__svg { display: block; max-width: 26rem; margin-inline: auto; }
+
+.scheme__caption {
+  margin-top: 1rem;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+
+.scheme__control { margin-top: 1rem; }
+
+.scheme__layer { transition: opacity 0.2s ease, visibility 0.2s ease; }
+.scheme__layer--flat { opacity: 1; visibility: visible; }
+.scheme__layer--lift { opacity: 0; visibility: hidden; }
+
+.scheme[data-fold="folded"] .scheme__layer--flat { opacity: 0; visibility: hidden; }
+.scheme[data-fold="folded"] .scheme__layer--lift { opacity: 1; visibility: visible; }
+
+/* --- Вопросы ----------------------------------------------------------- */
+
+.faq__list { max-width: 46rem; margin-top: clamp(1.5rem, 4vh, 2.25rem); }
+
+.faq__item {
+  display: grid;
+  gap: 0.35rem;
+  padding-block: 1.15rem;
+  border-top: 1px solid var(--line);
+}
+
+.faq__item:last-child { border-bottom: 1px solid var(--line); }
+
+.faq__item dt { font-family: var(--font-display); font-size: clamp(1.125rem, 2vw, 1.375rem); }
+.faq__item dd { margin: 0; max-width: 40rem; color: var(--ink-soft); }
+
+/* --- Подвал ------------------------------------------------------------ */
+
+.foot {
+  padding-block: clamp(1.9rem, 5vh, 3.25rem);
+  background: var(--paper-deep);
+  border-top: 1px solid var(--line);
+}
+
+.foot__inner { display: grid; gap: 0.9rem; }
+.foot__mark { font-family: var(--font-display); font-size: 1.15rem; }
+
+.foot__note {
+  max-width: 44rem;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+
+/* --- Изображения схем ------------------------------------------------- */
+
+.sheet__face { fill: var(--sheet); stroke: var(--ink); stroke-width: 1.25; stroke-linejoin: round; }
+.sheet__face--back { fill: var(--sheet-shade); }
+.sheet__face--lift { fill: var(--sheet-light); }
+.sheet__face--front { fill: var(--paper-deep); }
+.sheet__edge { fill: var(--sheet-shade); stroke: var(--ink); stroke-width: 1; }
+.sheet__shadow { fill: var(--ink); opacity: 0.09; }
+.sheet__cast { fill: var(--ink); opacity: 0.07; }
+.sheet__crease { fill: none; stroke: var(--crease); stroke-width: 2.5; stroke-linecap: round; }
+.sheet__shaft { fill: none; stroke: var(--crease); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.sheet__guide { fill: none; stroke: var(--crease); stroke-width: 1.4; stroke-dasharray: 5 5; opacity: 0.8; }
+.sheet__ghost { fill: none; stroke: var(--ink-faint); stroke-width: 1.25; stroke-dasharray: 5 6; }
+.sheet__arrow { fill: var(--crease); }
+.sheet__marks { fill: none; stroke: var(--ink-faint); stroke-width: 1.25; }
+
+/* --- Режимы движения --------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  .skip, .btn, .motion__btn, .nav a,
+  .scheme__layer, .stage__num, .stage__body,
+  .scene.is-pinned .scene__stage .frame { transition: none; }
+}
+
+html[data-motion="reduced"] { scroll-behavior: auto; }
+
+html[data-motion="reduced"] .skip,
+html[data-motion="reduced"] .btn,
+html[data-motion="reduced"] .motion__btn,
+html[data-motion="reduced"] .nav a,
+html[data-motion="reduced"] .scheme__layer,
+html[data-motion="reduced"] .stage__num,
+html[data-motion="reduced"] .stage__body { transition: none; }
+
+/* --- Широкий экран ---------------------------------------------------- */
+
+@media (min-width: 60rem) {
+  .hero__grid { grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr); }
+}
+
+@media (min-width: 56rem) {
+  .top__nav { order: 2; width: auto; margin-left: auto; }
+  .motion { order: 3; margin-left: 1.75rem; }
+  .try__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr); align-items: start; }
+}
+
+/* --- Узкий экран: шапка в две строки, больше вертикального запаса ----- */
+
+@media (max-width: 61.99rem) {
+  :root { --header-h: 6.9rem; }
+}
+
+@media (max-width: 30rem) {
+  .motion__note { max-width: 11rem; }
+  .nav a { padding: 0.45rem 0.5rem; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Перейти к содержанию</a>
+
+<header class="top">
+  <div class="wrap top__inner">
+    <a class="mark" href="#top"><span class="mark__rule" aria-hidden="true"></span>Линия сгиба</a>
+
+    <nav class="top__nav" aria-label="Разделы страницы">
+      <ul class="nav">
+        <li><a href="#states">Состояния</a></li>
+        <li><a href="#first-fold">Первая проба</a></li>
+        <li><a href="#faq">Вопросы</a></li>
+      </ul>
+    </nav>
+
+    <div class="motion">
+      <button type="button" class="motion__btn" id="motion-toggle" aria-pressed="false" aria-describedby="motion-note" hidden>Уменьшить движение</button>
+      <p class="motion__note" id="motion-note" hidden>Движение включено.</p>
+    </div>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <!-- 01. Начало: идея мастерской и главное действие -->
+  <section class="section hero" id="top" aria-labelledby="hero-title">
+    <div class="wrap hero__grid">
+      <div class="hero__text">
+        <p class="eyebrow">Мастерская бумажных объектов · демонстрационный сайт</p>
+        <h1 id="hero-title">Из плоскости — в форму</h1>
+        <p class="lede">Линия сгиба — вымышленная мастерская бумажных объектов. Здесь обычный лист становится поводом посмотреть на форму по-новому. Начните с одного сгиба: не нужны специальные инструменты или опыт.</p>
+        <p class="hero__actions">
+          <a class="btn btn--primary" href="#first-fold">Попробовать первый сгиб</a>
+          <a class="btn btn--quiet" href="#states">Три состояния листа</a>
+        </p>
+      </div>
+
+      <div class="hero__figure" aria-hidden="true">
+        <svg class="frame hero__svg" viewBox="0 0 520 380" aria-hidden="true" focusable="false">
+          <g class="sheet__marks">
+            <path d="M26 14 V38 M14 26 H38"/>
+            <path d="M494 14 V38 M482 26 H506"/>
+            <path d="M26 342 V366 M14 354 H38"/>
+            <path d="M494 342 V366 M482 354 H506"/>
+          </g>
+          <ellipse class="sheet__shadow" cx="278" cy="304" rx="188" ry="21"/>
+          <polygon class="sheet__face sheet__face--back" points="90,205 430,158 446,215 106,262"/>
+          <path class="sheet__ghost" d="M122 319 L462 272"/>
+          <polygon class="sheet__cast" points="108,220 448,173 450,187 110,234"/>
+          <polygon class="sheet__face sheet__face--lift" points="106,262 446,215 450,187 110,234"/>
+          <path class="sheet__guide" d="M122 319 L112 240"/>
+          <polygon class="sheet__arrow" points="110,234 117.2,246.1 106.4,247.7"/>
+          <path class="sheet__guide" d="M462 272 L452 193"/>
+          <polygon class="sheet__arrow" points="450,187 457.2,199.1 446.4,200.7"/>
+          <path class="sheet__crease" d="M106 262 L446 215"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-rule" role="presentation" aria-hidden="true"></div>
+
+  <!-- 02. Три состояния листа: единственная движущаяся сцена -->
+  <section class="section states" id="states" aria-labelledby="states-title">
+    <div class="wrap">
+      <header class="section-head">
+        <p class="eyebrow">01 · Последовательность</p>
+        <h2 id="states-title">Три состояния листа</h2>
+      </header>
+
+      <div class="scene" data-scene>
+        <ol class="stages">
+          <li class="stage" data-stage="0">
+            <div class="stage__figure" aria-hidden="true">
+              <svg class="frame" viewBox="0 0 460 320" aria-hidden="true" focusable="false">
+                <ellipse class="sheet__shadow" cx="239" cy="252" rx="176" ry="17"/>
+                <polygon class="sheet__edge" points="98,244 408,206 408,214 98,252"/>
+                <polygon class="sheet__face" points="70,140 380,104 408,206 98,244"/>
+              </svg>
+            </div>
+            <div class="stage__body">
+              <p class="stage__num" aria-hidden="true">01</p>
+              <h3 class="stage__title">Плоскость</h3>
+              <p class="stage__text">Перед вами чистый лист.</p>
+            </div>
+          </li>
+
+          <li class="stage" data-stage="1">
+            <div class="stage__figure" aria-hidden="true">
+              <svg class="frame" viewBox="0 0 460 320" aria-hidden="true" focusable="false">
+                <ellipse class="sheet__shadow" cx="239" cy="252" rx="176" ry="17"/>
+                <polygon class="sheet__edge" points="98,244 408,206 408,214 98,252"/>
+                <polygon class="sheet__face" points="70,140 380,104 408,206 98,244"/>
+                <polygon class="sheet__face sheet__face--front" points="84,192 394,155 408,206 98,244"/>
+                <path class="sheet__shaft" d="M239 176 L233.5 126"/>
+                <polygon class="sheet__arrow" points="232,118 239,130.2 228.1,131.6"/>
+                <path class="sheet__crease" d="M84 192 L394 155"/>
+              </svg>
+            </div>
+            <div class="stage__body">
+              <p class="stage__num" aria-hidden="true">02</p>
+              <h3 class="stage__title">Линия</h3>
+              <p class="stage__text">Сгиб задаёт направление.</p>
+            </div>
+          </li>
+
+          <li class="stage" data-stage="2">
+            <div class="stage__figure" aria-hidden="true">
+              <svg class="frame" viewBox="0 0 460 320" aria-hidden="true" focusable="false">
+                <ellipse class="sheet__shadow" cx="239" cy="252" rx="176" ry="17"/>
+                <polygon class="sheet__ghost" points="70,140 380,104 408,206 98,244"/>
+                <polygon class="sheet__face sheet__face--back" points="70,140 84,146 394,109 380,104"/>
+                <polygon class="sheet__face sheet__face--lift" points="98,244 84,146 394,109 408,206"/>
+                <path class="sheet__crease" d="M84 146 L394 109"/>
+              </svg>
+            </div>
+            <div class="stage__body">
+              <p class="stage__num" aria-hidden="true">03</p>
+              <h3 class="stage__title">Объём</h3>
+              <p class="stage__text">Приподнятая часть меняет силуэт.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-rule" role="presentation" aria-hidden="true"></div>
+
+  <!-- 03. Самостоятельная проба: три шага и схема с ручным состоянием -->
+  <section class="section try" id="first-fold" aria-labelledby="try-title">
+    <div class="wrap">
+      <header class="section-head">
+        <p class="eyebrow">02 · Проба</p>
+        <h2 id="try-title">Сначала попробуйте</h2>
+      </header>
+
+      <div class="try__grid">
+        <ol class="steps">
+          <li class="steps__item">
+            <p class="steps__num" aria-hidden="true">Шаг 1</p>
+            <p class="steps__text">Подготовьте обычный лист бумаги и свободное место на столе.</p>
+          </li>
+          <li class="steps__item">
+            <p class="steps__num" aria-hidden="true">Шаг 2</p>
+            <p class="steps__text">Сложите лист пополам и раскройте. Найдите получившуюся линию.</p>
+          </li>
+          <li class="steps__item">
+            <p class="steps__num" aria-hidden="true">Шаг 3</p>
+            <p class="steps__text">Приподнимите одну сторону и посмотрите, как меняется силуэт.</p>
+          </li>
+        </ol>
+
+        <figure class="scheme" id="scheme" data-fold="flat">
+          <div class="scheme__frame">
+            <svg class="frame scheme__svg" viewBox="0 0 420 300" role="img" aria-label="Схема листа бумаги и его сгиба">
+              <ellipse class="sheet__shadow" cx="219" cy="258" rx="164" ry="16"/>
+
+              <g class="scheme__layer scheme__layer--flat">
+                <polygon class="sheet__edge" points="82,246 382,212 382,220 82,254"/>
+                <polygon class="sheet__face" points="56,152 356,118 382,212 82,246"/>
+                <path class="sheet__guide" d="M69 199 L369 165"/>
+              </g>
+
+              <g class="scheme__layer scheme__layer--lift">
+                <path class="sheet__ghost" d="M82 246 L382 212"/>
+                <polygon class="sheet__cast" points="72,159 372,125 374,139 74,173"/>
+                <polygon class="sheet__face sheet__face--back" points="56,152 69,199 369,165 356,118"/>
+                <polygon class="sheet__face sheet__face--lift" points="69,199 369,165 374,139 74,173"/>
+                <path class="sheet__crease" d="M69 199 L369 165"/>
+              </g>
+            </svg>
+          </div>
+
+          <figcaption class="scheme__caption" id="scheme-caption" aria-live="polite">Схема: лист лежит плоско, линия сгиба только намечена.</figcaption>
+
+          <p class="scheme__control">
+            <button type="button" class="btn btn--primary" id="fold-btn" hidden>Показать сгиб</button>
+          </p>
+        </figure>
+      </div>
+
+      <p class="try__note">Это исследование формы, не экзамен на точность.</p>
+    </div>
+  </section>
+
+  <div class="section-rule" role="presentation" aria-hidden="true"></div>
+
+  <!-- 04. Частые вопросы -->
+  <section class="section faq" id="faq" aria-labelledby="faq-title">
+    <div class="wrap">
+      <header class="section-head">
+        <p class="eyebrow">03 · Вопросы</p>
+        <h2 id="faq-title">Частые вопросы</h2>
+      </header>
+
+      <dl class="faq__list">
+        <div class="faq__item">
+          <dt>Нужна ли специальная бумага?</dt>
+          <dd>Нет, для первой пробы подойдёт обычный лист.</dd>
+        </div>
+        <div class="faq__item">
+          <dt>Нужны ли ножницы и клей?</dt>
+          <dd>В этой пробе — нет.</dd>
+        </div>
+        <div class="faq__item">
+          <dt>Что делать дальше?</dt>
+          <dd>Повторите опыт с другим направлением сгиба и сравните силуэты.</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__inner">
+    <p class="foot__mark">Линия сгиба</p>
+
+    <nav class="foot__nav" aria-label="Разделы страницы в подвале">
+      <ul class="nav">
+        <li><a href="#states">Состояния</a></li>
+        <li><a href="#first-fold">Первая проба</a></li>
+        <li><a href="#faq">Вопросы</a></li>
+        <li><a href="#top">К началу</a></li>
+      </ul>
+    </nav>
+
+    <p class="foot__note">Линия сгиба — вымышленная мастерская. Это демонстрационная страница: регистрации, оплаты и расписания здесь нет.</p>
+  </div>
+</footer>
+
+<script>
+/* ==========================================================================
+   «Линия сгиба» — прогрессивное улучшение одного документа.
+
+   Скрипт необязателен. Без него страница читается, главное действие работает,
+   а схема показывает статическое объяснение. Формат — классический скрипт
+   (не module): так готовый HTML открывается и по file:// без сервера.
+
+   Что делает скрипт:
+   1) включает управление уменьшением движения (системное ИЛИ ручное);
+   2) закрепляет одну сцену «Три состояния листа» на широком экране;
+   3) включает кнопку «Показать сгиб / Вернуть плоскость» для отдельной схемы.
+
+   Чистые функции вынесены наверх и доступны в Node: их проверяет scripts/check.mjs.
+   ========================================================================== */
+
+(function () {
+  'use strict';
+
+  var FLAT_CAPTION = 'Схема: лист лежит плоско, линия сгиба только намечена.';
+  var FOLDED_CAPTION = 'Схема: одна сторона листа приподнята, силуэт изменился.';
+
+  /* --- Чистые функции ---------------------------------------------------- */
+
+  // Стадия по позиции фокуса и границам: границы считаются серединами блоков,
+  // поэтому выбор одинаков при прокрутке вниз и вверх.
+  function pickStage(focus, boundaries) {
+    if (!isFinite(focus) || !boundaries || !boundaries.length) return 0;
+    for (var i = 0; i < boundaries.length; i++) {
+      if (focus < boundaries[i]) return i;
+    }
+    return boundaries.length;
+  }
+
+  function midpoints(centers) {
+    var out = [];
+    for (var i = 1; i < centers.length; i++) {
+      if (isFinite(centers[i]) && isFinite(centers[i - 1])) {
+        out.push((centers[i] + centers[i - 1]) / 2);
+      }
+    }
+    return out;
+  }
+
+  function captionFor(folded) { return folded ? FOLDED_CAPTION : FLAT_CAPTION; }
+  function labelFor(folded) { return folded ? 'Вернуть плоскость' : 'Показать сгиб'; }
+  function toggleFold(current) { return current === 'folded' ? 'flat' : 'folded'; }
+
+  if (typeof document === 'undefined') {
+    if (typeof module !== 'undefined' && module.exports) {
+      module.exports = {
+        pickStage: pickStage,
+        midpoints: midpoints,
+        captionFor: captionFor,
+        labelFor: labelFor,
+        toggleFold: toggleFold,
+        FLAT_CAPTION: FLAT_CAPTION,
+        FOLDED_CAPTION: FOLDED_CAPTION
+      };
+    }
+    return;
+  }
+
+  /* --- Состояние движения ------------------------------------------------ */
+
+  var STORE_KEY = 'fold-line.motion';
+  var root = document.documentElement;
+  var manualReduced = readManual();
+
+  // Отсутствие API — тоже состояние: без matchMedia страница просто остаётся
+  // статической, а обе кнопки продолжают работать.
+  var reduceQuery = typeof window.matchMedia === 'function'
+    ? window.matchMedia('(prefers-reduced-motion: reduce)')
+    : { matches: false, addEventListener: null, addListener: null };
+  var wideQuery = typeof window.matchMedia === 'function'
+    ? window.matchMedia('(min-width: 62rem)')
+    : { matches: false };
+  var nextFrame = typeof window.requestAnimationFrame === 'function'
+    ? window.requestAnimationFrame.bind(window)
+    : function (callback) { return window.setTimeout(callback, 16); };
+
+  var toggle = document.getElementById('motion-toggle');
+  var note = document.getElementById('motion-note');
+
+  function readManual() {
+    try {
+      return window.localStorage.getItem(STORE_KEY) === 'reduced';
+    } catch (error) {
+      return false; // приватный режим или запрет хранилища: работаем без памяти
+    }
+  }
+
+  function saveManual(value) {
+    try {
+      window.localStorage.setItem(STORE_KEY, value ? 'reduced' : 'auto');
+    } catch (error) {
+      // Выбор остаётся в силе до перезагрузки; это допустимо.
+    }
+  }
+
+  // Эффективное уменьшение движения = системное ИЛИ ручное.
+  function reducedNow() { return reduceQuery.matches || manualReduced; }
+
+  function renderMotion() {
+    var reduced = reducedNow();
+
+    root.setAttribute('data-motion', reduced ? 'reduced' : 'auto');
+
+    if (toggle) {
+      toggle.hidden = false;
+      toggle.setAttribute('aria-pressed', reduced ? 'true' : 'false');
+      // Системное предпочтение приоритетно: ручной переключатель его не отменяет.
+      toggle.disabled = reduceQuery.matches;
+    }
+
+    if (note) {
+      note.hidden = false;
+      note.textContent = reduceQuery.matches
+        ? 'Движение уменьшено системной настройкой.'
+        : (manualReduced ? 'Движение уменьшено вручную.' : 'Движение включено.');
+    }
+  }
+
+  /* --- Сцена «Три состояния листа» -------------------------------------- */
+
+  var scene = document.querySelector('[data-scene]');
+  var stages = scene ? Array.prototype.slice.call(scene.querySelectorAll('.stage')) : [];
+  var stageLayer = null;
+  var pinned = false;
+  var activeIndex = -1;
+  var boundaries = [];
+  var frameRequest = 0;
+
+  function sceneFrames() {
+    return stageLayer ? Array.prototype.slice.call(stageLayer.querySelectorAll('.frame')) : [];
+  }
+
+  function setActive(index) {
+    var list = sceneFrames();
+    if (!list.length || index === activeIndex) return;
+    activeIndex = index;
+    for (var i = 0; i < list.length; i++) {
+      list[i].classList.toggle('is-active', i === index);
+    }
+    for (var j = 0; j < stages.length; j++) {
+      stages[j].classList.toggle('is-active', j === index);
+    }
+  }
+
+  // Закрепление разрешено только на широком и достаточно высоком экране
+  // и никогда в уменьшенном режиме.
+  function pinAllowed() {
+    if (!scene || stages.length < 2) return false;
+    if (reducedNow()) return false;
+    if (!wideQuery.matches) return false;
+    if (window.innerHeight < 560) return false;
+    return true;
+  }
+
+  // Решение о закреплении принимается по фактической высоте сцены, а не по
+  // предположению: если кадр не помещается в окно, остаются последовательные кадры.
+  function pinFits() {
+    if (!stageLayer) return false;
+    var stageHeight = stageLayer.getBoundingClientRect().height;
+    return stageHeight > 0 && stageHeight <= window.innerHeight - 96;
+  }
+
+  function enablePin() {
+    if (pinned) return;
+
+    var layer = document.createElement('div');
+    layer.className = 'scene__stage';
+    layer.setAttribute('aria-hidden', 'true'); // кадры декоративны, текст остаётся в разметке
+
+    for (var i = 0; i < stages.length; i++) {
+      var figure = stages[i].querySelector('.stage__figure');
+      var frame = figure ? figure.querySelector('.frame') : null;
+      if (frame) layer.appendChild(frame.cloneNode(true));
+    }
+
+    if (!layer.childNodes.length) return;
+
+    scene.insertBefore(layer, scene.firstChild);
+    stageLayer = layer;
+    activeIndex = -1;
+    scene.classList.add('is-pinned');
+    pinned = true;
+  }
+
+  function disablePin() {
+    if (!pinned) return;
+    scene.classList.remove('is-pinned');
+    if (stageLayer && stageLayer.parentNode) stageLayer.parentNode.removeChild(stageLayer);
+    stageLayer = null;
+    pinned = false;
+    activeIndex = -1;
+    boundaries = [];
+    for (var j = 0; j < stages.length; j++) stages[j].classList.remove('is-active');
+  }
+
+  function measure() {
+    boundaries = [];
+    if (!pinned) return;
+
+    var centers = [];
+    for (var i = 0; i < stages.length; i++) {
+      var rect = stages[i].getBoundingClientRect();
+      centers.push(rect.top + window.scrollY + rect.height / 2);
+    }
+    boundaries = midpoints(centers);
+  }
+
+  function update() {
+    if (!pinned) return;
+    var focus = window.scrollY + window.innerHeight * 0.45;
+    setActive(pickStage(focus, boundaries));
+  }
+
+  function scheduleUpdate() {
+    if (frameRequest) return;
+    frameRequest = nextFrame(function () {
+      frameRequest = 0;
+      update();
+    });
+  }
+
+  // Единая точка приведения сцены к текущим условиям. Пользователя она не прокручивает.
+  function syncScene(remeasure) {
+    if (!scene) return;
+
+    if (!pinAllowed()) {
+      disablePin();
+      return;
+    }
+
+    if (!pinned) {
+      enablePin();
+      if (!pinFits()) {
+        disablePin();
+        return;
+      }
+      remeasure = true;
+    }
+    if (remeasure) measure();
+    update();
+  }
+
+  /* --- Схема сгиба ------------------------------------------------------- */
+
+  var scheme = document.getElementById('scheme');
+  var foldButton = document.getElementById('fold-btn');
+  var caption = document.getElementById('scheme-caption');
+
+  if (scheme && foldButton) {
+    // Базовая разметка скрывает кнопку: без скрипта она была бы неработающей.
+    foldButton.hidden = false;
+
+    foldButton.addEventListener('click', function () {
+      var next = toggleFold(scheme.getAttribute('data-fold'));
+      var folded = next === 'folded';
+
+      scheme.setAttribute('data-fold', next);
+      foldButton.textContent = labelFor(folded);
+      if (caption) caption.textContent = captionFor(folded);
+    });
+  }
+
+  /* --- Запуск ------------------------------------------------------------ */
+
+  if (toggle) {
+    toggle.addEventListener('click', function () {
+      manualReduced = !manualReduced;
+      saveManual(manualReduced);
+      renderMotion();
+      syncScene(true); // положение чтения сохраняется
+    });
+  }
+
+  function onSystemMotionChange() {
+    renderMotion();
+    syncScene(true);
+  }
+
+  if (typeof reduceQuery.addEventListener === 'function') {
+    reduceQuery.addEventListener('change', onSystemMotionChange);
+  } else if (typeof reduceQuery.addListener === 'function') {
+    reduceQuery.addListener(onSystemMotionChange);
+  }
+
+  window.addEventListener('scroll', scheduleUpdate, { passive: true });
+  window.addEventListener('resize', function () { syncScene(true); }, { passive: true });
+  window.addEventListener('load', function () { syncScene(true); });
+
+  renderMotion();
+  syncScene(true);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "fold-line",
+  "version": "1.0.0",
+  "private": true,
+  "description": "«Линия сгиба» — автономный скролл-сайт вымышленной мастерской бумажных объектов. Без runtime-зависимостей.",
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node build.mjs && node scripts/check.mjs",
+    "figures": "node scripts/preview-figures.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
