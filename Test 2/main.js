@@ -45,6 +45,19 @@
   function labelFor(folded) { return folded ? 'Вернуть плоскость' : 'Показать сгиб'; }
   function toggleFold(current) { return current === 'folded' ? 'flat' : 'folded'; }
 
+  // Эффективное уменьшение движения = системное ИЛИ ручное. Функция чистая, без
+  // обращения к matchMedia: все четыре сочетания проверяет scripts/check.mjs.
+  function effectiveReduced(systemMatches, manual) {
+    return systemMatches === true || manual === true;
+  }
+
+  // Текст заметки: системная настройка важнее ручной и объясняет, почему
+  // переключатель заблокирован.
+  function motionNote(systemMatches, manual) {
+    if (systemMatches === true) return 'Движение уменьшено системной настройкой.';
+    return manual === true ? 'Движение уменьшено вручную.' : 'Движение включено.';
+  }
+
   if (typeof document === 'undefined') {
     if (typeof module !== 'undefined' && module.exports) {
       module.exports = {
@@ -53,6 +66,8 @@
         captionFor: captionFor,
         labelFor: labelFor,
         toggleFold: toggleFold,
+        effectiveReduced: effectiveReduced,
+        motionNote: motionNote,
         FLAT_CAPTION: FLAT_CAPTION,
         FOLDED_CAPTION: FOLDED_CAPTION
       };
@@ -98,7 +113,7 @@
   }
 
   // Эффективное уменьшение движения = системное ИЛИ ручное.
-  function reducedNow() { return reduceQuery.matches || manualReduced; }
+  function reducedNow() { return effectiveReduced(reduceQuery.matches, manualReduced); }
 
   function renderMotion() {
     var reduced = reducedNow();
@@ -114,9 +129,7 @@
 
     if (note) {
       note.hidden = false;
-      note.textContent = reduceQuery.matches
-        ? 'Движение уменьшено системной настройкой.'
-        : (manualReduced ? 'Движение уменьшено вручную.' : 'Движение включено.');
+      note.textContent = motionNote(reduceQuery.matches, manualReduced);
     }
   }
 
@@ -223,23 +236,61 @@
     });
   }
 
-  // Единая точка приведения сцены к текущим условиям. Пользователя она не прокручивает.
+  // Место чтения: ближайшая к линии чтения стадия. Нужна, чтобы перенести читателя
+  // через смену раскладки, а не оставить его на прежней координате прокрутки.
+  function readingAnchor() {
+    if (!stages.length) return null;
+
+    var line = window.innerHeight * 0.45;
+    var best = null;
+    for (var i = 0; i < stages.length; i++) {
+      var rect = stages[i].getBoundingClientRect();
+      // Раскладка сдвигает только то, что попадает на экран; если все стадии вне
+      // него, компенсировать нечего и трогать прокрутку нельзя.
+      if (rect.bottom <= 0 || rect.top >= window.innerHeight) continue;
+      var distance = Math.abs(rect.top - line);
+      if (!best || distance < best.distance) best = { el: stages[i], top: rect.top, distance: distance };
+    }
+    return best;
+  }
+
+  // Мгновенный возврат к прежнему месту чтения: плавный возврат выглядел бы движением,
+  // которого пользователь не просил.
+  function keepReadingPlace(anchor) {
+    if (!anchor) return;
+    var delta = anchor.el.getBoundingClientRect().top - anchor.top;
+    if (Math.abs(delta) < 1) return;
+    var previous = root.style.scrollBehavior;
+    root.style.scrollBehavior = 'auto';
+    window.scrollBy(0, delta);
+    root.style.scrollBehavior = previous;
+  }
+
+  // Единая точка приведения сцены к текущим условиям. Раскладка меняется только здесь,
+  // поэтому место чтения восстанавливается здесь же.
   function syncScene(remeasure) {
     if (!scene) return;
 
+    var wasPinned = pinned;
+    var anchor = readingAnchor();
+
     if (!pinAllowed()) {
       disablePin();
-      return;
+    } else if (!pinned) {
+      enablePin();
+      if (pinFits()) {
+        remeasure = true;
+      } else {
+        disablePin();
+      }
+    } else if (!pinFits()) {
+      // Сцена уже закреплена: окно могло стать ниже или кадр выше. Без повторной
+      // проверки вместимости на коротком экране остался бы пустой закреплённый экран.
+      disablePin();
     }
 
-    if (!pinned) {
-      enablePin();
-      if (!pinFits()) {
-        disablePin();
-        return;
-      }
-      remeasure = true;
-    }
+    if (wasPinned !== pinned) keepReadingPlace(anchor);
+
     if (remeasure) measure();
     update();
   }
@@ -271,7 +322,7 @@
       manualReduced = !manualReduced;
       saveManual(manualReduced);
       renderMotion();
-      syncScene(true); // положение чтения сохраняется
+      syncScene(true); // место чтения удерживает сам syncScene
     });
   }
 

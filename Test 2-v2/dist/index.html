@@ -1,0 +1,2029 @@
+<!doctype html>
+<html lang="ru" data-motion="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Линия сгиба — мастерская бумажных объектов</title>
+<meta name="description" content="Линия сгиба — вымышленная мастерская бумажных объектов. Один лист меняет форму вместе с прокруткой: от плоскости к объёму, и первая самостоятельная проба без инструментов и опыта.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20fill='%23161513'/%3E%3Cpath%20d='M4%2026%20L28%2018%20L28%2013%20L4%2021%20Z'%20fill='%23ece5d6'/%3E%3Cpath%20d='M4%2021%20L28%2013%20L28%208%20L4%2016%20Z'%20fill='%23c9c0ad'/%3E%3Cpath%20d='M4%2021%20L28%2013'%20stroke='%23b8420f'%20stroke-width='2'/%3E%3C/svg%3E">
+<style>
+/* ==========================================================================
+   «Линия сгиба», вторая версия — стили одного документа.
+   Порядок: токены → база → доступность → шапка → лист и сцена → полоса
+   рассказа → проба и схема → вопросы → подвал → режимы и узкие экраны.
+
+   Одно правило держит всю композицию: светлое — это бумага, тёмное — стол.
+   Ни один элемент интерфейса не притворяется бумагой, и наоборот.
+   Внешних ссылок и шрифтов нет: только системные гарнитуры и локальные файлы.
+   ========================================================================== */
+
+/* --- Токены ------------------------------------------------------------- */
+
+:root {
+  color-scheme: dark;
+
+  /* Тёмный стол */
+  --field:        #16150f;
+  --field-deep:   #100f0a;
+  --field-soft:   #201e17;
+
+  /* Бумага */
+  --paper:        #ece5d6;
+  --paper-deep:   #c9c0ad;
+  --paper-shadow: #8f8877;
+
+  /* Текст на бумаге */
+  --ink:          #1c1a15;
+  --ink-soft:     #4a463c;
+
+  /* Текст на столе */
+  --chalk:        #f4efe4;
+  --chalk-soft:   #b3ac9c;
+
+  /* Один акцент: вермильон линии сгиба */
+  --crease:       #b8420f;
+  --crease-light: #e07a3c;
+
+  /* Границы интерактивных элементов на столе: не слабее 3:1 к фону */
+  --edge:         #8b8471;
+  --hair:         rgba(244, 239, 228, 0.16);
+  --hair-strong:  rgba(244, 239, 228, 0.32);
+
+  --maxw: 74rem;
+  --pad: clamp(1.1rem, 4vw, 3.5rem);
+  --header-h: 3.5rem;
+
+  /* Печатный блок: ширина в локальных пикселях плоскости листа (1 мм = K px,
+     K = 4.5 в main.js). Совпадает с printWidth пресета сцены: 46 rem — это
+     163 мм из 210 мм ширины листа, то есть блок заведомо внутри бумаги. */
+  --print-w: 46rem;
+
+  --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+  --font-text: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "Cascadia Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --scene-aspect: 1180 / 720;
+  /* То же отношение числом: нужно там, где высоту коробки листа ограничивают
+     через max-width, а не через aspect-ratio. */
+  --scene-ratio: 1.6389;
+}
+
+/* Кнопки и подписи, которые включает JavaScript, скрыты в базовой разметке.
+   Правило должно побеждать любой display из классов, иначе без JS останутся
+   видимые, но неработающие элементы управления. */
+[hidden] { display: none !important; }
+
+/* --- База --------------------------------------------------------------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 1rem);
+}
+
+body {
+  margin: 0;
+  background: var(--field);
+  color: var(--chalk);
+  font-family: var(--font-text);
+  font-size: 1.0625rem;
+  line-height: 1.62;
+  overflow-wrap: break-word;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+p { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+figure { margin: 0; }
+img, svg { max-width: 100%; }
+a { color: inherit; }
+
+/* Осмысленные ссылки в тексте видны как ссылки, а не только по цвету. */
+main a:not(.btn) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: var(--crease-light);
+}
+
+.js main a:not(.btn) { text-decoration-color: var(--crease-light); }
+
+/* --- Фокус и переходы --------------------------------------------------- */
+
+:focus-visible {
+  outline: 3px solid var(--chalk);
+  outline-offset: 3px;
+}
+
+.skip {
+  position: absolute;
+  top: 0.7rem;
+  left: 0.9rem;
+  z-index: 40;
+  padding: 0.6rem 0.95rem;
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 2px;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-250%);
+  transition: transform 0.15s ease;
+}
+
+.skip:focus { transform: translateY(0); }
+
+.btn {
+  display: inline-block;
+  padding: 0.82rem 1.35rem;
+  border: 0;
+  border-radius: 2px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.btn:hover { background: var(--paper-deep); }
+
+.card .btn {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.card .btn:hover { background: var(--ink-soft); }
+
+/* --- Макет ------------------------------------------------------------- */
+
+.wrap {
+  width: min(100% - 2 * var(--pad), var(--maxw));
+  margin-inline: auto;
+}
+
+.mono,
+.head__num,
+.steps__num,
+.print__label,
+.note__num,
+.readout__label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* --- Шапка -------------------------------------------------------------- */
+
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--field);
+  border-bottom: 1px solid var(--hair);
+}
+
+.top__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1.4rem;
+  min-height: var(--header-h);
+  padding-block: 0.35rem;
+}
+
+.mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-display);
+  font-size: 1.06rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.mark__glyph { width: 1.5rem; height: 1.5rem; }
+.mark__glyph path { fill: var(--paper); }
+.mark__glyph path:last-of-type { fill: var(--paper-deep); }
+.mark__glyph .mark__crease { fill: none; stroke: var(--crease-light); stroke-width: 1.4; }
+
+.top__nav { margin-inline-start: auto; }
+
+.nav { display: flex; gap: 1.2rem; }
+
+.nav a {
+  text-decoration: none;
+  font-size: 0.94rem;
+  color: var(--chalk-soft);
+  border-bottom: 1px solid transparent;
+  padding-block: 0.3rem;
+}
+
+.nav a:hover { color: var(--chalk); border-bottom-color: var(--crease-light); }
+
+.motion { display: flex; align-items: center; gap: 0.7rem; }
+
+.motion__btn {
+  padding: 0.5rem 0.8rem;
+  background: transparent;
+  color: var(--chalk);
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+  font: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.motion__btn[aria-pressed="true"] { border-color: var(--crease-light); color: var(--crease-light); }
+.motion__btn:disabled { opacity: 0.72; cursor: default; }
+.motion__note { font-size: 0.82rem; color: var(--chalk-soft); }
+
+/* --- Лист и сцена ------------------------------------------------------ */
+
+.fold { position: relative; }
+
+.fold__stage { position: relative; }
+
+/* Коробка листа: общая система координат для двух SVG-слоёв и печатного
+   блока. В закреплённом режиме она совпадает со сценой, в статичном — задаёт
+   высоту листа в потоке и оставляет полосу рассказа ниже. */
+.fold__sheet { position: relative; aspect-ratio: var(--scene-aspect); }
+
+/* Печатный слой: заголовок лежит в плоскости листа и пересчитывается из кадра.
+   Без скрипта он остаётся обычным блоком — тогда разметку читают как рассказ. */
+.print {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: var(--print-w);
+  transform-origin: 0 0;
+  color: var(--ink);
+  pointer-events: none;
+}
+
+/* Надпись на бумаге — часть печати, а не интерфейс: размер в миллиметрах листа.
+   При 1 мм = 4,5 локальных пикселя 1.6 rem ≈ 5,7 мм — читается на оттиске. */
+.print__label {
+  color: var(--ink);
+  font-size: 2.2rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.7rem;
+}
+
+/* 7.5 rem ≈ 27 мм строки: три строки с надписью занимают около 87 мм из
+   148 мм ближней половины, поэтому блок остаётся внутри бумаги на всех кадрах. */
+.print__title {
+  font-size: 7.5rem;
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+}
+
+/* Без скрипта ни проекции, ни кадров нет: лист не рисуется, а заголовок
+   получает обычный размер и место в потоке. */
+html:not(.js) .fold__sheet { aspect-ratio: auto; }
+html:not(.js) .scene { display: none; }
+html:not(.js) .print { position: static; width: auto; max-width: 26rem; margin-bottom: 2.4rem; }
+html:not(.js) .print__title { font-size: clamp(2.4rem, 9vw, 4.6rem); }
+
+.scene { position: absolute; inset: 0; pointer-events: none; }
+.scene__svg { display: block; width: 100%; height: 100%; }
+
+.scene__paper { fill: var(--paper); stroke: var(--paper-shadow); stroke-width: 0.7; }
+.scene__shade { fill: var(--field-deep); }
+.scene__shadow { fill: var(--field-deep); }
+.scene__edge { fill: var(--paper-deep); }
+.scene__ghost { fill: none; stroke: var(--chalk-soft); stroke-width: 0.8; stroke-dasharray: 5 6; opacity: 0.5; }
+.scene__hint { fill: none; stroke: var(--crease); stroke-width: 1; stroke-dasharray: 3 7; }
+.scene__crease { fill: none; stroke: var(--crease); stroke-width: 1.6; }
+
+/* --- Полоса рассказа ---------------------------------------------------- */
+
+.bar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+
+.bar__slot { display: grid; }
+.bar__hero, .bar__story { grid-area: 1 / 1; }
+
+.bar__lede {
+  max-width: 32ch;
+  font-size: 1.06rem;
+  color: var(--chalk-soft);
+}
+
+.bar__hint {
+  margin-top: 0.9rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--hair);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  color: var(--chalk-soft);
+}
+
+.bar__title { font-size: clamp(1.6rem, 2.4vw, 2.1rem); margin-bottom: 1rem; }
+
+.notes { display: grid; gap: 0.9rem; }
+.note { grid-area: 1 / 1; }
+
+.note__num { color: var(--crease-light); }
+.note__name { font-size: clamp(1.5rem, 2.4vw, 2rem); margin: 0.35rem 0 0.4rem; }
+.note__text { color: var(--chalk-soft); max-width: 30ch; }
+.note__frame { display: none; }
+
+.bar__meta { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.readout { display: flex; align-items: baseline; gap: 0.6rem; }
+.readout__label { color: var(--chalk-soft); }
+.readout__value { font-family: var(--font-mono); font-size: 1.1rem; color: var(--chalk); }
+
+.rule {
+  height: 2px;
+  background: var(--hair);
+  overflow: clip;
+}
+
+.rule__fill {
+  display: block;
+  height: 100%;
+  background: var(--crease-light);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+.bar__action { margin: 0; }
+
+/* --- Обычный режим: лист закреплён, полоса лежит поверх сцены ----------- */
+
+.fold.is-live { height: 420svh; }
+
+.fold.is-live .fold__stage {
+  position: sticky;
+  top: var(--header-h);
+  height: calc(100svh - var(--header-h));
+  overflow: clip;
+}
+
+.fold.is-live .fold__sheet { position: absolute; inset: 0; aspect-ratio: auto; }
+
+.fold.is-live .bar {
+  position: absolute;
+  left: var(--pad);
+  bottom: clamp(1rem, 3.5vh, 2.4rem);
+  width: var(--bar-w, 30rem);
+}
+
+/* Узкий экран или тесное место слева: полоса уходит под лист, а лист занимает
+   верхнюю часть сцены. Текст никогда не ложится на бумагу. */
+/* Полоса под листом занимает две строки: рассказ, а под ним шкала и действие
+   в одну линию. Так у листа остаётся высота, а не только ширина экрана. */
+.fold.is-live.is-stacked .fold__stage {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: clamp(0.7rem, 2vh, 1.3rem);
+  padding-inline: var(--pad);
+  padding-bottom: clamp(0.9rem, 3vh, 1.8rem);
+}
+
+.fold.is-live.is-stacked .fold__sheet { position: relative; inset: auto; }
+
+/* В подпёртой раскладке полоса становится сеткой: рассказ во всю ширину, а под
+   ним шкала и кнопка в одну линию. Так у листа остаётся высота. */
+.fold.is-live.is-stacked .bar {
+  position: static;
+  width: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.8rem 1.2rem;
+}
+
+.fold.is-live.is-stacked .bar__slot { grid-column: 1 / -1; }
+
+/* Под листом подсказка о прокрутке не нужна: ход видно по шкале и числу. */
+.fold.is-live.is-stacked .bar__hint { display: none; }
+.fold.is-live.is-stacked .bar__meta { opacity: 1; }
+
+/* Кроссфейд блоков идёт от одного числа: прогресс сцены приходит из main.js. */
+.fold.is-live .bar__hero { opacity: clamp(0, calc((0.14 - var(--p, 0)) * 14), 1); }
+.fold.is-live .bar__story { opacity: clamp(0, calc((var(--p, 0) - 0.14) * 14), 1); }
+.fold.is-live .bar__meta { opacity: clamp(0, calc((var(--p, 0) - 0.02) * 25), 1); }
+
+.fold.is-live .note {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.fold.is-live .note.is-current { opacity: 1; }
+
+/* --- Уменьшенное движение: лист стоит, рассказ читается подряд --------- */
+
+/* Статичная история: лист, под ним весь рассказ подряд. Боковые отступы те же,
+   что в подпёртой раскладке, иначе текст упирается в край экрана. */
+.fold.is-static .fold__stage {
+  display: grid;
+  gap: clamp(1.6rem, 4vh, 2.6rem);
+  padding-inline: var(--pad);
+}
+
+/* Коробка листа в статичном режиме. Ширина задана явно, потому что все дети
+   коробки позиционированы абсолютно: без ширины автоотступы сжимали её
+   до нуля, и вместе с ней пропадала вся статика: ни листа, ни заголовка.
+   Предел высоты задан через ширину — высота выводится из пропорции кадра. */
+.fold.is-static .fold__sheet {
+  position: relative;
+  aspect-ratio: var(--scene-aspect);
+  width: 100%;
+  max-width: calc(78svh * var(--scene-ratio));
+  margin-inline: auto;
+}
+
+.fold.is-static .bar { position: static; }
+
+/* Подсказка «прокрутите — лист меняет форму» в статичном режиме просто
+   неправда: лист стоит. Вместо неё о режиме сообщает шапка. */
+.fold.is-static .bar__hint { display: none; }
+
+.fold.is-static .bar__hero,
+.fold.is-static .bar__story,
+.fold.is-static .bar__meta { opacity: 1; }
+
+.fold.is-static .note,
+.fold.is-static .bar__story { grid-area: auto; }
+
+.fold.is-static .notes { gap: 2rem; }
+
+.fold.is-static .note__frame {
+  display: block;
+  margin-top: 1rem;
+  max-width: 26rem;
+}
+
+.fold.is-static .note__frame .frame {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--hair);
+}
+
+/* --- Разметка фигуры листа (статичные кадры и схема) ------------------- */
+
+.frame,
+.scheme__svg { display: block; }
+
+.sheet__paper, .f-near, .f-lift { fill: var(--paper); stroke: var(--paper-shadow); stroke-width: 0.7; }
+.sheet__ghost, .f-ghost { fill: none; stroke: var(--chalk-soft); stroke-width: 0.8; stroke-dasharray: 5 6; opacity: 0.5; }
+.sheet__hint, .f-hint { fill: none; stroke: var(--crease); stroke-width: 1; stroke-dasharray: 3 7; }
+.sheet__crease, .f-crease { fill: none; stroke: var(--crease); stroke-width: 1.6; }
+.sheet__shadow, .f-shadow { fill: var(--field-deep); fill-opacity: 0.5; }
+.f-nearShadow { fill: var(--field-deep); fill-opacity: 0.5; }
+.f-liftShade, .sheet__shade { fill: var(--field-deep); }
+.f-edge, .sheet__edge { fill: var(--paper-deep); }
+
+/* --- Проба ------------------------------------------------------------- */
+
+.try, .faq { padding-block: clamp(3.4rem, 9vh, 7rem); }
+
+.head {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  gap: 1rem;
+  align-items: start;
+  padding-bottom: 1.6rem;
+  border-bottom: 1px solid var(--hair);
+  margin-bottom: clamp(1.8rem, 5vh, 3rem);
+}
+
+.head__num { color: var(--crease-light); padding-top: 0.5rem; }
+.head__title { font-size: clamp(2rem, 4.6vw, 3.4rem); }
+.head__lede { margin-top: 0.9rem; max-width: 34ch; color: var(--chalk-soft); }
+
+.try__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(1.8rem, 5vw, 3.6rem);
+  align-items: start;
+}
+
+.steps { border-top: 1px solid var(--hair); }
+
+.steps__item {
+  display: grid;
+  grid-template-columns: 5rem 1fr;
+  gap: 1rem;
+  padding-block: 1.35rem;
+  border-bottom: 1px solid var(--hair);
+}
+
+.steps__num { color: var(--chalk-soft); padding-top: 0.3rem; }
+.steps__text { max-width: 30ch; }
+
+.try__note {
+  margin-top: clamp(1.8rem, 5vh, 3rem);
+  padding-left: 6rem;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-style: italic;
+  color: var(--chalk-soft);
+}
+
+/* Карточка схемы — единственная светлая поверхность раздела: это бумага. */
+.card {
+  background: var(--paper);
+  color: var(--ink);
+  padding: clamp(1rem, 2.4vw, 1.6rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card__frame {
+  background: var(--paper-deep);
+  padding: 0.6rem;
+}
+
+.scheme__svg { width: 100%; height: auto; }
+.card__caption { color: var(--ink-soft); font-size: 0.98rem; }
+.card__control { display: flex; }
+
+/* --- Вопросы ----------------------------------------------------------- */
+
+.faq__list { border-top: 1px solid var(--hair); }
+
+.faq__item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 1.4rem;
+  padding-block: 1.5rem;
+  border-bottom: 1px solid var(--hair);
+}
+
+.faq__item dt { font-family: var(--font-display); font-size: 1.3rem; }
+.faq__item dd { margin: 0; color: var(--chalk-soft); max-width: 34ch; }
+
+/* --- Подвал ------------------------------------------------------------ */
+
+.foot {
+  padding-block: clamp(2.4rem, 6vh, 4rem);
+  border-top: 1px solid var(--hair);
+}
+
+.foot__inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.foot__mark { font-family: var(--font-display); font-size: 1.2rem; }
+.foot__note { color: var(--chalk-soft); max-width: 44ch; font-size: 0.92rem; }
+
+/* --- Режимы движения и узкие экраны ----------------------------------- */
+
+@media (max-width: 47.99rem) {
+  :root { --scene-aspect: 760 / 1040; --scene-ratio: 0.7308; }
+
+  /* Шапка в две строки: знак и переключатель, ниже — навигация. */
+  .mark { order: 1; }
+  .motion { order: 2; margin-inline-start: auto; }
+  .top__nav { order: 3; width: 100%; margin-inline-start: 0; }
+  .nav { justify-content: space-between; }
+
+  .bar__lede { max-width: 46ch; }
+
+  .try__grid { grid-template-columns: minmax(0, 1fr); }
+  .steps__item { grid-template-columns: 4.2rem 1fr; }
+  .try__note { padding-left: 0; }
+  .faq__item { grid-template-columns: minmax(0, 1fr); gap: 0.5rem; }
+  .head { grid-template-columns: 2.4rem 1fr; }
+
+  .bar__lede { font-size: 0.98rem; line-height: 1.52; }
+
+  /* Подпёртая раскладка отдаёт высоту листу: заголовок рассказа и заметки
+     сжимаются, а не растягивают полосу. */
+  .fold.is-live.is-stacked .bar__slot { align-content: end; }
+  .fold.is-live.is-stacked .bar__title { font-size: 1.15rem; margin-bottom: 0.5rem; }
+  .fold.is-live.is-stacked .note__name { font-size: 1.3rem; margin: 0.25rem 0 0.3rem; }
+  .fold.is-live.is-stacked .note__text { font-size: 0.95rem; line-height: 1.45; }
+}
+
+@media (max-width: 22rem) {
+  .print__title { font-size: 8rem; }
+}
+
+/* Уменьшение движения: убираем переходы и наведение, но не содержание.
+   Прокрутка остаётся нативной, состояния меняются мгновенно. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+[data-motion="reduced"] *,
+[data-motion="reduced"] *::before,
+[data-motion="reduced"] *::after {
+  transition-duration: 0.01ms !important;
+  animation-duration: 0.01ms !important;
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Перейти к содержанию</a>
+
+<header class="top">
+  <div class="wrap top__inner">
+    <a class="mark" href="#top">
+      <svg class="mark__glyph" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M2 19 L22 13 L22 16 L2 22 Z"/>
+        <path d="M2 19 L22 13 L22 10 L2 16 Z"/>
+        <path class="mark__crease" d="M2 16 L22 10"/>
+      </svg>
+      <span class="mark__text">Линия сгиба</span>
+    </a>
+
+    <nav class="top__nav" aria-label="Разделы страницы">
+      <ul class="nav">
+        <li><a href="#top">Лист</a></li>
+        <li><a href="#first-fold">Первая проба</a></li>
+        <li><a href="#faq">Вопросы</a></li>
+      </ul>
+    </nav>
+
+    <div class="motion">
+      <button type="button" class="motion__btn" id="motion-toggle" aria-pressed="false" aria-describedby="motion-note" hidden>Уменьшить движение</button>
+      <p class="motion__note" id="motion-note" hidden>Движение включено.</p>
+    </div>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <!-- 01. Первый экран и единственная движущаяся сцена: сам лист -->
+  <section class="fold" id="top" aria-labelledby="fold-title">
+    <div class="fold__stage" data-stage>
+     <div class="fold__sheet" data-sheet>
+
+      <div class="scene scene--under">
+        <svg class="scene__svg" data-scene="under" viewBox="0 0 1180 720" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+          <defs>
+            <filter id="scene-blur-near" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="7"/>
+            </filter>
+            <filter id="scene-blur-lift" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="11"/>
+            </filter>
+          </defs>
+          <g filter="url(#scene-blur-near)">
+            <polygon class="scene__shadow" data-shape="nearShadow" opacity="0.5" points="608.2,347.3 1020.5,324.1 1063.2,542.6 616.9,569.9"/>
+          </g>
+          <g filter="url(#scene-blur-lift)">
+            <polygon class="scene__shadow" data-shape="shadow" opacity="0.22" points="604,350.6 1016.8,327.3 1091.1,174.7 702.9,195.4"/>
+          </g>
+          <polygon class="scene__ghost" data-shape="ghost" points="604,350.6 1016.8,327.3 980.4,139.3 596.9,159.4"/>
+          <polygon class="scene__paper" data-shape="near" points="604,350.6 1016.8,327.3 1059.2,546.4 612.3,573.8"/>
+          <path class="scene__hint" data-path="hint" d="M604 350.1 L1016.8 326.7"/>
+          <path class="scene__crease" data-path="crease" d="M604 350.6 L1016.8 327.3"/>
+        </svg>
+      </div>
+
+      <!-- Заголовок напечатан в плоскости листа: ту же матрицу считает main.js -->
+      <div class="print" data-print>
+        <p class="print__label">Мастерская бумажных объектов</p>
+        <h1 class="print__title" id="fold-title">Из плоскости — в форму</h1>
+      </div>
+
+      <div class="scene scene--over">
+        <svg class="scene__svg" data-scene="over" viewBox="0 0 1180 720" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+          <defs>
+            <filter id="scene-blur-cast" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="11"/>
+            </filter>
+          </defs>
+          <g filter="url(#scene-blur-cast)">
+            <polygon class="scene__shadow" data-shape="shadow" opacity="0.22" points="604,350.6 1016.8,327.3 1091.1,174.7 702.9,195.4"/>
+          </g>
+          <polygon class="scene__paper" data-shape="lift" points="604,350.6 1016.8,327.3 1014.5,42.6 585.9,64.2"/>
+          <polygon class="scene__shade" data-shape="liftShade" opacity="0" points="604,350.6 1016.8,327.3 1014.5,42.6 585.9,64.2"/>
+          <polygon class="scene__edge" data-shape="edge" points="585.9,64.2 1014.5,42.6 1014.3,42.3 585.9,63.9"/>
+        </svg>
+      </div>
+     </div>
+
+      <div class="bar">
+        <div class="bar__slot">
+          <div class="bar__hero">
+            <p class="bar__lede">Линия сгиба — вымышленная мастерская бумажных объектов. Здесь обычный лист становится поводом посмотреть на форму по-новому. Начните с одного сгиба: инструменты и опыт не нужны.</p>
+            <p class="bar__hint">Прокрутите страницу: лист меняет форму вместе с прокруткой, и назад — так же.</p>
+          </div>
+
+          <div class="bar__story">
+            <h2 class="bar__title" id="story-title">Три состояния одного сгиба</h2>
+            <ol class="notes">
+              <li class="note" data-note="0">
+                <p class="note__num" aria-hidden="true">01</p>
+                <h3 class="note__name">Плоскость</h3>
+                <p class="note__text">Перед вами чистый лист.</p>
+                <figure class="note__frame" aria-hidden="true">
+                  <svg class="frame" viewBox="0 0 420 300" aria-hidden="true" focusable="false">
+                    <polygon class="f-shadow" points="116,178.1 283.1,135.8 245.1,44.8 85.6,83"/>
+                    <polygon class="f-nearShadow" points="117.3,176.2 284.2,133.9 326.5,234.7 151.2,281.8"/>
+                    <polygon class="f-ghost" points="116,178.1 283.1,135.8 245.1,44.8 85.6,83"/>
+                    <polygon class="f-near" points="116,178.1 283.1,135.8 325.3,236.8 149.8,284"/>
+                    <polygon class="f-lift" points="116,178.1 283.1,135.8 245.1,44.8 85.6,83"/>
+                    <polygon class="f-liftShade" opacity="0.016" points="116,178.1 283.1,135.8 245.1,44.8 85.6,83"/>
+                    <polygon class="f-edge" points="85.6,83 245.1,44.8 245.1,45.1 85.7,83.3"/>
+                    <path class="f-hint" d="M116 177.9 L283.1 135.6"/>
+                    <path class="f-crease" d="M116 178.1 L283.1 135.8"/>
+                  </svg>
+                </figure>
+              </li>
+
+              <li class="note" data-note="1">
+                <p class="note__num" aria-hidden="true">02</p>
+                <h3 class="note__name">Линия</h3>
+                <p class="note__text">Сгиб задаёт направление.</p>
+                <figure class="note__frame" aria-hidden="true">
+                  <svg class="frame" viewBox="0 0 420 300" aria-hidden="true" focusable="false">
+                    <polygon class="f-shadow" points="116,178.1 283.1,135.8 275.3,37.1 117.3,75"/>
+                    <polygon class="f-nearShadow" points="117.3,176.2 284.2,133.9 326.5,234.7 151.2,281.8"/>
+                    <polygon class="f-ghost" points="116,178.1 283.1,135.8 245.1,44.8 85.6,83"/>
+                    <polygon class="f-near" points="116,178.1 283.1,135.8 325.3,236.8 149.8,284"/>
+                    <polygon class="f-lift" points="116,178.1 283.1,135.8 257.4,15.9 87.1,56.1"/>
+                    <polygon class="f-liftShade" opacity="0.015" points="116,178.1 283.1,135.8 257.4,15.9 87.1,56.1"/>
+                    <polygon class="f-edge" points="87.1,56.1 257.4,15.9 257.3,15.9 87,56.1"/>
+                    <path class="f-hint" d="M116 177.9 L283.1 135.6"/>
+                    <path class="f-crease" d="M116 178.1 L283.1 135.8"/>
+                  </svg>
+                </figure>
+              </li>
+
+              <li class="note" data-note="2">
+                <p class="note__num" aria-hidden="true">03</p>
+                <h3 class="note__name">Нахлёст</h3>
+                <p class="note__text">Половина проходит вертикаль и ложится поверх листа.</p>
+                <figure class="note__frame" aria-hidden="true">
+                  <svg class="frame" viewBox="0 0 420 300" aria-hidden="true" focusable="false">
+                    <polygon class="f-shadow" points="116,178.1 283.1,135.8 330.3,137 164.2,179.4"/>
+                    <polygon class="f-nearShadow" points="117.3,176.2 284.2,133.9 326.5,234.7 151.2,281.8"/>
+                    <polygon class="f-ghost" points="116,178.1 283.1,135.8 245.1,44.8 85.6,83"/>
+                    <polygon class="f-near" points="116,178.1 283.1,135.8 325.3,236.8 149.8,284"/>
+                    <polygon class="f-lift" points="116,178.1 283.1,135.8 310.4,117.1 125.8,163.6"/>
+                    <polygon class="f-liftShade" opacity="0.256" points="116,178.1 283.1,135.8 310.4,117.1 125.8,163.6"/>
+                    <polygon class="f-edge" points="125.8,163.6 310.4,117.1 310.6,117.6 126,164.1"/>
+                    <path class="f-hint" d="M116 177.9 L283.1 135.6"/>
+                    <path class="f-crease" d="M116 178.1 L283.1 135.8"/>
+                  </svg>
+                </figure>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="bar__meta">
+          <p class="readout"><span class="readout__label">Угол сгиба</span> <b class="readout__value" data-readout>0°</b></p>
+          <p class="rule" aria-hidden="true"><i class="rule__fill" data-rule></i></p>
+        </div>
+
+        <p class="bar__action">
+          <a class="btn" href="#first-fold">Попробовать первый сгиб</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02. Самостоятельная проба: три шага и отдельная схема с ручным сгибом -->
+  <section class="try" id="first-fold" aria-labelledby="try-title">
+    <div class="wrap">
+      <header class="head">
+        <p class="head__num">02</p>
+        <div class="head__text">
+          <h2 class="head__title" id="try-title">Сначала попробуйте</h2>
+          <p class="head__lede">Один лист, стол и пять минут. Всё, что нужно, уже под рукой.</p>
+        </div>
+      </header>
+
+      <div class="try__grid">
+        <ol class="steps">
+          <li class="steps__item">
+            <p class="steps__num" aria-hidden="true">Шаг 1</p>
+            <p class="steps__text">Подготовьте обычный лист бумаги и свободное место на столе.</p>
+          </li>
+          <li class="steps__item">
+            <p class="steps__num" aria-hidden="true">Шаг 2</p>
+            <p class="steps__text">Сложите лист пополам и раскройте. Найдите получившуюся линию.</p>
+          </li>
+          <li class="steps__item">
+            <p class="steps__num" aria-hidden="true">Шаг 3</p>
+            <p class="steps__text">Приподнимите одну сторону и посмотрите, как меняется силуэт.</p>
+          </li>
+        </ol>
+
+        <figure class="card" id="scheme" data-fold="flat">
+          <div class="card__frame">
+            <svg class="scheme__svg" viewBox="0 0 560 380" role="img" aria-label="Схема листа бумаги и его сгиба">
+              <defs>
+                <filter id="scheme-blur" x="-30%" y="-30%" width="160%" height="160%">
+                  <feGaussianBlur stdDeviation="8"/>
+                </filter>
+              </defs>
+              <g filter="url(#scheme-blur)">
+                <polygon class="sheet__shape sheet__shadow" data-shape="nearShadow" opacity="0.5" points="155.5,222.2 377,174.2 427.5,305.4 193.9,359.3"/>
+                <polygon class="sheet__shape sheet__shadow" data-shape="shadow" opacity="0.22" points="153.7,224.6 375.4,176.6 330.2,58.9 119.5,102"/>
+              </g>
+              <polygon class="sheet__shape sheet__ghost" data-shape="ghost" points="153.7,224.6 375.4,176.6 330.2,58.9 119.5,102"/>
+              <polygon class="sheet__shape sheet__paper" data-shape="near" points="153.7,224.6 375.4,176.6 425.9,308 192,362"/>
+              <polygon class="sheet__shape sheet__paper" data-shape="lift" points="153.7,224.6 375.4,176.6 330.2,58.9 119.5,102"/>
+              <polygon class="sheet__shape sheet__shade" data-shape="liftShade" opacity="0.016" points="153.7,224.6 375.4,176.6 330.2,58.9 119.5,102"/>
+              <polygon class="sheet__shape sheet__edge" data-shape="edge" points="119.5,102 330.2,58.9 330.2,59.3 119.6,102.4"/>
+              <path class="sheet__hint" data-path="hint" d="M153.7 224.4 L375.4 176.3"/>
+              <path class="sheet__crease" data-path="crease" d="M153.7 224.6 L375.4 176.6"/>
+            </svg>
+          </div>
+
+          <figcaption class="card__caption" id="scheme-caption" aria-live="polite">Схема: лист лежит плоско, линия сгиба только намечена.</figcaption>
+
+          <p class="card__control">
+            <button type="button" class="btn" id="fold-btn" hidden>Показать сгиб</button>
+          </p>
+        </figure>
+      </div>
+
+      <p class="try__note">Это исследование формы, не экзамен на точность.</p>
+    </div>
+  </section>
+
+  <!-- 03. Частые вопросы -->
+  <section class="faq" id="faq" aria-labelledby="faq-title">
+    <div class="wrap">
+      <header class="head">
+        <p class="head__num">03</p>
+        <div class="head__text">
+          <h2 class="head__title" id="faq-title">Частые вопросы</h2>
+        </div>
+      </header>
+
+      <dl class="faq__list">
+        <div class="faq__item">
+          <dt>Нужна ли специальная бумага?</dt>
+          <dd>Нет, для первой пробы подойдёт обычный лист.</dd>
+        </div>
+        <div class="faq__item">
+          <dt>Нужны ли ножницы и клей?</dt>
+          <dd>В этой пробе — нет.</dd>
+        </div>
+        <div class="faq__item">
+          <dt>Что делать дальше?</dt>
+          <dd>Повторите опыт с другим направлением сгиба и сравните силуэты.</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__inner">
+    <p class="foot__mark">Линия сгиба</p>
+
+    <nav class="foot__nav" aria-label="Разделы страницы в подвале">
+      <ul class="nav">
+        <li><a href="#top">Лист</a></li>
+        <li><a href="#first-fold">Первая проба</a></li>
+        <li><a href="#faq">Вопросы</a></li>
+      </ul>
+    </nav>
+
+    <p class="foot__note">Линия сгиба — вымышленная мастерская бумажных объектов. Это демонстрационная страница: регистрации, оплаты и расписания здесь нет.</p>
+  </div>
+</footer>
+
+<script>
+/* ==========================================================================
+   «Линия сгиба» — вторая версия. Прогрессивное улучшение одного документа.
+
+   Скрипт необязателен: без него читается весь рассказ, работает навигация и
+   главное действие, а три состояния листа показаны тремя статическими кадрами.
+   Формат — классический скрипт (не module): готовый HTML открывается и по file://.
+
+   Что делает скрипт:
+   1) считает геометрию сгиба и ведёт её по прогрессу прокрутки;
+   2) печатает заголовок в плоскости листа (та же камера и та же проекция);
+   3) переключает уменьшение движения (системное ИЛИ ручное);
+   4) включает кнопку «Показать сгиб / Вернуть плоскость» у отдельной схемы.
+
+   Чистые функции вынесены наверх и доступны в Node: их проверяет scripts/check.mjs.
+   ========================================================================== */
+
+(function () {
+  'use strict';
+
+  /* ===== 1. Модель листа =================================================
+     Лист A4 лежит на плоскости стола y = 0. Ось x — вдоль ширины листа,
+     z — вдоль глубины (к камере), y — высота над столом. Линия сгиба совпадает
+     с осью x и проходит через центр: неподвижная половина уходит в +z, подвижная
+     — в -z; она поднимается, наклоняется к камере и ложится поверх неподвижной.
+
+     Камера настоящая, с перспективой: положение задаётся расстоянием, наклоном
+     phi и поворотом psi, проекция — деление на глубину. Перспектива нужна не
+     ради «3D»: без неё поднимающаяся половина листа почти не меняет силуэт,
+     потому что при ортогональной проекции стена и лежащая плоскость выглядят
+     одинаково. Глубину считает один и тот же код для SVG и для напечатанного
+     заголовка, поэтому текст лежит ровно в плоскости листа.
+     ====================================================================== */
+
+  var PAPER = { w: 210, d: 297 };
+  var HW = PAPER.w / 2;          // 105 мм от середины ширины до края
+  var HD = PAPER.d / 2;          // 148,5 мм от сгиба до дальнего края
+  var THICK = 0.55;              // толщина листа, мм
+  var K = 4.5;                   // локальных px на мм в напечатанном блоке
+  var THETA_MAX = 172;           // максимальный угол сгиба, градусы
+  // Предел тона наложения на поднятую половину. Тон принципиально небольшой:
+  // светлое на странице — это бумага, и если заливать поднятую половину
+  // сильнее, она читается как другая поверхность, серое пятно. Объём несут
+  // силуэт, линия сгиба, кромка и тень на столе, а не заливка.
+  var VEIL = 0.3;
+  var STAGE_P = 0.42;            // положение сцены без прокрутки (reduced motion)
+
+  // Направление на источник света (нормируется ниже): высоко сверху, слева и
+  // немного спереди. Высокий свет нужен по делу: поднимающаяся половина листа
+  // уходит из-под лампы и темнеет — по этому тону и читается объём.
+  var LIGHT = unit({ x: -0.36, y: 0.87, z: 0.34 });
+
+  // Пресеты сцены. vb — система координат SVG, region — доля кадра, в которую
+  // обязан поместиться объект за весь ход (слева остаётся колонка для текста),
+  // margin — запас, phi/psi/distance — дуга камеры по прогрессу (distance может
+  // сокращаться: это наезд камеры, он меняет и размер, и ракурс).
+  //
+  // Живая сцена помечена adaptive: её кадр повторяет пропорции коробки листа.
+  // Без этого пропорции кадра и коробки не совпадают, SVG вписывает систему
+  // координат по меньшей стороне (meet) и половина площади уходит в пустое поле —
+  // лист выглядит мелким островком. vb здесь — только запасное значение на
+  // первый кадр, до замера коробки.
+  var SCENES = {
+    stage: {
+      vb: [0, 0, 1000, 620], margin: 20, region: [0.40, 0, 1, 1], adaptive: true,
+      phi: [64, 21], psi: [-14, 23], distance: [1500, 1180],
+      print: { x: -92, z: 26 }, printWidth: 46
+    },
+    frame: {
+      vb: [0, 0, 420, 300], margin: 16, region: [0, 0, 1, 1],
+      phi: [56, 0], psi: [-17, 0], distance: [1500, 1500],
+      print: null, printWidth: 0
+    },
+    scheme: {
+      vb: [0, 0, 560, 380], margin: 18, region: [0, 0, 1, 1],
+      phi: [54, 0], psi: [-15, 0], distance: [1500, 1500],
+      print: null, printWidth: 0
+    }
+  };
+
+  // Углы статического рассказа и схемы сгиба.
+  var FRAME_ANGLES = [0, 42, 118];
+  var SCHEME_FLAT = 0;
+  var SCHEME_FOLDED = 104;
+  var NOTE_EDGES = [0.32, 0.62];
+
+  var FLAT_CAPTION = 'Схема: лист лежит плоско, линия сгиба только намечена.';
+  var FOLDED_CAPTION = 'Схема: одна сторона листа приподнята, силуэт изменился.';
+
+  /* --- 1.1 Мелкая арифметика -------------------------------------------- */
+
+  function unit(vector) {
+    var length = Math.sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z) || 1;
+    return { x: vector.x / length, y: vector.y / length, z: vector.z / length };
+  }
+
+  function clamp01(value) {
+    if (!isFinite(value)) return 0;
+    if (value < 0) return 0;
+    if (value > 1) return 1;
+    return value;
+  }
+
+  // Плавные концы: объект трогается и останавливается мягко, середина быстрее.
+  function ease(p) {
+    var t = clamp01(p);
+    return t * t * (3 - 2 * t);
+  }
+
+  function thetaAt(p) {
+    return THETA_MAX * ease(p);
+  }
+
+  function radians(degrees) {
+    return (degrees * Math.PI) / 180;
+  }
+
+  function mix(pair, t) {
+    return pair[0] + (pair[1] - pair[0]) * t;
+  }
+
+  // Камера по прогрессу: наклон уходит к «уровню стола» и возвращается к концу,
+  // поворот медленно доворачивает лист к смотрящему, наезд сокращает расстояние.
+  function cameraAt(scene, p) {
+    var e = ease(p);
+    return {
+      phi: scene.phi[0] - scene.phi[1] * Math.sin(Math.PI * e),
+      psi: scene.psi[0] + scene.psi[1] * e,
+      distance: mix(scene.distance, e)
+    };
+  }
+
+  // Ортонормированный базис камеры и её положение: смотрящий стоит на сфере
+  // радиуса distance вокруг центра листа.
+  function viewVectors(camera) {
+    var ph = radians(camera.phi);
+    var ps = radians(camera.psi);
+    var dir = {
+      x: Math.sin(ps) * Math.cos(ph),
+      y: Math.sin(ph),
+      z: Math.cos(ps) * Math.cos(ph)
+    };
+    var distance = camera.distance;
+    return {
+      eye: { x: distance * dir.x, y: distance * dir.y, z: distance * dir.z },
+      forward: { x: -dir.x, y: -dir.y, z: -dir.z },
+      right: { x: Math.cos(ps), y: 0, z: -Math.sin(ps) },
+      up: {
+        x: -Math.sin(ps) * Math.sin(ph),
+        y: Math.cos(ph),
+        z: -Math.cos(ps) * Math.sin(ph)
+      }
+    };
+  }
+
+  function dot(first, second) {
+    return first.x * second.x + first.y * second.y + first.z * second.z;
+  }
+
+  function relative(point, origin) {
+    return { x: point.x - origin.x, y: point.y - origin.y, z: point.z - origin.z };
+  }
+
+  // Проекция точки: деление на глубину. focal — размер кадра в пикселях
+  // (подбирается подгонкой), cx/cy — положение центра кадра.
+  function project(point, camera) {
+    var view = camera.view || viewVectors(camera);
+    var d = relative(point, view.eye);
+    var depth = dot(d, view.forward);
+    if (!(depth > 1)) depth = 1;   // защита: точка за камерой не должна ломать кадр
+    return {
+      x: camera.cx + camera.focal * (dot(d, view.right) / depth),
+      y: camera.cy - camera.focal * (dot(d, view.up) / depth)
+    };
+  }
+
+  /* --- 1.2 Форма листа -------------------------------------------------- */
+
+  // Точка подвижной половины: t — расстояние от сгиба (0…HD), theta — градусы.
+  function liftPoint(x, t, theta) {
+    var a = radians(theta);
+    return { x: x, y: t * Math.sin(a), z: -t * Math.cos(a) };
+  }
+
+  function normalAt(theta) {
+    var a = radians(theta);
+    return { x: 0, y: Math.cos(a), z: Math.sin(a) };
+  }
+
+  // Нормаль той стороны, которую видит камера. До 90° видна верхняя сторона
+  // листа, после — обратная. Бумага рассеивает свет одинаково с обеих сторон,
+  // поэтому тон берётся по видимой стороне: без этого сложенная к концу листа
+  // половина чернела бы, как стена, хотя лежит к лампе той же стороной.
+  function faceNormal(theta) {
+    var n = normalAt(theta);
+    if (theta <= 90) return n;
+    return { x: -n.x, y: -n.y, z: -n.z };
+  }
+
+  // Тень точки на стол: сдвиг вдоль направления света, пока точка над столом.
+  function groundPoint(point) {
+    var t = point.y / LIGHT.y;
+    return { x: point.x - t * LIGHT.x, y: 0, z: point.z - t * LIGHT.z };
+  }
+
+  var NEAR_FLAT = [
+    { x: -HW, y: 0, z: 0 }, { x: HW, y: 0, z: 0 },
+    { x: HW, y: 0, z: HD }, { x: -HW, y: 0, z: HD }
+  ];
+  var FAR_FLAT = [
+    { x: -HW, y: 0, z: 0 }, { x: HW, y: 0, z: 0 },
+    { x: HW, y: 0, z: -HD }, { x: -HW, y: 0, z: -HD }
+  ];
+
+  // Все контуры листа при угле theta. Порядок точек одинаков у всех контуров,
+  // чтобы наложение слоёв не зависело от угла.
+  function shapeAt(theta) {
+    var n = faceNormal(theta);
+    var lift = [
+      { x: -HW, y: 0, z: 0 }, { x: HW, y: 0, z: 0 },
+      liftPoint(HW, HD, theta), liftPoint(-HW, HD, theta)
+    ];
+    var farRight = lift[2];
+    var farLeft = lift[3];
+    var edge = [
+      farLeft, farRight,
+      { x: farRight.x - THICK * n.x, y: farRight.y - THICK * n.y, z: farRight.z - THICK * n.z },
+      { x: farLeft.x - THICK * n.x, y: farLeft.y - THICK * n.y, z: farLeft.z - THICK * n.z }
+    ];
+    var shadow = [
+      { x: -HW, y: 0, z: 0 }, { x: HW, y: 0, z: 0 },
+      groundPoint(farRight), groundPoint(farLeft)
+    ];
+    // Тень неподвижной половины: она плоская, поэтому тень почти совпадает с ней
+    // и работает как мягкая кромка у края листа.
+    var nearShadow = NEAR_FLAT.map(function (point) {
+      return { x: point.x + 2.2, y: 0, z: point.z - 2.2 };
+    });
+    return { near: NEAR_FLAT, nearShadow: nearShadow, lift: lift, edge: edge, shadow: shadow, ghost: FAR_FLAT };
+  }
+
+  // Затемнение поднятой половины: доля тона наложения на неё.
+  // Бумага рассеивает свет с обеих сторон одинаково, поэтому тон зависит от
+  // модуля косинуса между нормалью и светом: поднятая половина уходит из-под
+  // лампы, темнеет, а на середине хода (лист на ребре) темнее всего и снова
+  // светлеет к концу. Модуль нужен и по делу: без него на вертикали был бы
+  // виден скачок тона — видимая сторона листа меняется быстрее, чем тон.
+  function shadeAt(theta) {
+    var lit = Math.abs(dot(normalAt(theta), LIGHT));
+    return clamp01((0.92 - lit) / 0.95);
+  }
+
+  /* --- 1.3 Подгонка кадра ---------------------------------------------- */
+
+  function shapeLists(shape) {
+    return [shape.near, shape.nearShadow, shape.lift, shape.edge, shape.shadow, shape.ghost];
+  }
+
+  // Прямоугольник кадра, отведённый объекту: доли viewBox превращаются в пиксели.
+  // В раскладке с полосой слева объекту остаётся правая часть кадра.
+  function regionOf(scene, region) {
+    var area = region || scene.region || [0, 0, 1, 1];
+    return {
+      x: area[0] * scene.vb[2],
+      y: area[1] * scene.vb[3],
+      width: (area[2] - area[0]) * scene.vb[2],
+      height: (area[3] - area[1]) * scene.vb[3]
+    };
+  }
+
+  // Границы объекта за весь ход сгиба при единичном размере кадра: по ним
+  // выбирается фокус так, чтобы ни одна точка ни на одном кадре не вышла за
+  // отведённый прямоугольник.
+  function boundsFor(scene) {
+    var min = { x: Infinity, y: Infinity };
+    var max = { x: -Infinity, y: -Infinity };
+    for (var step = 0; step <= 48; step++) {
+      var p = step / 48;
+      var cam = cameraAt(scene, p);
+      var probe = { phi: cam.phi, psi: cam.psi, distance: cam.distance, focal: 1, cx: 0, cy: 0 };
+      probe.view = viewVectors(cam);
+      var lists = shapeLists(shapeAt(thetaAt(p)));
+      for (var s = 0; s < lists.length; s++) {
+        for (var i = 0; i < lists[s].length; i++) {
+          var point = project(lists[s][i], probe);
+          if (point.x < min.x) min.x = point.x;
+          if (point.y < min.y) min.y = point.y;
+          if (point.x > max.x) max.x = point.x;
+          if (point.y > max.y) max.y = point.y;
+        }
+      }
+    }
+    return { min: min, max: max };
+  }
+
+  function fitFor(scene, region) {
+    var bounds = boundsFor(scene);
+    var width = bounds.max.x - bounds.min.x;
+    var height = bounds.max.y - bounds.min.y;
+    var margin = scene.margin;
+    var area = regionOf(scene, region);
+    var focal = Math.min(
+      (area.width - 2 * margin) / width,
+      (area.height - 2 * margin) / height
+    );
+    return {
+      focal: focal,
+      cx: area.x + area.width / 2 - ((bounds.min.x + bounds.max.x) / 2) * focal,
+      cy: area.y + area.height / 2 - ((bounds.min.y + bounds.max.y) / 2) * focal,
+      bounds: bounds,
+      area: area
+    };
+  }
+
+  function cameraFor(scene, fit, p, map) {
+    var cam = cameraAt(scene, p);
+    var scale = map ? map.scale : 1;
+    return {
+      phi: cam.phi,
+      psi: cam.psi,
+      distance: cam.distance,
+      focal: fit.focal * scale,
+      cx: (map ? map.dx : 0) + scale * fit.cx,
+      cy: (map ? map.dy : 0) + scale * fit.cy,
+      view: viewVectors(cam)
+    };
+  }
+
+  function projectList(points, camera) {
+    var out = [];
+    for (var i = 0; i < points.length; i++) out.push(project(points[i], camera));
+    return out;
+  }
+
+  function drawFor(scene, fit, theta, p, map) {
+    var camera = cameraFor(scene, fit, p === undefined ? 0 : p, map);
+    var shape = shapeAt(theta);
+    var out = {};
+    for (var name in shape) {
+      if (Object.prototype.hasOwnProperty.call(shape, name)) {
+        out[name] = projectList(shape[name], camera);
+      }
+    }
+    out.crease = projectList([{ x: -HW, y: 0, z: 0 }, { x: HW, y: 0, z: 0 }], camera);
+    out.hint = projectList([{ x: -HW, y: 0.4, z: 0 }, { x: HW, y: 0.4, z: 0 }], camera);
+    out.theta = theta;
+    out.shade = shadeAt(theta);
+    out.camera = cameraAt(scene, p === undefined ? 0 : p);
+    return out;
+  }
+
+  // Полный кадр сцены по прогрессу: камера, масштаб, контуры и служебные числа.
+  // Четвёртый довод — готовый пресет (например, с адаптивным кадром): так один
+  // и тот же кадр можно посчитать и для другой коробки, не меняя глобального
+  // состояния.
+  function sceneFrame(preset, p, map, sceneOverride) {
+    var scene = sceneOverride || SCENES[preset];
+    var fit = fitFor(scene);
+    var frame = drawFor(scene, fit, thetaAt(p), p, map);
+    frame.fit = fit;
+    return frame;
+  }
+
+  function round1(value) {
+    return Math.round(value * 10) / 10;
+  }
+
+  function pointsAttr(points) {
+    var out = [];
+    for (var i = 0; i < points.length; i++) {
+      out.push(round1(points[i].x) + ',' + round1(points[i].y));
+    }
+    return out.join(' ');
+  }
+
+  function pathAttr(points) {
+    var out = [];
+    for (var i = 0; i < points.length; i++) {
+      out.push((i ? 'L' : 'M') + round1(points[i].x) + ' ' + round1(points[i].y));
+    }
+    return out.join(' ');
+  }
+
+  /* --- 1.4 Печать заголовка в плоскости листа --------------------------- */
+
+  // Плоскость листа переходит в кадр гомографией: локальные пиксели блока
+  // (1 мм = K локальных px, начало — левый верхний угол блока) переводятся в
+  // пиксели страницы. Три строки матрицы — числители координат и знаменатель,
+  // то есть ровно та же перспективная проекция, что и у точек SVG.
+  function paperMatrix(camera, fit, map, layout, k) {
+    var unitPx = k || K;
+    var scale = map ? map.scale : 1;
+    var focal = fit.focal * scale;
+    var offsetX = (map ? map.dx : 0) + scale * fit.cx;
+    var offsetY = (map ? map.dy : 0) + scale * fit.cy;
+    var view = viewVectors(camera);
+
+    // Базис плоскости: локальный пиксель по x и по y в миллиметрах пространства.
+    var ex = { x: 1 / unitPx, y: 0, z: 0 };
+    var ez = { x: 0, y: 0, z: 1 / unitPx };
+    var base = relative({ x: layout.x, y: 0, z: layout.z }, view.eye);
+
+    function depthRow() {
+      return [dot(ex, view.forward), dot(ez, view.forward), dot(base, view.forward)];
+    }
+    var w = depthRow();
+    var rowX = [
+      focal * dot(ex, view.right) + offsetX * w[0],
+      focal * dot(ez, view.right) + offsetX * w[1],
+      focal * dot(base, view.right) + offsetX * w[2]
+    ];
+    var rowY = [
+      -focal * dot(ex, view.up) + offsetY * w[0],
+      -focal * dot(ez, view.up) + offsetY * w[1],
+      -focal * dot(base, view.up) + offsetY * w[2]
+    ];
+
+    var divisor = w[2] || 1;
+    return {
+      h11: rowX[0] / divisor, h12: rowX[1] / divisor, h13: rowX[2] / divisor,
+      h21: rowY[0] / divisor, h22: rowY[1] / divisor, h23: rowY[2] / divisor,
+      h31: w[0] / divisor, h32: w[1] / divisor, h33: 1
+    };
+  }
+
+  // Применение гомографии к локальной точке: проверяется в Node и в браузере.
+  function matrixApply(h, point) {
+    var w = h.h31 * point.x + h.h32 * point.y + h.h33;
+    if (!w) w = 1;
+    return {
+      x: (h.h11 * point.x + h.h12 * point.y + h.h13) / w,
+      y: (h.h21 * point.x + h.h22 * point.y + h.h23) / w
+    };
+  }
+
+  // Плоская гомография как CSS matrix3d: четвёртая строка — перспективные члены.
+  // Округление до двенадцатого знака, а не до пятого: перспективные члены порядка
+  // 1e-5, и грубое округление смещало бы дальние углы печатного блока на миллиметры.
+  function matrixCss(h) {
+    var values = [
+      h.h11, h.h21, 0, h.h31,
+      h.h12, h.h22, 0, h.h32,
+      0, 0, 1, 0,
+      h.h13, h.h23, 0, h.h33
+    ].map(function (value) {
+      return Math.round(value * 1e12) / 1e12;
+    });
+    return 'matrix3d(' + values.join(', ') + ')';
+  }
+
+  // Вписывание системы координат SVG в прямоугольник страницы: то же правило,
+  // что у preserveAspectRatio="xMidYMid meet".
+  function viewMap(box, vb) {
+    var scale = Math.min(box.width / vb[2], box.height / vb[3]);
+    return {
+      scale: scale,
+      dx: (box.width - vb[2] * scale) / 2,
+      dy: (box.height - vb[3] * scale) / 2
+    };
+  }
+
+  /* --- 1.4a Кадр по коробке --------------------------------------------- */
+
+  // Сторона кадра в единицах системы координат. Пропорции берутся у коробки,
+  // единицы произвольны: вписывание всё равно нормирует фокусное расстояние.
+  var FRAME_BASE = 1000;
+
+  function frameVb(scene, box) {
+    if (!scene.adaptive) return scene.vb;
+    var width = box ? box.width : 0;
+    var height = box ? box.height : 0;
+    if (!(width > 0) || !(height > 0)) return scene.vb;
+    return [0, 0, FRAME_BASE, Math.round((FRAME_BASE * height) / width * 10) / 10];
+  }
+
+  // Тот же пресет, но с кадром под коробку: region, margin и дуга камеры
+  // переезжают без изменений, меняется только система координат.
+  function framedScene(scene, box) {
+    var out = {};
+    for (var key in scene) {
+      if (Object.prototype.hasOwnProperty.call(scene, key)) out[key] = scene[key];
+    }
+    out.vb = frameVb(scene, box);
+    return out;
+  }
+
+  /* --- 1.5 Прогресс и стадии ------------------------------------------- */
+
+  function progressAt(scrollY, top, height, viewport) {
+    var span = height - viewport;
+    if (!(span > 0)) return 0;
+    return clamp01((scrollY - top) / span);
+  }
+
+  function noteAt(p, edges) {
+    var list = edges || NOTE_EDGES;
+    if (!isFinite(p)) return 0;
+    for (var i = 0; i < list.length; i++) {
+      if (p < list[i]) return i;
+    }
+    return list.length;
+  }
+
+  // Середина отрезка прогресса, на котором видна стадия index. Нужна при
+  // возвращении из статичного рассказа в закреплённую ленту прокрутки: встать
+  // надо в середину, а не на границу, иначе соседняя стадия перекроет выбор.
+  function progressForStage(index) {
+    var list = NOTE_EDGES;
+    var at = Math.round(index);
+    if (!isFinite(at)) at = 0;
+    if (at < 0) at = 0;
+    if (at > list.length) at = list.length;
+    var from = at <= 0 ? 0 : list[at - 1];
+    var to = at >= list.length ? 1 : list[at];
+    return clamp01((from + to) / 2);
+  }
+
+  function effectiveReduced(systemMatches, manual) {
+    return systemMatches === true || manual === true;
+  }
+
+  function motionNote(systemMatches, manual) {
+    if (systemMatches === true) return 'Движение уменьшено системной настройкой.';
+    return manual === true ? 'Движение уменьшено вручную.' : 'Движение включено.';
+  }
+
+  function captionFor(folded) { return folded ? FOLDED_CAPTION : FLAT_CAPTION; }
+  function labelFor(folded) { return folded ? 'Вернуть плоскость' : 'Показать сгиб'; }
+  function toggleFold(current) { return current === 'folded' ? 'flat' : 'folded'; }
+  function schemeAngle(state) { return state === 'folded' ? SCHEME_FOLDED : SCHEME_FLAT; }
+
+  var API = {
+    PAPER: PAPER,
+    SCENES: SCENES,
+    THETA_MAX: THETA_MAX,
+    VEIL: VEIL,
+    STAGE_P: STAGE_P,
+    K: K,
+    LIGHT: LIGHT,
+    FRAME_ANGLES: FRAME_ANGLES,
+    SCHEME_FLAT: SCHEME_FLAT,
+    SCHEME_FOLDED: SCHEME_FOLDED,
+    NOTE_EDGES: NOTE_EDGES,
+    FLAT_CAPTION: FLAT_CAPTION,
+    FOLDED_CAPTION: FOLDED_CAPTION,
+    NEAR_FLAT: NEAR_FLAT,
+    FAR_FLAT: FAR_FLAT,
+    clamp01: clamp01,
+    ease: ease,
+    thetaAt: thetaAt,
+    mix: mix,
+    cameraAt: cameraAt,
+    viewVectors: viewVectors,
+    normalAt: normalAt,
+    faceNormal: faceNormal,
+    project: project,
+    dot: dot,
+    liftPoint: liftPoint,
+    groundPoint: groundPoint,
+    shapeAt: shapeAt,
+    shadeAt: shadeAt,
+    regionOf: regionOf,
+    boundsFor: boundsFor,
+    fitFor: fitFor,
+    cameraFor: cameraFor,
+    projectList: projectList,
+    drawFor: drawFor,
+    sceneFrame: sceneFrame,
+    pointsAttr: pointsAttr,
+    pathAttr: pathAttr,
+    paperMatrix: paperMatrix,
+    matrixApply: matrixApply,
+    matrixCss: matrixCss,
+    viewMap: viewMap,
+    FRAME_BASE: FRAME_BASE,
+    frameVb: frameVb,
+    framedScene: framedScene,
+    progressAt: progressAt,
+    noteAt: noteAt,
+    progressForStage: progressForStage,
+    effectiveReduced: effectiveReduced,
+    motionNote: motionNote,
+    captionFor: captionFor,
+    labelFor: labelFor,
+    toggleFold: toggleFold,
+    schemeAngle: schemeAngle
+  };
+
+  if (typeof document === 'undefined') {
+    if (typeof module !== 'undefined' && module.exports) module.exports = API;
+    return;
+  }
+
+  /* ===== 2. Страница ==================================================== */
+
+  var STORE_KEY = 'fold-line.motion.v2';
+  var root = document.documentElement;
+  var fold = document.querySelector('.fold');
+  var stage = document.querySelector('[data-stage]');
+  var sheet = document.querySelector('[data-sheet]');
+  var header = document.querySelector('.top');
+  var print = document.querySelector('[data-print]');
+  var readout = document.querySelector('[data-readout]');
+  var rule = document.querySelector('[data-rule]');
+  var notes = Array.prototype.slice.call(document.querySelectorAll('[data-note]'));
+  var sceneSvgs = Array.prototype.slice.call(document.querySelectorAll('[data-scene]'));
+  // Слой печати и схема — разные элементы: выборки ограничены своей сценой,
+  // иначе кадр сцены и схема перезаписывали бы контуры друг друга.
+  var shapeNodes = stage ? Array.prototype.slice.call(stage.querySelectorAll('[data-shape]')) : [];
+  var hintNodes = stage ? Array.prototype.slice.call(stage.querySelectorAll('[data-path="hint"]')) : [];
+  var creaseNodes = stage ? Array.prototype.slice.call(stage.querySelectorAll('[data-path="crease"]')) : [];
+  var motionToggle = document.getElementById('motion-toggle');
+  var motionNoteEl = document.getElementById('motion-note');
+
+  var manualReduced = readManual();
+  var reduceQuery = mediaQuery('(prefers-reduced-motion: reduce)');
+  var narrowQuery = mediaQuery('(max-width: 47.99rem)');
+
+  var nextFrame = typeof window.requestAnimationFrame === 'function'
+    ? window.requestAnimationFrame.bind(window)
+    : function (callback) { return window.setTimeout(callback, 16); };
+  var nowMs = typeof window.performance !== 'undefined' && window.performance.now
+    ? function () { return window.performance.now(); }
+    : function () { return Date.now(); };
+
+  var scene = {
+    preset: 'stage', vb: SCENES.stage.vb, fit: null, theta: null, shade: null, map: null,
+    live: false, lastP: null, frame: 0, metrics: null, note: -1,
+    box: null, headerHeight: 0, printMatrix: null, region: null, stacked: null
+  };
+
+  function mediaQuery(text) {
+    if (typeof window.matchMedia !== 'function') return { matches: false, addEventListener: null, addListener: null };
+    return window.matchMedia(text);
+  }
+
+  function readManual() {
+    try {
+      return window.localStorage.getItem(STORE_KEY) === 'reduced';
+    } catch (error) {
+      return false; // приватный режим или запрет хранилища: работаем без памяти
+    }
+  }
+
+  function saveManual(value) {
+    try {
+      window.localStorage.setItem(STORE_KEY, value ? 'reduced' : 'auto');
+    } catch (error) {
+      // Выбор остаётся в силе до перезагрузки; это допустимо.
+    }
+  }
+
+  function reducedNow() {
+    return effectiveReduced(reduceQuery.matches, manualReduced);
+  }
+
+  /* --- 2.1 Режим движения ---------------------------------------------- */
+
+  // Прокрутка без плавности: возврат места чтения не должен выглядеть
+  // как движение самой сцены.
+  function instantScroll(action) {
+    var previous = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = 'auto';
+    action();
+    document.documentElement.style.scrollBehavior = previous;
+  }
+
+  // Стадия, которую читают в статичном рассказе: ближайшая к линии внимания.
+  // Линия взята ниже середины, потому что в закреплённой раскладке рассказ
+  // стоит в нижней половине экрана — туда же попадает текст при переходе в
+  // статичный рассказ. Линия удержания из switchMotion(), наоборот, выше
+  // середины: разница линий и делает переход туда и обратно устойчивым.
+  function readingStage() {
+    var line = window.innerHeight * 0.62;
+    var best = 0;
+    var bestDistance = Infinity;
+    for (var i = 0; i < notes.length; i++) {
+      var rect = notes[i].getBoundingClientRect();
+      var distance = Math.abs(rect.top - line);
+      if (distance < bestDistance) { bestDistance = distance; best = i; }
+    }
+    return best;
+  }
+
+  // Смена режима перестраивает раскладку: в закреплённом виде лист занимает
+  // несколько экранов, в статичном — это обычный блок, и рассказ съезжает.
+  //
+  // Из закреплённого в статичный место удерживается прямо: текст текущей
+  // стадии остаётся на том же месте экрана. Обратно так нельзя — в ленте
+  // прокрутки рассказа нет, и прокрутка ставится на середину отрезка той
+  // стадии, которую читали, а не в начало и не в конец.
+  function switchMotion() {
+    var wasLive = scene.live;
+    var anchor = wasLive && scene.note >= 0 ? notes[scene.note] : null;
+    var anchorTop = anchor ? anchor.getBoundingClientRect().top : 0;
+    var stageIndex = wasLive ? scene.note : readingStage();
+
+    renderMotion();
+    syncLiveMode(wasLive);
+    syncScene();
+    drawScheme(schemeTheta);
+
+    if (wasLive) {
+      if (!anchor || !anchor.isConnected) return;
+      var delta = anchor.getBoundingClientRect().top - anchorTop;
+      if (isFinite(delta) && Math.abs(delta) > 1) {
+        instantScroll(function () { window.scrollBy(0, delta); });
+      }
+      return;
+    }
+
+    var metrics = scene.metrics || measure();
+    if (!metrics || !(metrics.span > 0)) return;
+    var target = metrics.top + progressForStage(stageIndex) * metrics.span;
+    instantScroll(function () { window.scrollTo(0, target); });
+  }
+
+  function renderMotion() {
+    var reduced = reducedNow();
+
+    root.setAttribute('data-motion', reduced ? 'reduced' : 'auto');
+    root.classList.add('js');
+
+    if (motionToggle) {
+      motionToggle.hidden = false;
+      motionToggle.setAttribute('aria-pressed', reduced ? 'true' : 'false');
+      // Системное предпочтение приоритетно: ручной переключатель его не отменяет.
+      motionToggle.disabled = reduceQuery.matches;
+    }
+
+    if (motionNoteEl) {
+      motionNoteEl.hidden = false;
+      motionNoteEl.textContent = motionNote(reduceQuery.matches, manualReduced);
+    }
+
+    if (fold) {
+      fold.classList.toggle('is-live', !reduced);
+      fold.classList.toggle('is-static', reduced);
+    }
+
+    // В статичном рассказе стадии нет: все три состояния показаны подряд,
+    // и «текущая» заметка была бы просто неправдой. Подсветка живёт только
+    // в закреплённой ленте, где стадия выбирается по прогрессу.
+
+  }
+
+  /* --- 2.2 Сцена -------------------------------------------------------- */
+
+  function measure() {
+    if (!stage || !fold || !sheet) return null;
+    // Шапка переносится на узком экране: высоту для липкого листа берём
+    // из фактической геометрии, а не из предположения.
+    if (header) {
+      var headerHeight = Math.round(header.getBoundingClientRect().height);
+      if (headerHeight > 0 && headerHeight !== scene.headerHeight) {
+        scene.headerHeight = headerHeight;
+        root.style.setProperty('--header-h', headerHeight + 'px');
+      }
+    }
+    var rect = fold.getBoundingClientRect();
+    var stageRect = stage.getBoundingClientRect();
+    var sheetRect = sheet.getBoundingClientRect();
+    scene.box = { width: sheetRect.width, height: sheetRect.height };
+    scene.metrics = {
+      top: rect.top + window.scrollY,
+      span: Math.max(0, rect.height - stageRect.height)
+    };
+    return scene.metrics;
+  }
+
+  function currentProgress() {
+    var metrics = scene.metrics || measure();
+    if (!metrics || !scene.box) return 0;
+    return progressAt(window.scrollY, metrics.top, metrics.span + scene.box.height, scene.box.height);
+  }
+
+  function setPoints(name, points) {
+    var text = pointsAttr(points);
+    for (var i = 0; i < shapeNodes.length; i++) {
+      if (shapeNodes[i].getAttribute('data-shape') === name) shapeNodes[i].setAttribute('points', text);
+    }
+  }
+
+  function setPath(list, points) {
+    var text = pathAttr(points);
+    for (var i = 0; i < list.length; i++) list[i].setAttribute('d', text);
+  }
+
+  function setOpacity(name, value) {
+    var text = String(Math.round(clamp01(value) * 1000) / 1000);
+    for (var i = 0; i < shapeNodes.length; i++) {
+      if (shapeNodes[i].getAttribute('data-shape') === name) shapeNodes[i].setAttribute('opacity', text);
+    }
+  }
+
+  function setPathOpacity(list, value) {
+    var text = String(Math.round(clamp01(value) * 1000) / 1000);
+    for (var i = 0; i < list.length; i++) list[i].setAttribute('opacity', text);
+  }
+
+  // Раскладка полосы рассказа. На узком экране и на всяком, где объект подходит
+  // слишком близко, полоса встаёт под лист: текст никогда не ложится на бумагу.
+  // Пресет у живой сцены один: разницу между закреплённой и подпёртой раскладкой
+  // задаёт region, а не отдельная система координат.
+  function resolveLayout() {
+    var framed = framedScene(SCENES.stage, scene.box);
+    var region = [0, 0, 1, 1];
+    var barWidth = null;
+    // В статичной раскладке полоса рассказа и так стоит под листом, а в закреплённой
+    // на узком экране места слева заведомо нет: там лист идёт сверху во всю ширину.
+    var stacked = narrowQuery.matches || !scene.live;
+
+    if (!stacked && scene.box && scene.box.height > 0) {
+      var map = viewMap(scene.box, framed.vb);
+      var overlayFit = fitFor(framed, [0.4, 0, 1, 1]);
+      var leftEdge = overlayFit.cx + overlayFit.focal * overlayFit.bounds.min.x;
+      var sheetLeft = map.dx + map.scale * leftEdge;
+      var pad = readLength('--pad', 20);
+      var fontSize = readLength('font-size', 16, root);
+      var free = sheetLeft - 2 * pad;
+      if (free < 16 * fontSize) {
+        stacked = true;
+      } else {
+        region = [0.4, 0, 1, 1];
+        barWidth = Math.min(free, 34 * fontSize);
+      }
+    }
+    return { preset: 'stage', stacked: stacked, region: region, barWidth: barWidth };
+  }
+
+  function readLength(name, fallback, node) {
+    var value = parseFloat(getComputedStyle(node || root).getPropertyValue(name));
+    return isFinite(value) ? value : fallback;
+  }
+
+  function applyLayout() {
+    var layout = resolveLayout();
+    if (scene.stacked !== layout.stacked) {
+      scene.stacked = layout.stacked;
+      // Смена раскладки меняет саму коробку листа: она будет измерена заново.
+      scene.map = null;
+      scene.box = null;
+      scene.lastP = null;
+    }
+    scene.preset = layout.preset;
+    scene.region = layout.region;
+
+    if (fold) fold.classList.toggle('is-stacked', layout.stacked);
+    if (stage) {
+      if (layout.barWidth) stage.style.setProperty('--bar-w', Math.round(layout.barWidth) + 'px');
+      else stage.style.removeProperty('--bar-w');
+    }
+  }
+
+  // Кадр, вписывание и карта считаются вместе: все три зависят от коробки.
+  // Вызывается после каждого изменения коробки и раскладки.
+  function refit() {
+    scene.vb = frameVb(SCENES[scene.preset], scene.box);
+    for (var i = 0; i < sceneSvgs.length; i++) {
+      sceneSvgs[i].setAttribute('viewBox', scene.vb.join(' '));
+    }
+    scene.fit = fitFor(framedScene(SCENES[scene.preset], scene.box), scene.region);
+    scene.map = viewMap(scene.box || { width: 0, height: 0 }, scene.vb);
+  }
+
+  function drawStage(p) {
+    var sceneData = SCENES[scene.preset];
+    // Кадр рисуется в координатах viewBox: вписывание в коробку делает сам SVG
+    // (preserveAspectRatio). Карта нужна только печатному блоку, это HTML.
+    var camera = cameraFor(sceneData, scene.fit, p, null);
+    var theta = thetaAt(p);
+    var shape = shapeAt(theta);
+
+    setPoints('near', projectList(shape.near, camera));
+    setPoints('nearShadow', projectList(shape.nearShadow, camera));
+    setPoints('lift', projectList(shape.lift, camera));
+    setPoints('liftShade', projectList(shape.lift, camera));
+    setPoints('edge', projectList(shape.edge, camera));
+    setPoints('shadow', projectList(shape.shadow, camera));
+    setPoints('ghost', projectList(shape.ghost, camera));
+    setPath(creaseNodes, projectList([{ x: -HW, y: 0, z: 0 }, { x: HW, y: 0, z: 0 }], camera));
+    setPath(hintNodes, projectList([{ x: -HW, y: 0.4, z: 0 }, { x: HW, y: 0.4, z: 0 }], camera));
+
+    setOpacity('liftShade', shadeAt(theta) * VEIL);
+    setOpacity('ghost', 1 - clamp01(theta / 26));
+    setOpacity('shadow', 0.22);
+    setOpacity('nearShadow', 0.5);
+    setPathOpacity(hintNodes, 1 - clamp01(theta / 30));
+
+    scene.theta = theta;
+    scene.shade = shadeAt(theta);
+  }
+
+  function drawPrint(p) {
+    if (!print) return;
+    var sceneData = SCENES[scene.preset];
+    if (!sceneData.print) return;
+    var camera = cameraAt(sceneData, p);
+    var matrix = paperMatrix(camera, scene.fit, scene.map, sceneData.print, K);
+    print.style.transform = matrixCss(matrix);
+    scene.printMatrix = matrix;
+  }
+
+  function drawChrome(p, theta) {
+    if (stage) stage.style.setProperty('--p', String(Math.round(p * 1000) / 1000));
+    if (readout) readout.textContent = Math.round(theta) + '°';
+    if (rule) rule.style.transform = 'scaleX(' + Math.round(p * 1000) / 1000 + ')';
+    // Стадия существует только в закреплённой ленте: в статичном рассказе все
+    // три состояния показаны подряд, и «текущей» заметки нет — иначе средняя
+    // заметка помечалась бы текущей просто по положению кадра в покое.
+    var index = scene.live ? noteAt(p) : -1;
+    if (index !== scene.note) {
+      scene.note = index;
+      for (var i = 0; i < notes.length; i++) {
+        var active = i === index;
+        notes[i].classList.toggle('is-current', active);
+        if (active) notes[i].setAttribute('aria-current', 'true');
+        else notes[i].removeAttribute('aria-current');
+      }
+    }
+  }
+
+  // Коробка листа — общая система координат для SVG и печатного блока. Её размер
+  // мог измениться не только от resize: например, от перестройки раскладки или от
+  // переноса шапки. Проверяем перед каждым кадром, иначе карта устареет и печать
+  // съедет с листа на несколько пикселей.
+  function refreshBox() {
+    if (!sheet) return;
+    var width = sheet.clientWidth;
+    var height = sheet.clientHeight;
+    if (width <= 0 || height <= 0 || !scene.fit) {
+      // Коробка может быть ещё не измерена (скрыта, нулевая, до первой
+      // расстановки). Кадр и вписывание нужны всегда, иначе первый же
+      // кадр обратится к пустому вписыванию.
+      refit();
+      if (width <= 0 || height <= 0) return;
+    }
+    if (scene.box && scene.box.width === width && scene.box.height === height) return;
+    scene.box = { width: width, height: height };
+    refit();
+  }
+
+  function render(p) {
+    if (!scene.map) {
+      scene.map = viewMap(scene.box || { width: 0, height: 0 }, scene.vb);
+    }
+    drawStage(p);
+    drawPrint(p);
+    drawChrome(p, thetaAt(p));
+    if (stage) stage.dataset.debug = 'map=' + scene.map.scale + ' box=' + JSON.stringify(scene.box) + ' fit=' + scene.fit.focal;
+  }
+
+  function schedule() {
+    if (scene.frame) return;
+    scene.frame = nextFrame(function () {
+      scene.frame = 0;
+      if (!scene.live) return;
+      refreshBox();
+      render(currentProgress());
+    });
+  }
+
+  function onScroll() {
+    if (!scene.live) return;
+    var p = currentProgress();
+    if (scene.lastP !== null && Math.abs(p - scene.lastP) < 0.0004) return;
+    scene.lastP = p;
+    schedule();
+  }
+
+  function syncScene() {
+    measure();
+    scene.map = null;
+    // applyLayout может изменить раскладку (класс is-stacked, ширина полосы),
+    // поэтому замер повторяется, а карта сбрасывается уже после этого.
+    applyLayout();
+    scene.box = null;
+    refreshBox();
+    if (scene.live) {
+      render(currentProgress());
+    } else {
+      scene.lastP = null;
+      render(STAGE_P);
+    }
+  }
+
+  /* --- 2.3 Схема сгиба -------------------------------------------------- */
+
+  var scheme = document.getElementById('scheme');
+  var foldButton = document.getElementById('fold-btn');
+  var schemeCaption = document.getElementById('scheme-caption');
+  var schemeData = SCENES.scheme;
+  var schemeFit = fitFor(schemeData);
+  var schemeState = 'flat';
+  var schemeTheta = SCHEME_FLAT;
+  var schemeFrame = 0;
+
+  function drawScheme(theta) {
+    if (!scheme) return;
+    var camera = cameraFor(schemeData, schemeFit, 0, null);
+    var shape = shapeAt(theta);
+    var nodes = scheme.querySelectorAll('[data-shape]');
+    for (var i = 0; i < nodes.length; i++) {
+      var name = nodes[i].getAttribute('data-shape');
+      if (shape[name]) nodes[i].setAttribute('points', pointsAttr(projectList(shape[name], camera)));
+    }
+    var creases = scheme.querySelectorAll('[data-path="crease"]');
+    var line = projectList([{ x: -HW, y: 0, z: 0 }, { x: HW, y: 0, z: 0 }], camera);
+    for (var j = 0; j < creases.length; j++) creases[j].setAttribute('d', pathAttr(line));
+
+    var hints = scheme.querySelectorAll('[data-path="hint"]');
+    var hintValue = 1 - clamp01(theta / 30);
+    for (var k = 0; k < hints.length; k++) hints[k].setAttribute('opacity', String(Math.round(hintValue * 1000) / 1000));
+
+    var shade = scheme.querySelector('[data-shape="liftShade"]');
+    if (shade) shade.setAttribute('opacity', String(Math.round(shadeAt(theta) * VEIL * 1000) / 1000));
+    var ghost = scheme.querySelector('[data-shape="ghost"]');
+    if (ghost) ghost.setAttribute('opacity', String(Math.round((1 - clamp01(theta / 26)) * 1000) / 1000));
+  }
+
+  function tweenScheme(target) {
+    if (schemeFrame) {
+      if (window.cancelAnimationFrame) window.cancelAnimationFrame(schemeFrame);
+      else window.clearTimeout(schemeFrame);
+      schemeFrame = 0;
+    }
+    var from = schemeTheta;
+    // В уменьшенном режиме состояния схемы меняются мгновенно.
+    if (reducedNow() || typeof window.requestAnimationFrame !== 'function' || from === target) {
+      schemeTheta = target;
+      drawScheme(target);
+      return;
+    }
+    var started = nowMs();
+    var duration = 520;
+    var step = function () {
+      var t = clamp01((nowMs() - started) / duration);
+      schemeTheta = from + (target - from) * ease(t);
+      drawScheme(schemeTheta);
+      if (t < 1) { schemeFrame = nextFrame(step); return; }
+      schemeFrame = 0;
+      schemeTheta = target;
+    };
+    schemeFrame = nextFrame(step);
+  }
+
+  if (scheme && foldButton) {
+    // Базовая разметка скрывает кнопку: без скрипта она была бы неработающей.
+    foldButton.hidden = false;
+    foldButton.addEventListener('click', function () {
+      schemeState = toggleFold(schemeState);
+      var folded = schemeState === 'folded';
+      scheme.setAttribute('data-fold', schemeState);
+      foldButton.textContent = labelFor(folded);
+      if (schemeCaption) schemeCaption.textContent = captionFor(folded);
+      tweenScheme(schemeAngle(schemeState));
+    });
+  }
+
+  /* --- 2.4 Запуск ------------------------------------------------------- */
+
+  function syncLiveMode(wasLive) {
+    var live = !reducedNow();
+    if (wasLive !== live) {
+      scene.live = live;
+      scene.lastP = null;
+      scene.map = null;
+    }
+  }
+
+  scene.live = !reducedNow();
+
+  if (motionToggle) {
+    motionToggle.addEventListener('click', function () {
+      manualReduced = !manualReduced;
+      saveManual(manualReduced);
+      switchMotion();
+    });
+  }
+
+  function onSystemMotionChange() {
+    switchMotion();
+  }
+
+  if (typeof reduceQuery.addEventListener === 'function') {
+    reduceQuery.addEventListener('change', onSystemMotionChange);
+  } else if (typeof reduceQuery.addListener === 'function') {
+    reduceQuery.addListener(onSystemMotionChange);
+  }
+
+  var resizeTimer = 0;
+  function onResize() {
+    if (resizeTimer) window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(function () {
+      resizeTimer = 0;
+      syncScene();
+    }, 120);
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onResize, { passive: true });
+  window.addEventListener('load', syncScene);
+
+  renderMotion();
+  drawScheme(schemeTheta);
+  syncScene();
+})();
+</script>
+</body>
+</html>

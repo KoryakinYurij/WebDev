@@ -82,6 +82,40 @@ check(
   logicFailed.length ? logicFailed.map(function (i) { return i[0]; }).join('; ') : 'все случаи пройдены'
 );
 
+/* --- 1б. Режим движения: системное ИЛИ ручное ------------------------- */
+
+// Раньше приоритет системы числился за L01, хотя та проверяла только стадии, подписи
+// и переключение сгиба. Сочетания системной и ручной настройки проверяются отдельно.
+
+const noteMatch = html.match(/id="motion-note"[^>]*>([^<]*)</);
+const baseNote = noteMatch ? noteMatch[1].trim() : null;
+
+const motionCases = [
+  ['система нет + вручную нет = движение включено', logic.effectiveReduced(false, false) === false],
+  ['система нет + вручную да = уменьшено', logic.effectiveReduced(false, true) === true],
+  ['система да + вручную нет = уменьшено', logic.effectiveReduced(true, false) === true],
+  ['система да + вручную да = уменьшено', logic.effectiveReduced(true, true) === true],
+  ['неизвестное значение не включает уменьшение', logic.effectiveReduced(undefined, undefined) === false && logic.effectiveReduced(null, 'reduced') === false],
+  ['системная настройка называет себя в заметке', logic.motionNote(true, false) === 'Движение уменьшено системной настройкой.' && logic.motionNote(true, true) === 'Движение уменьшено системной настройкой.'],
+  ['ручное уменьшение отличается от системного', logic.motionNote(false, true) === 'Движение уменьшено вручную.' && logic.motionNote(false, true) !== logic.motionNote(true, false)],
+  ['заметка обычного режима совпадает с разметкой', baseNote !== null && baseNote === logic.motionNote(false, false)],
+  ['все четыре сочетания дают два различимых состояния', JSON.stringify([
+    logic.effectiveReduced(false, false),
+    logic.effectiveReduced(false, true),
+    logic.effectiveReduced(true, false),
+    logic.effectiveReduced(true, true)
+  ]) === JSON.stringify([false, true, true, true])]
+];
+
+const motionFailed = motionCases.filter(function (item) { return !item[1]; });
+
+check(
+  'L02',
+  'Четыре сочетания системного и ручного уменьшения движения (' + motionCases.length + ' случаев)',
+  motionFailed.length === 0,
+  motionFailed.length ? motionFailed.map(function (i) { return i[0]; }).join('; ') : 'все случаи пройдены'
+);
+
 /* --- 2. Разметка ------------------------------------------------------- */
 
 section('Структура разметки');

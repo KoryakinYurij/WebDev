@@ -1,0 +1,15 @@
+{
+  "name": "fold-line-v2",
+  "version": "1.0.0",
+  "private": true,
+  "description": "«Линия сгиба», версия 2 — автономная страница-лист: геометрия сгиба по прокрутке. Без runtime-зависимостей.",
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node build.mjs && node scripts/film.mjs && node scripts/check.mjs",
+    "frames": "node scripts/frames.mjs",
+    "film": "node scripts/film.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
