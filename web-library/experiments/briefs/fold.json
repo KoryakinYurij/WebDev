@@ -2,7 +2,7 @@
   "id": "fold",
   "title": "Линия сгиба",
   "profile": "scroll-story",
-  "environment": "prism-offline",
+  "environment": "freebuff-local",
   "capabilities": ["visual-direction", "scroll-motion"],
   "audience": "Русскоязычный взрослый без опыта бумажного моделирования, который хочет попробовать небольшое творческое занятие.",
   "goal": "Понять идею мастерской и перейти к первой самостоятельной пробе прямо на странице.",

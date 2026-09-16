@@ -1,0 +1,117 @@
+#!/usr/bin/env python3
+"""Probe what this workspace can actually do, so the environment contract is checked, not assumed.
+
+Read-only: prints JSON to stdout, writes nothing, installs nothing. Run it before a new
+trial and attach the output to the run report. A dated observation is not a permanent
+property of the platform; this tool exists because the previous contract outlived the
+environment it described.
+
+    python web-library/tools/probe_env.py.txt
+    python web-library/tools/probe_env.py.txt --no-network
+"""
+
+import argparse
+import json
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).parent.parent.parent
+
+SYSTEM_BROWSERS = (
+    r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+    r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+    r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+    r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+    r"C:\Program Files\Mozilla Firefox\firefox.exe",
+    "/usr/bin/chromium",
+    "/usr/bin/google-chrome",
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+)
+
+
+def command_version(arguments, timeout=30):
+    try:
+        result = subprocess.run(arguments, capture_output=True, text=True, timeout=timeout, shell=False)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if result.returncode != 0:
+        return None
+    output = (result.stdout or result.stderr).strip().splitlines()
+    return output[0].strip() if output else ""
+
+
+def tool_version(name):
+    executable = shutil.which(name)
+    if not executable:
+        return None
+    return command_version([executable, "--version"])
+
+
+def node_package_version(package):
+    """Version of an installed npm package, without running a package manager."""
+    for manifest in sorted(ROOT.glob(f"*/node_modules/{package}/package.json")):
+        try:
+            return json.loads(manifest.read_text(encoding="utf-8")).get("version")
+        except (OSError, ValueError):
+            continue
+    return None
+
+
+def playwright_browsers():
+    cache = os.environ.get("PLAYWRIGHT_BROWSERS_PATH")
+    candidates = [Path(cache)] if cache else []
+    local_app_data = os.environ.get("LOCALAPPDATA")
+    if local_app_data:
+        candidates.append(Path(local_app_data) / "ms-playwright")
+    candidates.append(Path.home() / ".cache" / "ms-playwright")
+    for directory in candidates:
+        if directory.is_dir():
+            builds = sorted(entry.name for entry in directory.iterdir() if entry.is_dir())
+            return {"path": str(directory), "builds": builds}
+    return {"path": None, "builds": []}
+
+
+def network_reachability(hosts):
+    results = {}
+    for host in hosts:
+        code = command_version(["curl", "-s", "-o", os.devnull, "-w", "%{http_code}", "--max-time", "10", host])
+        results[host] = code.strip() if code else None
+    return results
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Report verified capabilities of the current workspace.")
+    parser.add_argument("--no-network", action="store_true", help="Skip outbound reachability checks.")
+    arguments = parser.parse_args()
+
+    report = {
+        "probe": "web-library/tools/probe_env.py.txt",
+        "python": sys.version.split()[0],
+        "runtimes": {
+            "node": tool_version("node"),
+            "npm": tool_version("npm"),
+            "bun": tool_version("bun"),
+            "git": tool_version("git"),
+        },
+        "installed_node_packages": {
+            name: node_package_version(name)
+            for name in ("@playwright/test", "playwright", "@axe-core/playwright", "vite", "typescript")
+        },
+        "playwright_browsers": playwright_browsers(),
+        "system_browsers": [path for path in SYSTEM_BROWSERS if Path(path).is_file()],
+        "network": "not_run" if arguments.no_network else network_reachability(
+            ("https://registry.npmjs.org", "https://github.com")),
+        "notes": [
+            "Detected capabilities are a dated observation, not a guarantee for the next session.",
+            "Record this output next to the run report and correct the environment contract if it differs.",
+            "Failures here do not prove absence of a hidden service; they only show what this probe found.",
+        ],
+    }
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    main()

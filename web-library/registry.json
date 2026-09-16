@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "version": "0.2.0",
-  "environment": "prism-offline",
+  "environment": "freebuff-local",
   "max_packet_words": 4500,
   "core": "web-library/CORE.md",
   "checks": "web-library/checks/review.md",

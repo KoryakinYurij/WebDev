@@ -3,7 +3,7 @@
   "library_version": "0.2.0",
   "brief_id": "fold",
   "arm": "baseline",
-  "environment": "prism-offline",
+  "environment": "freebuff-local",
   "selected_modules": [],
   "selected_resources": [],
   "selection_reasons": [],
@@ -69,17 +69,17 @@
       "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
     }
   ],
-  "word_count": 849,
+  "word_count": 1066,
   "word_budget": 4500,
   "hash_policy": "utf8-lf-single-final-newline-v1",
   "input_text_sha256": {
-    "web-library/experiments/briefs/fold.json": "f079bd3dbec9f2617dbcde13895d5a826467bb2744c26ae8ac8794efa3198e6b",
-    "web-library/registry.json": "8d8b89b732c0cf695619679868b821dda17fa4d7f8d677222120dc6795e79c50",
+    "web-library/experiments/briefs/fold.json": "5b00fbea3991358c50c367c58276a3b7fb11b3841e515faee3ce7e3e0d0178a3",
+    "web-library/registry.json": "8d83cd96892fae82272426a1596519a1792ff0ff78e05100d09d1a751c4817d5",
     "web-library/resources/catalog.json": "c2404b84753d122fe14cc3272fb84dd18cfc0c243c3848e690e7ed845eed3c6b",
-    "web-library/ENVIRONMENT.md": "e1fb141016b84428480a32ce8cae55490ced28a31de06b0c45609827fac56830",
-    "web-library/tools/library.py.txt": "b85c6b817265096000a855f44ea64c15cf3af03878d66dd6a2c5ea52a524af2d"
+    "web-library/environments/freebuff-local.md": "31b1f04f463a5ca70e919e1452a7758f2b01160d8b47b06305d561df10379a33",
+    "web-library/tools/library.py.txt": "d8191487b380691e42ff9ccd9987deb4ee7c5b886185a034a96bcbe5b153689c"
   },
-  "packet_text_sha256": "52425b54f96a39cc9471e3b8ce019a2656b026bad44767d2be4f9415516dc7f3",
+  "packet_text_sha256": "20f8dcbe0f9ecde35989563b498215e197e568fbfd149f444bf8ff05f19001ad",
   "browser_validation": "not_run",
   "human_design_review": "not_run",
   "experiment_status": "prepared_not_executed"

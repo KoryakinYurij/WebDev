@@ -12,6 +12,8 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).parent.parent.parent
 REGISTRY = "web-library/registry.json"
 CATALOG = "web-library/resources/catalog.json"
+ENVIRONMENTS = "web-library/environments"
+REQUIRED_ENVIRONMENT_SECTIONS = ("## Доступно", "## Недоступно", "## Правила", "## Каталог сдачи")
 ARMS = ("baseline", "core", "profile")
 STATUSES = {"candidate", "reviewed", "tested", "recommended", "retired"}
 SELECTABLE = {"reviewed", "tested", "recommended"}
@@ -129,11 +131,41 @@ def read_catalog():
     return resources
 
 
-def read_registry(resources):
+def section_body(text, heading):
+    """Body of one level-2 Markdown section, without its heading and trailing blank lines."""
+    lines = text.splitlines()
+    require(heading in lines, f"Missing section: {heading}")
+    body = lines[lines.index(heading) + 1:]
+    for position, line in enumerate(body):
+        if line.startswith("## "):
+            body = body[:position]
+            break
+    return "\n".join(body).strip()
+
+
+def read_environments():
+    """Dated environment contracts. A contract is a claim about a workspace, so it needs a date and sections."""
+    directory = ROOT / ENVIRONMENTS
+    require(directory.is_dir(), f"Missing environment contracts: {ENVIRONMENTS}")
+    contracts = {}
+    for path in sorted(directory.glob("*.md")):
+        text = canonical_text(path.read_text(encoding="utf-8"))
+        require(bool(text.strip()), f"Empty environment contract: {path.name}")
+        for heading in REQUIRED_ENVIRONMENT_SECTIONS:
+            require(heading in text.splitlines(), f"Missing section in {path.name}: {heading}")
+        require(bool(section_body(text, "## Каталог сдачи")), f"Empty delivery section: {path.name}")
+        require(bool(section_body(text, "## Доступно")), f"Empty capabilities section: {path.name}")
+        contracts[path.stem] = relative_path(path)
+    require(bool(contracts), "No environment contracts found")
+    return contracts
+
+
+def read_registry(resources, environments):
     registry = load_json(REGISTRY)
     require(isinstance(registry, dict), "Registry must be an object")
     require(registry.get("schema_version") == 1, "Unsupported registry schema")
-    require(registry.get("environment") == "prism-offline", "Unsupported environment contract")
+    require(registry.get("environment") in environments,
+            f"Unknown environment contract: {registry.get('environment')}")
     require(isinstance(registry.get("version"), str) and registry["version"], "Missing version")
     require(type(registry.get("max_packet_words")) is int and registry["max_packet_words"] > 0,
             "Invalid packet word budget")
@@ -201,24 +233,23 @@ def read_brief(relative, registry):
 def make_packet(relative, arm):
     require(arm in ARMS, f"Unknown arm: {arm}")
     resources = read_catalog()
-    registry = read_registry(resources)
+    environments = read_environments()
+    registry = read_registry(resources, environments)
     brief = read_brief(relative, registry)
-    tracked = [relative, REGISTRY, CATALOG, "web-library/ENVIRONMENT.md"]
+    environment = environments[registry["environment"]]
+    tracked = [relative, REGISTRY, CATALOG, environment]
     selected_modules = []
     selected_resources = []
     reasons = []
     sections = [f"# Задание: {brief['title']}\n\nВариант: {arm}. Библиотека {registry['version']}."]
-    sections.append("## Общие условия\n\n" + read_text("web-library/ENVIRONMENT.md"))
+    sections.append("## Общие условия\n\n" + read_text(environment))
+    delivery = section_body(read_text(environment), "## Каталог сдачи")
     sections.append(
         f"## Объём и сдача\n\nБюджет: {brief['budget_minutes']} минут, максимум "
         f"{brief['max_user_rounds']} пользовательских раунда. Это ограничение теста, не гарантия готовности. "
         "Соблюдать действующие инструкции среды. Не читать исходники прежнего сайта, другие пакеты и отчёты. "
         "Не менять библиотеку.\n\n"
-        f"Результат писать только в `trial-output/{brief['id']}-{arm}/`: "
-        "модульные исходники в текстовых обёртках, воспроизводимый `build.py.txt`, "
-        "готовый `index.html.txt`, `README.md` с точными командами сборки и экспорта, "
-        "`REPORT.md` с направлением, проверками, ограничениями и временем. "
-        "Если каталог уже занят предыдущим запуском, не перезаписывать его; выбрать новый суффикс повтора и записать путь. "
+        + delivery + "\n\n"
         "Не создавать новый репозиторий или commit. Неизвестные метрики оставить неизвестными. "
         "В отчёте записать реально открытые внешние источники и изменение решения после чтения. "
         "Не приписывать себе человеческую приёмку или независимость текущего сеанса. "
@@ -301,7 +332,8 @@ def validate_links(include_reports=True):
 
 def validate_all(sources_only=False):
     resources = read_catalog()
-    registry = read_registry(resources)
+    environments = read_environments()
+    registry = read_registry(resources, environments)
     briefs = sorted((ROOT / "web-library/experiments/briefs").glob("*.json"))
     identifiers = set()
     for path in briefs:
@@ -431,7 +463,8 @@ def selfcheck():
             return action()
 
     resources = read_catalog()
-    registry = read_registry(resources)
+    environments = read_environments()
+    registry = read_registry(resources, environments)
     brief_path = "web-library/experiments/briefs/fold.json"
     brief = load_json(brief_path)
     packets = {arm: make_packet(brief_path, arm) for arm in ARMS}
@@ -471,7 +504,14 @@ def selfcheck():
         changed_registry = copy.deepcopy(registry)
         changed_registry["core_resources"].append(identifier)
         case("inactive_resource:" + identifier, lambda changed_registry=changed_registry:
-             with_json({REGISTRY: changed_registry}, lambda: rejects(lambda: read_registry(resources))))
+             with_json({REGISTRY: changed_registry}, lambda: rejects(lambda: read_registry(resources, environments))))
+    unknown_environment = {**registry, "environment": "missing-contract"}
+    case("unknown_environment_contract", lambda: with_json({REGISTRY: unknown_environment},
+         lambda: rejects(lambda: read_registry(resources, environments))))
+    active_contract = section_body(read_text(environments[registry["environment"]]), "## Каталог сдачи")
+    inactive_contract = section_body(read_text(environments["prism-offline"]), "## Каталог сдачи")
+    case("packet_carries_active_environment", lambda: active_contract in packets["profile"][0])
+    case("packet_excludes_inactive_environment", lambda: inactive_contract not in packets["profile"][0])
     changed_catalog = load_json(CATALOG)
     del changed_catalog["resources"][0]["license_note"]
     case("incomplete_card", lambda: with_json({CATALOG: changed_catalog}, lambda: rejects(read_catalog)))
@@ -543,6 +583,7 @@ def selfcheck():
     case("whole_library", validate_all)
     return {"status": "pass", "count": len(checks), "checks": checks,
             "scope": "Reproducible local contract checks; synthetic accepted report exists only in memory",
+            "environment": registry["environment"],
             "hash_policy": HASH_POLICY, "tool_text_sha256": digest(relative_path(Path(__file__))),
             "browser_validation": "not_run", "website_quality_experiment": "not_run"}
 

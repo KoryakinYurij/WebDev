@@ -2,7 +2,7 @@
   "id": "archive",
   "title": "Дом вещей",
   "profile": "scroll-story",
-  "environment": "prism-offline",
+  "environment": "freebuff-local",
   "capabilities": ["visual-direction", "scroll-motion"],
   "audience": "Русскоязычный посетитель небольшого цифрового архива, который хочет узнать истории предметов без регистрации.",
   "goal": "Понять замысел архива и прочитать одну историю полностью.",

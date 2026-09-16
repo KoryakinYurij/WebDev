@@ -3,7 +3,7 @@
   "library_version": "0.2.0",
   "brief_id": "fold",
   "arm": "core",
-  "environment": "prism-offline",
+  "environment": "freebuff-local",
   "selected_modules": [],
   "selected_resources": [
     "w3c-contrast",
@@ -66,19 +66,19 @@
       "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
     }
   ],
-  "word_count": 2229,
+  "word_count": 2508,
   "word_budget": 4500,
   "hash_policy": "utf8-lf-single-final-newline-v1",
   "input_text_sha256": {
-    "web-library/experiments/briefs/fold.json": "f079bd3dbec9f2617dbcde13895d5a826467bb2744c26ae8ac8794efa3198e6b",
-    "web-library/registry.json": "8d8b89b732c0cf695619679868b821dda17fa4d7f8d677222120dc6795e79c50",
+    "web-library/experiments/briefs/fold.json": "5b00fbea3991358c50c367c58276a3b7fb11b3841e515faee3ce7e3e0d0178a3",
+    "web-library/registry.json": "8d83cd96892fae82272426a1596519a1792ff0ff78e05100d09d1a751c4817d5",
     "web-library/resources/catalog.json": "c2404b84753d122fe14cc3272fb84dd18cfc0c243c3848e690e7ed845eed3c6b",
-    "web-library/ENVIRONMENT.md": "e1fb141016b84428480a32ce8cae55490ced28a31de06b0c45609827fac56830",
+    "web-library/environments/freebuff-local.md": "31b1f04f463a5ca70e919e1452a7758f2b01160d8b47b06305d561df10379a33",
     "web-library/CORE.md": "6313eed1d852fe823b9a4f6017ace37340e68e5e8bd3c3132ed99835330d0d75",
-    "web-library/checks/review.md": "775df7f69064fcc0e1c6655f4206f26c03b82a1274e29ee4a9c1d6362562908f",
-    "web-library/tools/library.py.txt": "b85c6b817265096000a855f44ea64c15cf3af03878d66dd6a2c5ea52a524af2d"
+    "web-library/checks/review.md": "24577f219ab348a5128c3438b5c6a908bc08773facdf4fe1e987e93b78252469",
+    "web-library/tools/library.py.txt": "d8191487b380691e42ff9ccd9987deb4ee7c5b886185a034a96bcbe5b153689c"
   },
-  "packet_text_sha256": "e7c749933b7e7afba0d30a9faa80d65cacbc54c9f2f42af2f2522b4b7c5cf442",
+  "packet_text_sha256": "6cf253d1e8b5c8edba701b22207678071d462263eadee4b22a851e571fac77d2",
   "browser_validation": "not_run",
   "human_design_review": "not_run",
   "experiment_status": "prepared_not_executed"
