@@ -66,19 +66,19 @@
       "reason": "Не требуется выбранному пакету; runtime автоматически не подключается."
     }
   ],
-  "word_count": 2508,
+  "word_count": 2625,
   "word_budget": 4500,
   "hash_policy": "utf8-lf-single-final-newline-v1",
   "input_text_sha256": {
     "web-library/experiments/briefs/fold.json": "5b00fbea3991358c50c367c58276a3b7fb11b3841e515faee3ce7e3e0d0178a3",
     "web-library/registry.json": "8d83cd96892fae82272426a1596519a1792ff0ff78e05100d09d1a751c4817d5",
     "web-library/resources/catalog.json": "c2404b84753d122fe14cc3272fb84dd18cfc0c243c3848e690e7ed845eed3c6b",
-    "web-library/environments/freebuff-local.md": "31b1f04f463a5ca70e919e1452a7758f2b01160d8b47b06305d561df10379a33",
+    "web-library/environments/freebuff-local.md": "e1b0bfad7fb5257176be5b61cbbaddb9f4b66a39eef0afb313624a65aa70eb64",
     "web-library/CORE.md": "6313eed1d852fe823b9a4f6017ace37340e68e5e8bd3c3132ed99835330d0d75",
     "web-library/checks/review.md": "24577f219ab348a5128c3438b5c6a908bc08773facdf4fe1e987e93b78252469",
     "web-library/tools/library.py.txt": "d8191487b380691e42ff9ccd9987deb4ee7c5b886185a034a96bcbe5b153689c"
   },
-  "packet_text_sha256": "6cf253d1e8b5c8edba701b22207678071d462263eadee4b22a851e571fac77d2",
+  "packet_text_sha256": "aafa702e0e689a25bd27178afe600acbd30e8c25c38ba8dfd985ba887b075b30",
   "browser_validation": "not_run",
   "human_design_review": "not_run",
   "experiment_status": "prepared_not_executed"

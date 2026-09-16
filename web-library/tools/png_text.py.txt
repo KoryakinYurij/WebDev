@@ -1,0 +1,250 @@
+#!/usr/bin/env python3
+"""Показывает PNG текстом: агент должен уметь смотреть на свой скриншот.
+
+Зачем: проверки падают и проходят, но «красиво» и «читаемо» — это про пиксели.
+Панель предпросмотра в этом окружении отдаёт устаревший кадр, поэтому нужен
+свой путь от PNG к тому, что агент видит в выводе терминала. Зависимостей нет:
+только стандартная библиотека, потому что ставить пакеты в проверке нельзя.
+
+Что печатает:
+  1. размер и тип изображения;
+  2. сетку яркости символами — видно композицию, поля, плотность текста;
+  3. карту областей в hex — видно палитру и то, где какой цвет действительно лежит;
+  4. долю главных цветов — видно, не занял ли один цвет весь экран.
+
+Использование:
+  python png_text.py СНИМОК.png [--width 100] [--rows 34] [--regions 6x8] [--json]
+  python png_text.py СНИМОК.png --crop 0,150,760,320 --width 110 --rows 22
+  python png_text.py СНИМОК.png --mean 251,443,426,282   # средний цвет области
+"""
+
+from __future__ import annotations
+
+import json
+import struct
+import sys
+import zlib
+from pathlib import Path
+
+RAMP = " .:-=+*#%@"  # от почти белого к почти чёрному
+
+
+def read_png(path: Path):
+    """Возвращает (ширина, высота, пиксели) где пиксели — список кортежей RGB."""
+    data = path.read_bytes()
+    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        raise SystemExit(f"{path}: это не PNG")
+
+    width = height = depth = color_type = interlace = None
+    palette: list[tuple[int, int, int]] = []
+    idat = bytearray()
+    offset = 8
+    while offset < len(data):
+        (length,) = struct.unpack(">I", data[offset : offset + 4])
+        kind = data[offset + 4 : offset + 8]
+        body = data[offset + 8 : offset + 8 + length]
+        offset += 12 + length
+        if kind == b"IHDR":
+            width, height, depth, color_type, _, _, interlace = struct.unpack(">IIBBBBB", body)
+        elif kind == b"PLTE":
+            palette = [tuple(body[i : i + 3]) for i in range(0, len(body), 3)]
+        elif kind == b"IDAT":
+            idat += body
+        elif kind == b"IEND":
+            break
+
+    if depth != 8:
+        raise SystemExit(f"{path}: поддерживается только 8 бит на канал, здесь {depth}")
+    if interlace:
+        raise SystemExit(f"{path}: чересстрочный PNG не поддерживается")
+
+    channels = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}[color_type]
+    raw = zlib.decompress(bytes(idat))
+    stride = width * channels
+    previous = bytearray(stride)
+    pixels: list[tuple[int, int, int]] = []
+    position = 0
+
+    for _ in range(height):
+        filter_type = raw[position]
+        position += 1
+        line = bytearray(raw[position : position + stride])
+        position += stride
+        for index in range(stride):
+            left = line[index - channels] if index >= channels else 0
+            up = previous[index]
+            up_left = previous[index - channels] if index >= channels else 0
+            value = line[index]
+            if filter_type == 1:
+                value += left
+            elif filter_type == 2:
+                value += up
+            elif filter_type == 3:
+                value += (left + up) // 2
+            elif filter_type == 4:
+                estimate = left + up - up_left
+                distances = (abs(estimate - left), abs(estimate - up), abs(estimate - up_left))
+                value += (left, up, up_left)[distances.index(min(distances))]
+            line[index] = value & 0xFF
+        previous = line
+
+        for x in range(width):
+            base = x * channels
+            if color_type == 0:
+                pixels.append((line[base], line[base], line[base]))
+            elif color_type == 4:
+                pixels.append((line[base], line[base], line[base]))
+            elif color_type == 2:
+                pixels.append((line[base], line[base + 1], line[base + 2]))
+            elif color_type == 6:
+                pixels.append((line[base], line[base + 1], line[base + 2]))
+            else:
+                pixels.append(palette[line[base]] if palette else (0, 0, 0))
+
+    return width, height, pixels
+
+
+def luminance(pixel: tuple[int, int, int]) -> float:
+    red, green, blue = pixel
+    return (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255
+
+
+def average_block(pixels, width, height, x0, y0, x1, y1):
+    x1 = max(x1, x0 + 1)
+    y1 = max(y1, y0 + 1)
+    red = green = blue = count = 0
+    for y in range(y0, min(y1, height)):
+        row = y * width
+        for x in range(x0, min(x1, width)):
+            pixel = pixels[row + x]
+            red += pixel[0]
+            green += pixel[1]
+            blue += pixel[2]
+            count += 1
+    count = count or 1
+    return (red // count, green // count, blue // count)
+
+
+def ascii_grid(pixels, width, height, columns, rows):
+    lines = []
+    for row in range(rows):
+        y0 = row * height // rows
+        y1 = (row + 1) * height // rows
+        chars = []
+        for column in range(columns):
+            x0 = column * width // columns
+            x1 = (column + 1) * width // columns
+            value = luminance(average_block(pixels, width, height, x0, y0, x1, y1))
+            index = int(value * (len(RAMP) - 1) + 0.5)
+            chars.append(RAMP[len(RAMP) - 1 - index])
+        lines.append("".join(chars))
+    return lines
+
+
+def region_map(pixels, width, height, columns, rows):
+    grid = []
+    for row in range(rows):
+        y0 = row * height // rows
+        y1 = (row + 1) * height // rows
+        cells = []
+        for column in range(columns):
+            x0 = column * width // columns
+            x1 = (column + 1) * width // columns
+            red, green, blue = average_block(pixels, width, height, x0, y0, x1, y1)
+            cells.append(f"#{red:02x}{green:02x}{blue:02x}")
+        grid.append(cells)
+    return grid
+
+
+def dominant_colors(pixels, top=8):
+    counts: dict[tuple[int, int, int], int] = {}
+    for red, green, blue in pixels:
+        key = (red >> 4 << 4, green >> 4 << 4, blue >> 4 << 4)
+        counts[key] = counts.get(key, 0) + 1
+    total = len(pixels) or 1
+    ordered = sorted(counts.items(), key=lambda item: item[1], reverse=True)[:top]
+    return [
+        {"hex": f"#{r:02x}{g:02x}{b:02x}", "share": round(count / total * 100, 1)}
+        for (r, g, b), count in ordered
+    ]
+
+
+def parse_crop(argv: list[str]) -> tuple[int, int, int, int] | None:
+    if "--mean" not in argv:
+        return None
+    x, y, w, h = (int(value) for value in argv[argv.index("--mean") + 1].split(","))
+    return x, y, w, h
+
+
+def crop_pixels(pixels, width, height, x, y, w, h):
+    """Вырезает прямоугольник и возвращает его как отдельное изображение."""
+    x0, y0 = max(0, x), max(0, y)
+    x1, y1 = min(width, x + w), min(height, y + h)
+    if x1 <= x0 or y1 <= y0:
+        raise SystemExit(f"пустая область вырезки: {x},{y},{w}×{h}")
+    cropped = []
+    for row in range(y0, y1):
+        start = row * width
+        cropped.extend(pixels[start + x0:start + x1])
+    return x1 - x0, y1 - y0, cropped
+
+
+def main(argv: list[str]) -> int:
+    # Консоль Windows по умолчанию cp1252 и падает на кириллице: говорим ей UTF-8.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+    if len(argv) < 2:
+        print(__doc__)
+        return 2
+    path = Path(argv[1])
+    width_arg = int(argv[argv.index("--width") + 1]) if "--width" in argv else 96
+    rows_arg = int(argv[argv.index("--rows") + 1]) if "--rows" in argv else 32
+    regions = argv[argv.index("--regions") + 1] if "--regions" in argv else "6x6"
+    as_json = "--json" in argv
+
+    width, height, pixels = read_png(path)
+
+    zoom = argv[argv.index("--crop") + 1] if "--crop" in argv else None
+    if zoom:
+        width, height, pixels = crop_pixels(
+            pixels, width, height, *(int(value) for value in zoom.split(",")))
+
+    crop = parse_crop(argv)
+    if crop:
+        # Средний цвет области: числовое доказательство «стало видно» без глаз.
+        x, y, w, h = crop
+        red, green, blue = average_block(pixels, width, height, x, y, x + w, y + h)
+        print(f"{path.name}: средний цвет области {x},{y},{w}×{h} — #{red:02x}{green:02x}{blue:02x}"
+              f" (яркость {luminance((red, green, blue)):.3f})")
+        return 0
+
+    region_columns, region_rows = (int(value) for value in regions.lower().split("x"))
+    grid = ascii_grid(pixels, width, height, width_arg, rows_arg)
+    regions_map = region_map(pixels, width, height, region_columns, region_rows)
+    colors = dominant_colors(pixels)
+
+    if as_json:
+        print(json.dumps(
+            {"file": path.name, "width": width, "height": height, "ascii": grid,
+             "regions": regions_map, "colors": colors},
+            ensure_ascii=False, indent=2))
+        return 0
+
+    print(f"{path.name}: {width}×{height}px, яркая сетка {width_arg}×{rows_arg}")
+    print("шкала яркости: '" + RAMP[-1] + "' самый тёмный, '" + RAMP[0] + "' самый светлый")
+    print("+" + "-" * width_arg + "+")
+    for line in grid:
+        print("|" + line + "|")
+    print("+" + "-" * width_arg + "+")
+    print(f"\nобласти {region_columns}×{region_rows} (в hex):")
+    for row in regions_map:
+        print("  " + " ".join(row))
+    print("\nглавные цвета (квантование по 4 бита):")
+    for color in colors:
+        print(f"  {color['hex']} — {color['share']}%")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

@@ -1,0 +1,98 @@
+{
+  "schema_version": 2,
+  "status": "completed",
+  "brief_id": "fold",
+  "arm": "profile",
+  "repeat": 1,
+  "packet_manifest": "web-library/packets/fold-profile.json",
+  "model_exact": "buffy-codebuff, точная версия модели средой не сообщалась",
+  "model_settings": null,
+  "tools_and_versions": [
+    "Node v22.23.1",
+    "Python 3.13.15",
+    "Playwright 1.63.0",
+    "Chromium 153.0.8010.12",
+    "git 2.49.0",
+    "Windows, рабочая копия Freebuff"
+  ],
+  "started_at": "2026-09-16",
+  "finished_at": "2026-09-16",
+  "elapsed_minutes": null,
+  "token_usage": null,
+  "user_rounds": 1,
+  "internal_revisions": 8,
+  "context_contaminated": true,
+  "artifacts": [
+    "trial-output/fold-profile/index.html",
+    "trial-output/fold-profile/styles.css",
+    "trial-output/fold-profile/main.js",
+    "trial-output/fold-profile/build.mjs",
+    "trial-output/fold-profile/dist/index.html",
+    "trial-output/fold-profile/checks/verify.mjs",
+    "trial-output/fold-profile/checks/report.txt",
+    "trial-output/fold-profile/checks/audits/shots.mjs",
+    "trial-output/fold-profile/checks/audits/audit-light.mjs",
+    "trial-output/fold-profile/checks/audits/audit-paint.mjs",
+    "trial-output/fold-profile/checks/audits/audit-visual.mjs",
+    "trial-output/fold-profile/checks/audits/audit-fold.mjs",
+    "trial-output/fold-profile/README.md",
+    "trial-output/fold-profile/REPORT.md",
+    "trial-output/fold-profile/STEPS.md"
+  ],
+  "checks": [
+    {"id": "T01", "round": 1, "status": "pass", "evidence_path": "trial-output/fold-profile/checks/report.txt"},
+    {"id": "T02", "round": 1, "status": "pass", "evidence_path": "trial-output/fold-profile/checks/report.txt"},
+    {"id": "T03", "round": 1, "status": "pass", "evidence_path": "trial-output/fold-profile/checks/report.txt"},
+    {"id": "T04", "round": 1, "status": "pass", "evidence_path": "trial-output/fold-profile/checks/report.txt"},
+    {"id": "T05", "round": 1, "status": "pass", "evidence_path": "trial-output/fold-profile/checks/report.txt"},
+    {"id": "T06", "round": 1, "status": "pass", "evidence_path": "trial-output/fold-profile/checks/report.txt"},
+    {"id": "T07", "round": 1, "status": "pass", "evidence_path": "trial-output/fold-profile/checks/report.txt"},
+    {"id": "T08", "round": 1, "status": "pass", "evidence_path": "trial-output/fold-profile/checks/report.txt"},
+    {"id": "T09", "round": 1, "status": "pass", "evidence_path": "trial-output/fold-profile/checks/report.txt"},
+    {"id": "T10", "round": 1, "status": "pass", "evidence_path": "trial-output/fold-profile/checks/report.txt"},
+    {"id": "T11", "round": 1, "status": "pass", "evidence_path": "trial-output/fold-profile/checks/report.txt"},
+    {"id": "T12", "round": 1, "status": "pass", "evidence_path": "trial-output/fold-profile/checks/report.txt"}
+  ],
+  "source_reads": [],
+  "browser_evidence": [
+    {"round": 1, "path": "trial-output/fold-profile/evidence/light-05.png"},
+    {"round": 1, "path": "trial-output/fold-profile/evidence/light-1.png"},
+    {"round": 1, "path": "trial-output/fold-profile/evidence/09-story-beside-scene.png"},
+    {"round": 1, "path": "trial-output/fold-profile/evidence/03-reduced-frames.png"},
+    {"round": 1, "path": "trial-output/fold-profile/evidence/07-frames-390.png"},
+    {"round": 1, "path": "trial-output/fold-profile/evidence/05-no-js.png"},
+    {"round": 1, "path": "trial-output/fold-profile/evidence/06-export-1440.png"}
+  ],
+  "visual_scores": {
+    "clarity": null,
+    "appropriateness": null,
+    "composition_typography": null,
+    "motion_purpose": null
+  },
+  "human_review_evidence": [],
+  "second_visual_scores": {
+    "clarity": null,
+    "appropriateness": null,
+    "composition_typography": null,
+    "motion_purpose": null
+  },
+  "first_pass_accepted": null,
+  "substantial_fixes": [
+    "Первый вариант страницы был сдан и отклонён по картинке: контраст объекта и фона 1,07:1 против 7,1:1 у предыдущей работы репозитория. Тот же бриф переделан в направление «ночная мастерская»; после разворота отношение 6,5…16,5:1 по углу сгиба, и появилась проверка тонального диапазона кадра по пикселям."
+  ],
+  "second_prompt_exact": null,
+  "second_pass_accepted": null,
+  "failure_categories": [
+    "визуальный диапазон: первый вариант не отделял объект от фона"
+  ],
+  "limitations": [
+    "Человеческой приёмки не было: четыре оси оставлены null, потому что их ставит человек, а не исполнитель.",
+    "Запуск не независимый: исполнитель читал и правил саму библиотеку, поэтому удобство пакета этим запуском не измеряется.",
+    "Внешние справочники запуск не открывал: пороги и правила уже приведены в самом пакете, поэтому source_reads пуст.",
+    "Точное время начала и конца, расход токенов и версия модели средой не сообщались; null означает неизвестное, а не ноль.",
+    "Внутренние правки (8): четыре дефекта страницы (липкая строка, место чтения при смене раскладки, рассказ за кадром, плоский сложенный лист), два дефекта проверок, влияние инструмента на измеряемое, и переделка светлой палитры в тёмную. Перечень — в trial-output/fold-profile/STEPS.md, разделы 6 и 10.",
+    "Пакет исполнения: web-library/packets/fold-profile.md, packet_text_sha256 93de1ff9c635c6cd99037fec4ec5ed50ad8f64ddc954b87d6c51d8b117b0c1e2 при политике hash_policy utf8-lf-single-final-newline-v1. После обоих запусков библиотека получила правки из reports/pilot-v0.4.md (контракт среды и инструмент просмотра снимков), пакеты пересобраны, поэтому текущий манифест содержит другой хэш: это признак того, что запуск делался по более старой версии.",
+    "Одна проверка (B24) считает средний цвет по снимку через web-library/tools/png_text.py.txt: набор проверок зависит от Python и от файла библиотеки.",
+    "Панель предпросмотра в этом окружении отдавала устаревший кадр, поэтому просмотр шёл разбором PNG без графической панели."
+  ]
+}
