@@ -1,0 +1,239 @@
+/* Линия сгиба — arm A (core). Направление: инструкционный лист мастерской.
+   Один столбец, волосяные линейки, чернила на бумаге, единственный акцент — линия сгиба. */
+
+:root {
+  --paper: #f4f5f2;
+  --ink: #191c20;
+  --ink-soft: #4f565e;
+  --rule: #c9cec7;
+  --accent: #1b6a72;
+  --lift: #e7e9e4;
+
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --font-text: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+
+  --step--1: clamp(0.86rem, 0.82rem + 0.2vw, 0.95rem);
+  --step-0: clamp(1rem, 0.96rem + 0.25vw, 1.09rem);
+  --step-1: clamp(1.2rem, 1.1rem + 0.5vw, 1.4rem);
+  --step-2: clamp(1.5rem, 1.32rem + 0.9vw, 1.95rem);
+  --step-3: clamp(2rem, 1.6rem + 2vw, 3.1rem);
+
+  --measure: 34rem;
+  --measure-wide: 46rem;
+  --gutter: clamp(1.1rem, 5vw, 3.5rem);
+  --space: clamp(2.6rem, 6vh + 1rem, 5rem);
+}
+
+* { box-sizing: border-box; }
+
+html { color-scheme: light; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  line-height: 1.62;
+  -webkit-text-size-adjust: 100%;
+}
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.14; margin: 0; }
+p { margin: 0 0 1.05em; }
+p:last-child { margin-bottom: 0; }
+a { color: inherit; }
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.6rem 1rem;
+  z-index: 2;
+}
+.skip:focus { left: 0.5rem; top: 0.5rem; }
+
+/* ---------- шапка ---------- */
+
+.masthead {
+  display: grid;
+  gap: 0.5rem clamp(1rem, 4vw, 2.5rem);
+  align-items: baseline;
+  padding: 1.4rem var(--gutter) 1rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.masthead__mark {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  letter-spacing: -0.01em;
+}
+
+.masthead__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.4rem;
+  font-size: var(--step--1);
+}
+.masthead__nav a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--rule); padding-bottom: 0.1rem; }
+.masthead__nav a:hover { color: var(--ink); border-bottom-color: var(--accent); }
+
+.motion { margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem 0.9rem; align-items: center; font-size: var(--step--1); color: var(--ink-soft); }
+.motion__note { color: var(--ink-soft); }
+
+@media (min-width: 56rem) {
+  .masthead { grid-template-columns: auto 1fr auto; }
+  .masthead__nav { justify-content: center; }
+}
+
+/* ---------- общий каркас ---------- */
+
+main { display: block; }
+
+.hero, .states, .practice, .questions {
+  padding: var(--space) var(--gutter);
+  border-bottom: 1px solid var(--rule);
+}
+.foot { padding: 1.6rem var(--gutter) 3rem; color: var(--ink-soft); font-size: var(--step--1); max-width: var(--measure-wide); }
+
+.hero > * , .states > * , .practice > * , .questions > * { max-width: var(--measure); }
+.states > .scene, .practice > .scheme, .hero > .figure { max-width: var(--measure-wide); }
+
+h2 { font-size: var(--step-2); margin-bottom: 0.7rem; }
+h3 { font-size: var(--step-1); margin-bottom: 0.5rem; }
+
+.hero__kicker {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  letter-spacing: 0.01em;
+  margin-bottom: 0.9rem;
+}
+.hero__lead { font-size: var(--step-1); }
+.hero__action { margin: 1.6rem 0 2.4rem; }
+h1 { font-size: var(--step-3); letter-spacing: -0.02em; margin-bottom: 0.8rem; }
+
+.action {
+  display: inline-block;
+  min-height: 44px;
+  padding: 0.75rem 1.25rem;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  border: 1px solid var(--ink);
+  font-size: var(--step-0);
+}
+.action:hover { background: var(--accent); border-color: var(--accent); }
+
+.ghost {
+  min-height: 44px;
+  padding: 0.7rem 1.15rem;
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.ghost:hover { border-color: var(--accent); color: var(--accent); }
+.ghost[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+.motion__button {
+  min-height: 36px;
+  padding: 0.35rem 0.8rem;
+  background: transparent;
+  color: inherit;
+  border: 1px solid var(--rule);
+  font: inherit;
+  cursor: pointer;
+}
+.motion__button:hover { border-color: var(--ink); color: var(--ink); }
+.motion__button[disabled] { cursor: default; border-style: dashed; opacity: 0.75; }
+
+/* ---------- фигуры ---------- */
+
+.figure { margin: 0; }
+.figure svg { display: block; width: 100%; height: auto; }
+
+.sheet { fill: #fdfdfb; stroke: var(--ink); stroke-width: 1.4; }
+.lift { fill: var(--lift); stroke: var(--ink); stroke-width: 1.4; }
+.shadow { fill: rgba(25, 28, 32, 0.11); }
+.crease { stroke: var(--accent); stroke-width: 2.4; }
+.crease--quiet { stroke: var(--rule); stroke-width: 1.4; }
+.tick { stroke: var(--accent); stroke-width: 2; }
+
+.figure figcaption {
+  margin-top: 0.7rem;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  max-width: var(--measure);
+}
+.figure__num { font-family: var(--font-mono); color: var(--ink); }
+
+.hero > .figure--hero { margin-top: 0.6rem; max-width: 30rem; }
+
+/* ---------- сцена трёх состояний ---------- */
+
+.scene {
+  display: grid;
+  gap: clamp(1.4rem, 4vw, 2.4rem);
+  margin: 2rem 0 1.2rem;
+}
+@media (min-width: 52rem) { .scene { grid-template-columns: repeat(3, 1fr); } }
+
+.stage svg { transition: opacity 220ms ease; }
+.stage figcaption { margin-top: 0.6rem; }
+
+/* Подчёркивание текущего состояния включает только скрипт: базовая разметка
+   читается целиком, и при отказе скрипта ничего не исчезает. Приглушается только
+   рисунок: текст подписи остаётся на полном контрасте. */
+html.js .scene[data-enhanced="true"] .stage svg { opacity: 0.5; }
+html.js .scene[data-enhanced="true"] .stage.is-current svg { opacity: 1; }
+html.js .scene[data-enhanced="true"] .stage.is-current figcaption { color: var(--ink); }
+
+.scene__note { color: var(--ink-soft); font-size: var(--step--1); }
+
+/* ---------- проба и схема ---------- */
+
+.steps { margin: 1.2rem 0 1.4rem; padding-left: 1.3rem; display: grid; gap: 0.55rem; }
+.steps li { padding-left: 0.2rem; }
+
+.practice__note { color: var(--ink-soft); }
+
+.scheme { margin-top: 2.6rem; padding-top: 1.6rem; border-top: 1px solid var(--rule); }
+.scheme__state { color: var(--ink-soft); font-size: var(--step--1); }
+.scheme__controls { display: flex; flex-wrap: wrap; gap: 0.8rem 1rem; align-items: center; margin: 1.2rem 0 0.9rem; }
+.scheme__live { color: var(--ink-soft); font-size: var(--step--1); }
+.scheme__fallback { color: var(--ink-soft); font-size: var(--step--1); max-width: var(--measure); }
+.scheme__lift { opacity: 0; transition: opacity 220ms ease; }
+.scheme.is-folded .scheme__lift { opacity: 1; }
+
+/* ---------- вопросы ---------- */
+
+.faq { margin: 0; display: grid; gap: 0.2rem 2rem; }
+.faq dt { font-family: var(--font-display); font-size: var(--step-1); padding-top: 1rem; border-top: 1px solid var(--rule); }
+.faq dd { margin: 0.35rem 0 0; color: var(--ink-soft); }
+@media (min-width: 52rem) {
+  .faq { grid-template-columns: 18rem 1fr; }
+  .faq dt { grid-column: 1; }
+  .faq dd { grid-column: 2; margin-top: 1rem; }
+}
+
+/* ---------- уменьшенное движение ---------- */
+
+html[data-motion="reduced"] .stage,
+html[data-motion="reduced"] .stage *,
+html[data-motion="reduced"] .scheme__lift { transition: none !important; }
+
+html[data-motion="reduced"] .scene[data-enhanced="true"] .stage svg { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stage, .stage *, .scheme__lift { transition: none !important; }
+}

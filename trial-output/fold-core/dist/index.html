@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Линия сгиба — мастерская бумажных объектов</title>
+<meta name="description" content="Демонстрационная страница вымышленной мастерской бумажных объектов: один сгиб, три состояния листа и первая самостоятельная проба.">
+<style>
+/* Линия сгиба — arm A (core). Направление: инструкционный лист мастерской.
+   Один столбец, волосяные линейки, чернила на бумаге, единственный акцент — линия сгиба. */
+
+:root {
+  --paper: #f4f5f2;
+  --ink: #191c20;
+  --ink-soft: #4f565e;
+  --rule: #c9cec7;
+  --accent: #1b6a72;
+  --lift: #e7e9e4;
+
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --font-text: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+
+  --step--1: clamp(0.86rem, 0.82rem + 0.2vw, 0.95rem);
+  --step-0: clamp(1rem, 0.96rem + 0.25vw, 1.09rem);
+  --step-1: clamp(1.2rem, 1.1rem + 0.5vw, 1.4rem);
+  --step-2: clamp(1.5rem, 1.32rem + 0.9vw, 1.95rem);
+  --step-3: clamp(2rem, 1.6rem + 2vw, 3.1rem);
+
+  --measure: 34rem;
+  --measure-wide: 46rem;
+  --gutter: clamp(1.1rem, 5vw, 3.5rem);
+  --space: clamp(2.6rem, 6vh + 1rem, 5rem);
+}
+
+* { box-sizing: border-box; }
+
+html { color-scheme: light; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  line-height: 1.62;
+  -webkit-text-size-adjust: 100%;
+}
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.14; margin: 0; }
+p { margin: 0 0 1.05em; }
+p:last-child { margin-bottom: 0; }
+a { color: inherit; }
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.6rem 1rem;
+  z-index: 2;
+}
+.skip:focus { left: 0.5rem; top: 0.5rem; }
+
+/* ---------- шапка ---------- */
+
+.masthead {
+  display: grid;
+  gap: 0.5rem clamp(1rem, 4vw, 2.5rem);
+  align-items: baseline;
+  padding: 1.4rem var(--gutter) 1rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.masthead__mark {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  letter-spacing: -0.01em;
+}
+
+.masthead__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.4rem;
+  font-size: var(--step--1);
+}
+.masthead__nav a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--rule); padding-bottom: 0.1rem; }
+.masthead__nav a:hover { color: var(--ink); border-bottom-color: var(--accent); }
+
+.motion { margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem 0.9rem; align-items: center; font-size: var(--step--1); color: var(--ink-soft); }
+.motion__note { color: var(--ink-soft); }
+
+@media (min-width: 56rem) {
+  .masthead { grid-template-columns: auto 1fr auto; }
+  .masthead__nav { justify-content: center; }
+}
+
+/* ---------- общий каркас ---------- */
+
+main { display: block; }
+
+.hero, .states, .practice, .questions {
+  padding: var(--space) var(--gutter);
+  border-bottom: 1px solid var(--rule);
+}
+.foot { padding: 1.6rem var(--gutter) 3rem; color: var(--ink-soft); font-size: var(--step--1); max-width: var(--measure-wide); }
+
+.hero > * , .states > * , .practice > * , .questions > * { max-width: var(--measure); }
+.states > .scene, .practice > .scheme, .hero > .figure { max-width: var(--measure-wide); }
+
+h2 { font-size: var(--step-2); margin-bottom: 0.7rem; }
+h3 { font-size: var(--step-1); margin-bottom: 0.5rem; }
+
+.hero__kicker {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  letter-spacing: 0.01em;
+  margin-bottom: 0.9rem;
+}
+.hero__lead { font-size: var(--step-1); }
+.hero__action { margin: 1.6rem 0 2.4rem; }
+h1 { font-size: var(--step-3); letter-spacing: -0.02em; margin-bottom: 0.8rem; }
+
+.action {
+  display: inline-block;
+  min-height: 44px;
+  padding: 0.75rem 1.25rem;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  border: 1px solid var(--ink);
+  font-size: var(--step-0);
+}
+.action:hover { background: var(--accent); border-color: var(--accent); }
+
+.ghost {
+  min-height: 44px;
+  padding: 0.7rem 1.15rem;
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.ghost:hover { border-color: var(--accent); color: var(--accent); }
+.ghost[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+.motion__button {
+  min-height: 36px;
+  padding: 0.35rem 0.8rem;
+  background: transparent;
+  color: inherit;
+  border: 1px solid var(--rule);
+  font: inherit;
+  cursor: pointer;
+}
+.motion__button:hover { border-color: var(--ink); color: var(--ink); }
+.motion__button[disabled] { cursor: default; border-style: dashed; opacity: 0.75; }
+
+/* ---------- фигуры ---------- */
+
+.figure { margin: 0; }
+.figure svg { display: block; width: 100%; height: auto; }
+
+.sheet { fill: #fdfdfb; stroke: var(--ink); stroke-width: 1.4; }
+.lift { fill: var(--lift); stroke: var(--ink); stroke-width: 1.4; }
+.shadow { fill: rgba(25, 28, 32, 0.11); }
+.crease { stroke: var(--accent); stroke-width: 2.4; }
+.crease--quiet { stroke: var(--rule); stroke-width: 1.4; }
+.tick { stroke: var(--accent); stroke-width: 2; }
+
+.figure figcaption {
+  margin-top: 0.7rem;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  max-width: var(--measure);
+}
+.figure__num { font-family: var(--font-mono); color: var(--ink); }
+
+.hero > .figure--hero { margin-top: 0.6rem; max-width: 30rem; }
+
+/* ---------- сцена трёх состояний ---------- */
+
+.scene {
+  display: grid;
+  gap: clamp(1.4rem, 4vw, 2.4rem);
+  margin: 2rem 0 1.2rem;
+}
+@media (min-width: 52rem) { .scene { grid-template-columns: repeat(3, 1fr); } }
+
+.stage svg { transition: opacity 220ms ease; }
+.stage figcaption { margin-top: 0.6rem; }
+
+/* Подчёркивание текущего состояния включает только скрипт: базовая разметка
+   читается целиком, и при отказе скрипта ничего не исчезает. Приглушается только
+   рисунок: текст подписи остаётся на полном контрасте. */
+html.js .scene[data-enhanced="true"] .stage svg { opacity: 0.5; }
+html.js .scene[data-enhanced="true"] .stage.is-current svg { opacity: 1; }
+html.js .scene[data-enhanced="true"] .stage.is-current figcaption { color: var(--ink); }
+
+.scene__note { color: var(--ink-soft); font-size: var(--step--1); }
+
+/* ---------- проба и схема ---------- */
+
+.steps { margin: 1.2rem 0 1.4rem; padding-left: 1.3rem; display: grid; gap: 0.55rem; }
+.steps li { padding-left: 0.2rem; }
+
+.practice__note { color: var(--ink-soft); }
+
+.scheme { margin-top: 2.6rem; padding-top: 1.6rem; border-top: 1px solid var(--rule); }
+.scheme__state { color: var(--ink-soft); font-size: var(--step--1); }
+.scheme__controls { display: flex; flex-wrap: wrap; gap: 0.8rem 1rem; align-items: center; margin: 1.2rem 0 0.9rem; }
+.scheme__live { color: var(--ink-soft); font-size: var(--step--1); }
+.scheme__fallback { color: var(--ink-soft); font-size: var(--step--1); max-width: var(--measure); }
+.scheme__lift { opacity: 0; transition: opacity 220ms ease; }
+.scheme.is-folded .scheme__lift { opacity: 1; }
+
+/* ---------- вопросы ---------- */
+
+.faq { margin: 0; display: grid; gap: 0.2rem 2rem; }
+.faq dt { font-family: var(--font-display); font-size: var(--step-1); padding-top: 1rem; border-top: 1px solid var(--rule); }
+.faq dd { margin: 0.35rem 0 0; color: var(--ink-soft); }
+@media (min-width: 52rem) {
+  .faq { grid-template-columns: 18rem 1fr; }
+  .faq dt { grid-column: 1; }
+  .faq dd { grid-column: 2; margin-top: 1rem; }
+}
+
+/* ---------- уменьшенное движение ---------- */
+
+html[data-motion="reduced"] .stage,
+html[data-motion="reduced"] .stage *,
+html[data-motion="reduced"] .scheme__lift { transition: none !important; }
+
+html[data-motion="reduced"] .scene[data-enhanced="true"] .stage svg { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stage, .stage *, .scheme__lift { transition: none !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Перейти к содержанию</a>
+
+<header class="masthead">
+  <p class="masthead__mark">Линия сгиба</p>
+  <nav class="masthead__nav" aria-label="Разделы страницы">
+    <a href="#states">Три состояния</a>
+    <a href="#first-fold">Первая проба</a>
+    <a href="#questions">Вопросы</a>
+  </nav>
+  <p class="motion">
+    <button class="motion__button" type="button" id="motion-toggle" hidden>Уменьшить движение</button>
+    <span class="motion__note" id="motion-note">Движение включено.</span>
+  </p>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="hero-title">
+    <p class="hero__kicker">Мастерская бумажных объектов · демонстрационный материал</p>
+    <h1 id="hero-title">Из плоскости — в форму</h1>
+    <p class="hero__lead">Линия сгиба — вымышленная мастерская бумажных объектов. Здесь обычный лист становится поводом посмотреть на форму по-новому. Начните с одного сгиба: не нужны специальные инструменты или опыт.</p>
+    <p class="hero__action"><a class="action" href="#first-fold">Попробовать первый сгиб</a></p>
+    <figure class="figure figure--hero">
+      <svg viewBox="0 0 320 220" role="img" aria-labelledby="fig1-title fig1-desc">
+        <title id="fig1-title">Лист бумаги с линией сгиба посередине</title>
+        <desc id="fig1-desc">Прямоугольный лист, разделённый горизонтальной линией сгиба на две равные половины.</desc>
+        <rect class="sheet" x="40" y="40" width="240" height="150" rx="1"/>
+        <line class="crease" x1="40" y1="115" x2="280" y2="115"/>
+      </svg>
+      <figcaption>Рис. 1. Плоский лист и линия сгиба: пока это только граница между двумя половинами.</figcaption>
+    </figure>
+  </section>
+
+  <section class="states" id="states" aria-labelledby="states-title">
+    <h2 id="states-title">Три состояния листа</h2>
+    <p>Плоскость: перед вами чистый лист. Линия: сгиб задаёт направление. Объём: приподнятая часть меняет силуэт. Посмотрите последовательность при прокрутке — текст остаётся читаемым и без движения, и без скриптов.</p>
+    <div class="scene" id="scene" data-motion="on">
+      <figure class="figure stage" data-stage="0">
+        <svg viewBox="0 0 320 220" role="img" aria-labelledby="s0-title s0-desc">
+          <title id="s0-title">Состояние «Плоскость»</title>
+          <desc id="s0-desc">Лист лежит целиком на столе, обе половины в одной плоскости.</desc>
+          <rect class="sheet" x="40" y="40" width="240" height="150" rx="1"/>
+          <line class="crease crease--quiet" x1="40" y1="115" x2="280" y2="115"/>
+        </svg>
+        <figcaption><span class="figure__num">1 · Плоскость</span> Обе половины лежат на столе. Формы ещё нет — есть только материал.</figcaption>
+      </figure>
+
+      <figure class="figure stage" data-stage="1">
+        <svg viewBox="0 0 320 220" role="img" aria-labelledby="s1-title s1-desc">
+          <title id="s1-title">Состояние «Линия»</title>
+          <desc id="s1-desc">Тот же лист, линия сгиба выделена как направление, добавлены короткие штрихи-указатели по краям.</desc>
+          <rect class="sheet" x="40" y="40" width="240" height="150" rx="1"/>
+          <line class="crease" x1="40" y1="115" x2="280" y2="115"/>
+          <line class="tick" x1="26" y1="107" x2="26" y2="123"/>
+          <line class="tick" x1="294" y1="107" x2="294" y2="123"/>
+        </svg>
+        <figcaption><span class="figure__num">2 · Линия</span> Сгиб задаёт направление: он решает, где лист перестанет быть одним прямоугольником.</figcaption>
+      </figure>
+
+      <figure class="figure stage" data-stage="2">
+        <svg viewBox="0 0 320 220" role="img" aria-labelledby="s2-title s2-desc">
+          <title id="s2-title">Состояние «Объём»</title>
+          <desc id="s2-desc">Дальняя половина поднята трапецией над линией сгиба, на ближней половине видна мягкая тень.</desc>
+          <rect class="sheet" x="40" y="115" width="240" height="75" rx="1"/>
+          <polygon class="shadow" points="40,115 280,115 258,152 62,152"/>
+          <polygon class="lift" points="40,115 280,115 242,48 78,48"/>
+          <line class="crease" x1="40" y1="115" x2="280" y2="115"/>
+        </svg>
+        <figcaption><span class="figure__num">3 · Объём</span> Приподнятая половина меняет силуэт: лист читается как объект, а не как контур.</figcaption>
+      </figure>
+    </div>
+    <p class="scene__note" id="scene-note">При уменьшенном движении все три состояния показаны сразу, без подчёркивания текущего.</p>
+  </section>
+
+  <section class="practice" id="first-fold" aria-labelledby="practice-title">
+    <h2 id="practice-title">Сначала попробуйте</h2>
+    <ol class="steps">
+      <li>Подготовьте обычный лист бумаги и свободное место на столе.</li>
+      <li>Сложите лист пополам и раскройте. Найдите получившуюся линию.</li>
+      <li>Приподнимите одну сторону и посмотрите, как меняется силуэт.</li>
+    </ol>
+    <p class="practice__note">Это исследование формы, не экзамен на точность.</p>
+
+    <div class="scheme">
+      <h3>Схема сгиба</h3>
+      <p class="scheme__state" id="scheme-state">Лист показан плоским: обе половины в одной плоскости.</p>
+      <figure class="figure figure--scheme">
+        <svg viewBox="0 0 320 220" role="img" aria-labelledby="scheme-title scheme-desc">
+          <title id="scheme-title">Схема листа: плоский и сложенный</title>
+          <desc id="scheme-desc">Отдельная от сцен схема показывает два положения: плоское и со поднятой половиной. Второе доступно по кнопке.</desc>
+          <rect class="sheet" x="40" y="40" width="240" height="150" rx="1"/>
+          <polygon class="lift scheme__lift" points="40,115 280,115 242,48 78,48"/>
+          <line class="crease" x1="40" y1="115" x2="280" y2="115"/>
+        </svg>
+        <figcaption>Рис. 4. Схема не связана с прокруткой: своё положение она меняет только по кнопке.</figcaption>
+      </figure>
+      <p class="scheme__controls">
+        <button class="ghost" type="button" id="fold-toggle" hidden>Показать сгиб</button>
+        <span class="scheme__live" id="fold-status" role="status"></span>
+      </p>
+      <p class="scheme__fallback">Без скриптов схема показана в плоском положении, а объяснение остаётся текстом: поднятая половина меняет силуэт, повторное действие возвращает плоскость.</p>
+    </div>
+  </section>
+
+  <section class="questions" id="questions" aria-labelledby="questions-title">
+    <h2 id="questions-title">Частые вопросы</h2>
+    <dl class="faq">
+      <dt>Нужна ли специальная бумага?</dt>
+      <dd>Нет, для первой пробы подойдёт обычный лист.</dd>
+      <dt>Нужны ли ножницы и клей?</dt>
+      <dd>В этой пробе — нет.</dd>
+      <dt>Что делать дальше?</dt>
+      <dd>Повторите опыт с другим направлением сгиба и сравните силуэты.</dd>
+    </dl>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>Вымышленная мастерская. Все материалы демонстрационные: ни отзывов, ни цифр, ни записи на занятия здесь нет.</p>
+</footer>
+
+<script>
+/* Линия сгиба — arm A (core).
+   Прогрессивное улучшение: без скрипта страница читается целиком, схема стоит плоско,
+   оба переключателя скрыты. Скрипт добавляет только подчёркивание состояний, появление
+   секций и управление схемой. Ни одной зависимости, ни одного сетевого запроса. */
+
+(function () {
+  "use strict";
+
+  var root = document.documentElement;
+  root.classList.add("js");
+
+  var MANUAL_KEY = "fold-core.motion";
+  var state = { manual: false, system: false };
+
+  function effectiveReduced() {
+    return state.system || state.manual;
+  }
+
+  function readManual() {
+    try {
+      return window.localStorage.getItem(MANUAL_KEY) === "reduced";
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function writeManual(value) {
+    try {
+      window.localStorage.setItem(MANUAL_KEY, value ? "reduced" : "full");
+    } catch (error) {
+      /* Запрет хранилища не влияет на работу: настройка просто не запоминается. */
+    }
+  }
+
+  var systemQuery = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+
+  /* ---------- режим движения ---------- */
+
+  var motionButton = document.getElementById("motion-toggle");
+  var motionNote = document.getElementById("motion-note");
+
+  function renderMotion() {
+    var reduced = effectiveReduced();
+    root.setAttribute("data-motion", reduced ? "reduced" : "full");
+
+    if (motionButton) {
+      motionButton.hidden = false;
+      motionButton.disabled = state.system;
+      motionButton.setAttribute("aria-pressed", state.manual ? "true" : "false");
+      motionButton.textContent = "Уменьшить движение";
+    }
+    if (motionNote) {
+      if (state.system && state.manual) {
+        motionNote.textContent = "Движение уменьшено: системная настройка и ручной переключатель. Системную настройку переключатель не отменяет.";
+      } else if (state.system) {
+        motionNote.textContent = "Движение уменьшено системной настройкой — переключатель не действует.";
+      } else if (state.manual) {
+        motionNote.textContent = "Движение уменьшено вручную.";
+      } else {
+        motionNote.textContent = "Движение включено.";
+      }
+    }
+    if (motionButton) {
+      motionButton.setAttribute("aria-describedby", "motion-note");
+    }
+    applyMotionToScene();
+  }
+
+  if (motionButton) {
+    motionButton.addEventListener("click", function () {
+      state.manual = !state.manual;
+      writeManual(state.manual);
+      renderMotion();
+    });
+  }
+
+  if (systemQuery) {
+    state.system = systemQuery.matches;
+    var onSystemChange = function (event) {
+      state.system = event.matches;
+      renderMotion();
+    };
+    if (systemQuery.addEventListener) {
+      systemQuery.addEventListener("change", onSystemChange);
+    } else if (systemQuery.addListener) {
+      systemQuery.addListener(onSystemChange);
+    }
+  }
+
+  state.manual = readManual();
+
+  /* ---------- сцена трёх состояний ---------- */
+
+  var scene = document.getElementById("scene");
+  var stages = scene ? Array.prototype.slice.call(scene.querySelectorAll(".stage")) : [];
+  var stageObserver = null;
+
+  /* Подчёркивать текущий кадр имеет смысл только когда кадры идут друг под другом.
+     На широком экране они стоят в один ряд, и «текущим» оказывался бы всегда первый:
+     поэтому там все три показаны равнозначно. */
+  var wideQuery = window.matchMedia ? window.matchMedia("(min-width: 52rem)") : null;
+
+  function stacked() {
+    return wideQuery ? !wideQuery.matches : true;
+  }
+
+  function applyMotionToScene() {
+    if (!scene) return;
+    var enhance = !effectiveReduced() && stacked() && stageObserver;
+    scene.setAttribute("data-enhanced", enhance ? "true" : "false");
+    if (!enhance) {
+      stages.forEach(function (stage) { stage.classList.remove("is-current"); });
+    } else {
+      markCurrentStage();
+    }
+  }
+
+  if (wideQuery) {
+    var onWidthChange = function () { applyMotionToScene(); };
+    if (wideQuery.addEventListener) {
+      wideQuery.addEventListener("change", onWidthChange);
+    } else if (wideQuery.addListener) {
+      wideQuery.addListener(onWidthChange);
+    }
+  }
+
+  function stageLine(stage) {
+    var box = stage.getBoundingClientRect();
+    return box.top + box.height / 2;
+  }
+
+  function markCurrentStage() {
+    if (!stages.length) return;
+    var middle = window.innerHeight * 0.55;
+    var best = stages[0];
+    var bestDistance = Infinity;
+    stages.forEach(function (stage) {
+      var distance = Math.abs(stageLine(stage) - middle);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        best = stage;
+      }
+    });
+    stages.forEach(function (stage) { stage.classList.toggle("is-current", stage === best); });
+  }
+
+  if (scene && stages.length && "IntersectionObserver" in window) {
+    stageObserver = new IntersectionObserver(function () { applyMotionToScene(); }, {
+      rootMargin: "-35% 0px -35% 0px",
+      threshold: [0, 0.25, 0.5, 0.75, 1]
+    });
+    stages.forEach(function (stage) { stageObserver.observe(stage); });
+    window.addEventListener("resize", applyMotionToScene, { passive: true });
+  }
+
+  /* ---------- схема сгиба ---------- */
+
+  var scheme = document.querySelector(".scheme");
+  var foldButton = document.getElementById("fold-toggle");
+  var foldStatus = document.getElementById("fold-status");
+  var folded = false;
+
+  function renderFold() {
+    if (scheme) scheme.classList.toggle("is-folded", folded);
+    if (foldButton) foldButton.textContent = folded ? "Вернуть плоскость" : "Показать сгиб";
+    var schemeState = document.getElementById("scheme-state");
+    if (schemeState) {
+      schemeState.textContent = folded
+        ? "Лист показан сложенным: поднятая половина меняет силуэт."
+        : "Лист показан плоским: обе половины в одной плоскости.";
+    }
+    if (foldStatus) {
+      foldStatus.textContent = folded ? "Сгиб показан." : "Лист возвращён в плоскость.";
+    }
+  }
+
+  if (foldButton) {
+    foldButton.hidden = false;
+    foldButton.setAttribute("aria-describedby", "fold-status");
+    foldButton.addEventListener("click", function () {
+      folded = !folded;
+      renderFold();
+    });
+    renderFold();
+  }
+
+  /* Появления секций здесь нет намеренно. Первый прогон проверок дал нестабильный
+     результат контраста: секции ниже первого экрана получали opacity 0 до пересечения,
+     и автоматическая проверка видела невидимый текст. Появление целой секции ничего не
+     сообщает о содержании, поэтому в arm A движение осталось только там, где оно
+     объясняет состояние: подчёркивание текущего кадра и положение схемы. */
+
+  renderMotion();
+})();
+</script>
+</body>
+</html>
