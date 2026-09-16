@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Линия сгиба — мастерская бумажных объектов</title>
+<meta name="description" content="Демонстрационная страница вымышленной мастерской бумажных объектов: один лист на столе, три состояния и первая самостоятельная проба.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Перейти к содержанию</a>
+
+<header class="bar">
+  <p class="bar__mark">Линия сгиба</p>
+  <nav class="bar__nav" aria-label="Разделы страницы">
+    <a href="#states">Состояния листа</a>
+    <a href="#first-fold">Первая проба</a>
+    <a href="#questions">Вопросы</a>
+  </nav>
+  <p class="bar__motion">
+    <button type="button" id="motion-toggle" class="control" hidden aria-pressed="false">Уменьшить движение</button>
+    <span id="motion-note" class="bar__note">Движение включено.</span>
+  </p>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="hero-title">
+    <p class="hero__line">Мастерская бумажных объектов. Демонстрационный материал.</p>
+    <h1 id="hero-title">Из плоскости — в форму</h1>
+    <p class="hero__lead">Линия сгиба — вымышленная мастерская бумажных объектов. Здесь обычный лист становится поводом посмотреть на форму по-новому. Начните с одного сгиба: не нужны специальные инструменты или опыт.</p>
+    <p class="hero__action"><a class="action" href="#first-fold">Попробовать первый сгиб</a></p>
+  </section>
+
+  <div class="bench" id="bench">
+    <section class="bench__scene" id="states" aria-labelledby="states-title">
+      <div class="bench__view">
+        <div class="sheet" id="sheet" aria-hidden="true">
+          <span class="sheet__far" id="sheet-far">
+            <span class="sheet__shade" id="sheet-shade"></span>
+            <span class="sheet__edge" id="sheet-edge"></span>
+          </span>
+          <span class="sheet__near"></span>
+          <span class="sheet__crease"></span>
+          <span class="sheet__shadow" id="sheet-shadow"></span>
+        </div>
+        <p class="readout">
+          <span class="readout__label">Угол</span>
+          <span class="readout__value" id="angle">0°</span>
+        </p>
+      </div>
+
+      <div class="bench__story">
+        <h2 id="states-title">Три состояния листа</h2>
+        <p class="bench__intro">Плоскость: перед вами чистый лист. Линия: сгиб задаёт направление. Объём: приподнятая часть меняет силуэт. Прокрутка поднимает половину листа до вертикали и укладывает её поверх — положение листа и есть прогресс рассказа.</p>
+        <ol class="stages" id="stages">
+          <li class="stage" data-stage="0">
+            <h3>Плоскость</h3>
+            <p>Обе половины лежат на столе. Формы ещё нет — есть только материал.</p>
+          </li>
+          <li class="stage" data-stage="1">
+            <h3>Линия</h3>
+            <p>Сгиб задаёт направление: он решает, где лист перестанет быть одним прямоугольником.</p>
+          </li>
+          <li class="stage" data-stage="2">
+            <h3>Объём</h3>
+            <p>Поднятая половина меняет силуэт: лист читается как объект, а не как контур.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <div class="frames" id="frames">
+      <h3 class="frames__title">Три состояния по отдельности</h3>
+      <ul class="frames__list">
+        <li>
+          <figure>
+            <svg viewBox="0 0 200 140" role="img" aria-labelledby="f0t f0d">
+              <title id="f0t">Состояние «Плоскость»</title>
+              <desc id="f0d">Лист лежит целиком на столе, обе половины в одной плоскости.</desc>
+              <rect class="f-sheet" x="24" y="20" width="152" height="100" rx="1"/>
+              <line class="f-crease" x1="24" y1="70" x2="176" y2="70"/>
+            </svg>
+            <figcaption>Плоскость</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure>
+            <svg viewBox="0 0 200 140" role="img" aria-labelledby="f1t f1d">
+              <title id="f1t">Состояние «Линия»</title>
+              <desc id="f1d">Половина листа поднята до вертикали над линией сгиба.</desc>
+              <rect class="f-sheet" x="24" y="70" width="152" height="50" rx="1"/>
+              <polygon class="f-far" points="24,70 176,70 176,14 24,14"/>
+              <line class="f-crease" x1="24" y1="70" x2="176" y2="70"/>
+            </svg>
+            <figcaption>Линия</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure>
+            <svg viewBox="0 0 200 140" role="img" aria-labelledby="f2t f2d">
+              <title id="f2t">Состояние «Объём»</title>
+              <desc id="f2d">Поднятая половина уложена поверх листа, силуэт изменился.</desc>
+              <rect class="f-sheet" x="24" y="20" width="152" height="100" rx="1"/>
+              <rect class="f-far" x="30" y="26" width="140" height="44" rx="1"/>
+              <line class="f-crease" x1="24" y1="70" x2="176" y2="70"/>
+            </svg>
+            <figcaption>Объём</figcaption>
+          </figure>
+        </li>
+      </ul>
+      <p class="frames__note">Эти кадры остаются, когда закрепление не работает: узкий или короткий экран, отключённые скрипты, уменьшенное движение.</p>
+    </div>
+  </div>
+
+  <section class="practice" id="first-fold" aria-labelledby="practice-title">
+    <h2 id="practice-title">Сначала попробуйте</h2>
+    <ol class="steps">
+      <li>Подготовьте обычный лист бумаги и свободное место на столе.</li>
+      <li>Сложите лист пополам и раскройте. Найдите получившуюся линию.</li>
+      <li>Приподнимите одну сторону и посмотрите, как меняется силуэт.</li>
+    </ol>
+    <p class="practice__note">Это исследование формы, не экзамен на точность.</p>
+
+    <div class="scheme" id="scheme">
+      <h3>Схема сгиба</h3>
+      <p class="scheme__state" id="scheme-state">Лист показан плоским: обе половины в одной плоскости.</p>
+      <figure class="scheme__figure">
+        <svg viewBox="0 0 240 160" role="img" aria-labelledby="scheme-title scheme-desc">
+          <title id="scheme-title">Схема листа: плоский и со поднятой половиной</title>
+          <desc id="scheme-desc">Отдельная от сцены схема показывает два положения листа: плоское и с поднятой половиной. Второе включается кнопкой, состояние описано текстом выше.</desc>
+          <rect class="f-sheet" x="30" y="30" width="180" height="110" rx="1"/>
+          <polygon class="scheme__lift" id="scheme-lift" points="30,85 210,85 186,30 54,30"/>
+          <line class="f-crease" x1="30" y1="85" x2="210" y2="85"/>
+        </svg>
+        <figcaption>Схема не связана с прокруткой: своё положение она меняет только по кнопке.</figcaption>
+      </figure>
+      <p class="scheme__controls">
+        <button type="button" id="fold-toggle" class="control" hidden>Показать сгиб</button>
+        <span id="fold-status" class="scheme__live" role="status"></span>
+      </p>
+      <p class="scheme__fallback">Без скриптов схема показана в плоском положении, а объяснение остаётся текстом: поднятая половина меняет силуэт, повторное действие возвращает плоскость.</p>
+    </div>
+  </section>
+
+  <section class="questions" id="questions" aria-labelledby="questions-title">
+    <h2 id="questions-title">Частые вопросы</h2>
+    <dl class="faq">
+      <dt>Нужна ли специальная бумага?</dt>
+      <dd>Нет, для первой пробы подойдёт обычный лист.</dd>
+      <dt>Нужны ли ножницы и клей?</dt>
+      <dd>В этой пробе — нет.</dd>
+      <dt>Что делать дальше?</dt>
+      <dd>Повторите опыт с другим направлением сгиба и сравните силуэты.</dd>
+    </dl>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>Вымышленная мастерская. Все материалы демонстрационные: ни отзывов, ни цифр, ни записи на занятия здесь нет.</p>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

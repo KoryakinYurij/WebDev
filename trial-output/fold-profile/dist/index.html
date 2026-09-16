@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Линия сгиба — мастерская бумажных объектов</title>
+<meta name="description" content="Демонстрационная страница вымышленной мастерской бумажных объектов: один лист на столе, три состояния и первая самостоятельная проба.">
+<style>
+/* Линия сгиба — arm B (profile). Направление: верстак и лист.
+   Стол холодного серого, единственный светлый объект — белый лист, один акцент — линия сгиба.
+   Роли шрифтов обратны arm A: без засечек в заголовках, засечки в чтении, моно для угла. */
+
+:root {
+  --table: #d7dbdd;
+  --table-deep: #c3c9cc;
+  --paper: #ffffff;
+  --ink: #16191c;
+  --muted: #4c5459;
+  --rule: #aeb5b8;
+  --accent: #8a1c2b;
+
+  --font-display: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-read: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+
+  --step--1: clamp(0.85rem, 0.81rem + 0.2vw, 0.94rem);
+  --step-0: clamp(1.02rem, 0.98rem + 0.25vw, 1.12rem);
+  --step-1: clamp(1.25rem, 1.15rem + 0.5vw, 1.45rem);
+  --step-2: clamp(1.6rem, 1.4rem + 1vw, 2.15rem);
+  --step-3: clamp(2.3rem, 1.7rem + 2.6vw, 3.9rem);
+
+  --measure: 36rem;
+  --gutter: clamp(1.1rem, 5vw, 3.5rem);
+  --space: clamp(2.4rem, 5vh + 1rem, 4.4rem);
+}
+
+* { box-sizing: border-box; }
+html { color-scheme: light; }
+
+body {
+  margin: 0;
+  background: var(--table);
+  color: var(--ink);
+  font-family: var(--font-read);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+}
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em; line-height: 1.08; margin: 0; }
+h1 { font-size: var(--step-3); }
+h2 { font-size: var(--step-2); margin-bottom: 0.7rem; }
+h3 { font-size: var(--step-1); font-weight: 700; }
+p { margin: 0 0 1em; }
+p:last-child { margin-bottom: 0; }
+a { color: inherit; }
+
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+.skip { position: absolute; left: -9999px; top: 0; background: var(--ink); color: var(--paper); padding: 0.6rem 1rem; z-index: 3; }
+.skip:focus { left: 0.5rem; top: 0.5rem; }
+
+.control {
+  min-height: 44px;
+  padding: 0.6rem 1.05rem;
+  font: inherit;
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  cursor: pointer;
+}
+.control:hover { background: var(--ink); color: var(--paper); }
+.control[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.control[disabled] { border-style: dashed; background: transparent; color: var(--muted); cursor: default; }
+
+/* ---------- верхняя строка ---------- */
+
+.bar {
+  display: grid;
+  gap: 0.5rem clamp(1rem, 4vw, 2.5rem);
+  align-items: baseline;
+  padding: 1.3rem var(--gutter) 1rem;
+  border-bottom: 1px solid var(--rule);
+}
+.bar__mark { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: var(--step-1); letter-spacing: -0.02em; }
+.bar__nav { display: flex; flex-wrap: wrap; gap: 0.35rem 1.4rem; font-family: var(--font-display); font-size: var(--step--1); }
+.bar__nav a { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--rule); padding-bottom: 0.1rem; }
+.bar__nav a:hover { color: var(--ink); border-bottom-color: var(--accent); }
+.bar__motion { margin: 0; display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; align-items: center; font-family: var(--font-display); font-size: var(--step--1); }
+.bar__note { color: var(--muted); }
+@media (min-width: 60rem) {
+  .bar { grid-template-columns: auto 1fr auto; }
+  .bar__nav { justify-content: center; }
+}
+
+/* ---------- первый экран ---------- */
+
+.hero { padding: calc(var(--space) * 0.7) var(--gutter) calc(var(--space) * 0.8); border-bottom: 1px solid var(--rule); }
+.hero > * { max-width: 44rem; }
+.hero__line { font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); margin-bottom: 0.7rem; }
+.hero__lead { font-size: var(--step-1); margin-top: 0.9rem; }
+.hero__action { margin: 1.5rem 0 0; }
+
+.action {
+  display: inline-block;
+  min-height: 44px;
+  padding: 0.8rem 1.3rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  background: var(--accent);
+  color: var(--paper);
+  border: 1px solid var(--accent);
+  text-decoration: none;
+}
+.action:hover { background: var(--ink); border-color: var(--ink); }
+
+/* ---------- верстак и сцена ---------- */
+
+.bench { border-bottom: 1px solid var(--rule); }
+
+.bench__view { display: none; }
+.frames { padding: var(--space) var(--gutter); }
+
+/* В закреплённом режиме верхняя строка становится липкой: иначе до переключателя
+   движения из середины сцены нужно было бы прокручивать всю секцию вверх.
+   Высота строки измеряется скриптом в --bar-h, чтобы сцена не заходила под неё. */
+html.is-live .bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--table);
+}
+html.is-live { scroll-padding-top: calc(var(--bar-h, 4.2rem) + 0.6rem); }
+
+html.is-live .bench { min-height: 300svh; }
+html.is-live .frames { display: none; }
+html.is-live .bench__view {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-content: center;
+  align-items: center;
+  position: sticky;
+  top: var(--bar-h, 4.2rem);
+  min-height: calc(100svh - var(--bar-h, 4.2rem));
+  padding: clamp(1.6rem, 5vh, 3rem) var(--gutter);
+}
+/* Раскладка закреплённой сцены: слева лист, справа рассказ о нём.
+   Без этого рассказ стоял в потоке после закреплённого окна и уезжал под него:
+   сцена играла без текста, который её объясняет. */
+@media (min-width: 62rem) and (min-height: 34rem) {
+  html.is-live .bench {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 32rem);
+    align-content: stretch;
+    align-items: start;
+  }
+  html.is-live .bench__scene { display: contents; }
+  html.is-live .bench__view { grid-column: 1; }
+  html.is-live .bench__story {
+    grid-column: 2;
+    position: sticky;
+    top: calc(var(--bar-h, 4.2rem) + clamp(1.6rem, 5vh, 3rem));
+    padding-right: var(--gutter);
+  }
+}
+
+/* лист */
+
+.readout { display: flex; gap: 0.6rem; align-items: baseline; justify-content: center; margin: 1.4rem 0 0; font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); }
+.readout__value { color: var(--ink); }
+
+.sheet {
+  position: relative;
+  width: min(30rem, 46vh);
+  aspect-ratio: 1 / 1.4;
+  margin: 0 auto;
+  perspective: 1400px;
+  perspective-origin: 50% 130%;
+  transform-style: preserve-3d;
+}
+.sheet__near, .sheet__far {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  display: block;
+}
+.sheet__near { bottom: 0; border-top: 0; }
+.sheet__far {
+  top: 0;
+  border-bottom: 0;
+  transform-origin: 50% 100%;
+  transform: rotateX(calc(var(--theta, 0) * -1deg));
+  transition: transform 90ms linear;
+}
+.sheet__shade {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: #0b0d10;
+  opacity: var(--shade, 0);
+  transition: opacity 90ms linear;
+}
+
+/* Край поднятой половины: тень ложится на нижнюю половину и на стол.
+   Проявляется только когда половина действительно ушла за вертикаль. */
+.sheet__edge {
+  position: absolute;
+  inset: 0;
+  display: block;
+  box-shadow: 0 6px 16px rgba(11, 13, 16, 0.26), 0 1px 3px rgba(11, 13, 16, 0.18);
+  opacity: var(--lift, 0);
+  transition: opacity 90ms linear;
+  pointer-events: none;
+}
+.sheet__crease {
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  top: 50%;
+  height: 2px;
+  display: block;
+  background: var(--accent);
+}
+.sheet__shadow {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: -1.6rem;
+  height: 1.6rem;
+  display: block;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(22, 25, 28, 0.34), rgba(22, 25, 28, 0));
+  opacity: var(--shadow, 0.5);
+  transition: opacity 90ms linear;
+}
+
+/* текстовая колонка сцены */
+
+.bench__story { max-width: 32rem; }
+.bench__intro { color: var(--muted); }
+.stages { list-style: none; margin: 1.6rem 0 0; padding: 0; display: grid; gap: 1.1rem; }
+.stage { padding-left: 1rem; border-left: 3px solid transparent; color: var(--muted); }
+.stage.is-current { border-left-color: var(--accent); color: var(--ink); }
+.stage h3 { margin-bottom: 0.25rem; }
+.stage p { margin: 0; font-size: var(--step--1); line-height: 1.5; }
+
+/* статические кадры */
+
+.frames__title { margin-bottom: 1.2rem; }
+.frames__list { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(1.2rem, 3vw, 2.4rem); }
+
+/* Отмеченный кадр — тот, на котором чтение остановилось до смены раскладки.
+   Линия над кадром показывает место без цвета и без анимации. */
+.frames__list li::before { content: ""; display: block; height: 2px; margin-bottom: 0.7rem; background: transparent; }
+.frames__list li[data-current="true"]::before { background: var(--accent); }
+.frames__list li[data-current="true"] figcaption { color: var(--ink); }
+@media (min-width: 48rem) { .frames__list { grid-template-columns: repeat(3, 1fr); } }
+.frames figure { margin: 0; }
+.frames svg { display: block; width: 100%; height: auto; }
+.frames figcaption { margin-top: 0.6rem; font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); }
+.frames__note { margin-top: 1.4rem; color: var(--muted); font-size: var(--step--1); max-width: var(--measure); }
+
+.f-sheet { fill: var(--paper); stroke: var(--ink); stroke-width: 1.2; }
+.f-far { fill: #f2f3f3; fill-opacity: 0.92; stroke: var(--ink); stroke-width: 1.2; }
+.f-crease { stroke: var(--accent); stroke-width: 2; }
+
+/* ---------- проба ---------- */
+
+.practice, .questions { padding: var(--space) var(--gutter); border-bottom: 1px solid var(--rule); }
+.practice > *, .questions > * { max-width: var(--measure); }
+.steps { margin: 1.1rem 0 1.3rem; padding-left: 1.3rem; display: grid; gap: 0.5rem; }
+.practice__note { color: var(--muted); }
+.scheme { margin-top: 2.4rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); }
+.scheme__state { color: var(--muted); font-size: var(--step--1); }
+.scheme__figure { margin: 1rem 0 0; }
+.scheme__figure svg { display: block; width: 100%; max-width: 34rem; height: auto; }
+.scheme__figure figcaption { margin-top: 0.6rem; color: var(--muted); font-size: var(--step--1); }
+.scheme__lift { opacity: 0; transition: opacity 200ms ease; }
+.scheme.is-folded .scheme__lift { opacity: 1; }
+.scheme__controls { display: flex; flex-wrap: wrap; gap: 0.8rem 1rem; align-items: center; margin: 1.1rem 0 0.8rem; }
+.scheme__live { color: var(--muted); font-size: var(--step--1); }
+.scheme__fallback { color: var(--muted); font-size: var(--step--1); }
+
+/* ---------- вопросы и подвал ---------- */
+
+.faq { margin: 0; display: grid; }
+.faq dt { font-family: var(--font-display); font-weight: 700; font-size: var(--step-1); padding-top: 1rem; border-top: 1px solid var(--rule); }
+.faq dd { margin: 0.3rem 0 0; color: var(--muted); }
+.foot { padding: 1.5rem var(--gutter) 3rem; color: var(--muted); font-size: var(--step--1); max-width: 44rem; }
+
+/* ---------- уменьшенное движение ---------- */
+
+html[data-motion="reduced"] .sheet__far,
+html[data-motion="reduced"] .sheet__shade,
+html[data-motion="reduced"] .sheet__shadow,
+html[data-motion="reduced"] .scheme__lift { transition: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet__far, .sheet__shade, .sheet__shadow, .scheme__lift { transition: none !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Перейти к содержанию</a>
+
+<header class="bar">
+  <p class="bar__mark">Линия сгиба</p>
+  <nav class="bar__nav" aria-label="Разделы страницы">
+    <a href="#states">Состояния листа</a>
+    <a href="#first-fold">Первая проба</a>
+    <a href="#questions">Вопросы</a>
+  </nav>
+  <p class="bar__motion">
+    <button type="button" id="motion-toggle" class="control" hidden aria-pressed="false">Уменьшить движение</button>
+    <span id="motion-note" class="bar__note">Движение включено.</span>
+  </p>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="hero-title">
+    <p class="hero__line">Мастерская бумажных объектов. Демонстрационный материал.</p>
+    <h1 id="hero-title">Из плоскости — в форму</h1>
+    <p class="hero__lead">Линия сгиба — вымышленная мастерская бумажных объектов. Здесь обычный лист становится поводом посмотреть на форму по-новому. Начните с одного сгиба: не нужны специальные инструменты или опыт.</p>
+    <p class="hero__action"><a class="action" href="#first-fold">Попробовать первый сгиб</a></p>
+  </section>
+
+  <div class="bench" id="bench">
+    <section class="bench__scene" id="states" aria-labelledby="states-title">
+      <div class="bench__view">
+        <div class="sheet" id="sheet" aria-hidden="true">
+          <span class="sheet__far" id="sheet-far">
+            <span class="sheet__shade" id="sheet-shade"></span>
+            <span class="sheet__edge" id="sheet-edge"></span>
+          </span>
+          <span class="sheet__near"></span>
+          <span class="sheet__crease"></span>
+          <span class="sheet__shadow" id="sheet-shadow"></span>
+        </div>
+        <p class="readout">
+          <span class="readout__label">Угол</span>
+          <span class="readout__value" id="angle">0°</span>
+        </p>
+      </div>
+
+      <div class="bench__story">
+        <h2 id="states-title">Три состояния листа</h2>
+        <p class="bench__intro">Плоскость: перед вами чистый лист. Линия: сгиб задаёт направление. Объём: приподнятая часть меняет силуэт. Прокрутка поднимает половину листа до вертикали и укладывает её поверх — положение листа и есть прогресс рассказа.</p>
+        <ol class="stages" id="stages">
+          <li class="stage" data-stage="0">
+            <h3>Плоскость</h3>
+            <p>Обе половины лежат на столе. Формы ещё нет — есть только материал.</p>
+          </li>
+          <li class="stage" data-stage="1">
+            <h3>Линия</h3>
+            <p>Сгиб задаёт направление: он решает, где лист перестанет быть одним прямоугольником.</p>
+          </li>
+          <li class="stage" data-stage="2">
+            <h3>Объём</h3>
+            <p>Поднятая половина меняет силуэт: лист читается как объект, а не как контур.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <div class="frames" id="frames">
+      <h3 class="frames__title">Три состояния по отдельности</h3>
+      <ul class="frames__list">
+        <li>
+          <figure>
+            <svg viewBox="0 0 200 140" role="img" aria-labelledby="f0t f0d">
+              <title id="f0t">Состояние «Плоскость»</title>
+              <desc id="f0d">Лист лежит целиком на столе, обе половины в одной плоскости.</desc>
+              <rect class="f-sheet" x="24" y="20" width="152" height="100" rx="1"/>
+              <line class="f-crease" x1="24" y1="70" x2="176" y2="70"/>
+            </svg>
+            <figcaption>Плоскость</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure>
+            <svg viewBox="0 0 200 140" role="img" aria-labelledby="f1t f1d">
+              <title id="f1t">Состояние «Линия»</title>
+              <desc id="f1d">Половина листа поднята до вертикали над линией сгиба.</desc>
+              <rect class="f-sheet" x="24" y="70" width="152" height="50" rx="1"/>
+              <polygon class="f-far" points="24,70 176,70 176,14 24,14"/>
+              <line class="f-crease" x1="24" y1="70" x2="176" y2="70"/>
+            </svg>
+            <figcaption>Линия</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure>
+            <svg viewBox="0 0 200 140" role="img" aria-labelledby="f2t f2d">
+              <title id="f2t">Состояние «Объём»</title>
+              <desc id="f2d">Поднятая половина уложена поверх листа, силуэт изменился.</desc>
+              <rect class="f-sheet" x="24" y="20" width="152" height="100" rx="1"/>
+              <rect class="f-far" x="30" y="26" width="140" height="44" rx="1"/>
+              <line class="f-crease" x1="24" y1="70" x2="176" y2="70"/>
+            </svg>
+            <figcaption>Объём</figcaption>
+          </figure>
+        </li>
+      </ul>
+      <p class="frames__note">Эти кадры остаются, когда закрепление не работает: узкий или короткий экран, отключённые скрипты, уменьшенное движение.</p>
+    </div>
+  </div>
+
+  <section class="practice" id="first-fold" aria-labelledby="practice-title">
+    <h2 id="practice-title">Сначала попробуйте</h2>
+    <ol class="steps">
+      <li>Подготовьте обычный лист бумаги и свободное место на столе.</li>
+      <li>Сложите лист пополам и раскройте. Найдите получившуюся линию.</li>
+      <li>Приподнимите одну сторону и посмотрите, как меняется силуэт.</li>
+    </ol>
+    <p class="practice__note">Это исследование формы, не экзамен на точность.</p>
+
+    <div class="scheme" id="scheme">
+      <h3>Схема сгиба</h3>
+      <p class="scheme__state" id="scheme-state">Лист показан плоским: обе половины в одной плоскости.</p>
+      <figure class="scheme__figure">
+        <svg viewBox="0 0 240 160" role="img" aria-labelledby="scheme-title scheme-desc">
+          <title id="scheme-title">Схема листа: плоский и со поднятой половиной</title>
+          <desc id="scheme-desc">Отдельная от сцены схема показывает два положения листа: плоское и с поднятой половиной. Второе включается кнопкой, состояние описано текстом выше.</desc>
+          <rect class="f-sheet" x="30" y="30" width="180" height="110" rx="1"/>
+          <polygon class="scheme__lift" id="scheme-lift" points="30,85 210,85 186,30 54,30"/>
+          <line class="f-crease" x1="30" y1="85" x2="210" y2="85"/>
+        </svg>
+        <figcaption>Схема не связана с прокруткой: своё положение она меняет только по кнопке.</figcaption>
+      </figure>
+      <p class="scheme__controls">
+        <button type="button" id="fold-toggle" class="control" hidden>Показать сгиб</button>
+        <span id="fold-status" class="scheme__live" role="status"></span>
+      </p>
+      <p class="scheme__fallback">Без скриптов схема показана в плоском положении, а объяснение остаётся текстом: поднятая половина меняет силуэт, повторное действие возвращает плоскость.</p>
+    </div>
+  </section>
+
+  <section class="questions" id="questions" aria-labelledby="questions-title">
+    <h2 id="questions-title">Частые вопросы</h2>
+    <dl class="faq">
+      <dt>Нужна ли специальная бумага?</dt>
+      <dd>Нет, для первой пробы подойдёт обычный лист.</dd>
+      <dt>Нужны ли ножницы и клей?</dt>
+      <dd>В этой пробе — нет.</dd>
+      <dt>Что делать дальше?</dt>
+      <dd>Повторите опыт с другим направлением сгиба и сравните силуэты.</dd>
+    </dl>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>Вымышленная мастерская. Все материалы демонстрационные: ни отзывов, ни цифр, ни записи на занятия здесь нет.</p>
+</footer>
+
+<script>
+/* Линия сгиба — arm B (profile).
+   Прогрессивное улучшение. Без скриптов, на узком или коротком экране и в уменьшенном режиме
+   показываются три статические кадра. Когда места хватает и движение обычное, вместо них
+   работает один лист: прокрутка поднимает половину до вертикали и укладывает её поверх.
+   Сам лист декоративен — то же самое сказано текстом стадий. */
+
+(function () {
+  "use strict";
+
+  var root = document.documentElement;
+  root.classList.add("js");
+
+  var MANUAL_KEY = "fold-profile.motion";
+  var TOTAL_ANGLE = 172;
+  var STAGE_EDGES = [0.32, 0.62];
+  var READING_LINE = 0.55;
+
+  var state = { manual: false, system: false };
+  var query = function (value) {
+    return window.matchMedia ? window.matchMedia(value) : null;
+  };
+  var wideQuery = query("(min-width: 62rem) and (min-height: 34rem)");
+  var systemQuery = query("(prefers-reduced-motion: reduce)");
+
+  function reduced() {
+    return state.system || state.manual;
+  }
+
+  function readManual() {
+    try {
+      return window.localStorage.getItem(MANUAL_KEY) === "reduced";
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function writeManual(value) {
+    try {
+      window.localStorage.setItem(MANUAL_KEY, value ? "reduced" : "full");
+    } catch (error) {
+      /* Запрет хранилища: настройка не запоминается, поведение сохраняется. */
+    }
+  }
+
+  /* ---------- элементы ---------- */
+
+  var bar = document.querySelector(".bar");
+  var bench = document.getElementById("bench");
+  var sheet = document.getElementById("sheet");
+  var angle = document.getElementById("angle");
+  var stages = Array.prototype.slice.call(document.querySelectorAll("#stages .stage"));
+  var frames = document.getElementById("frames");
+  var frameItems = frames ? Array.prototype.slice.call(frames.querySelectorAll(".frames__list li")) : [];
+  var motionButton = document.getElementById("motion-toggle");
+  var motionNote = document.getElementById("motion-note");
+
+  /* ---------- геометрия сцены ---------- */
+
+  function smoothstep(value) {
+    return value * value * (3 - 2 * value);
+  }
+
+  function stageIndex(progress) {
+    if (progress < STAGE_EDGES[0]) return 0;
+    if (progress < STAGE_EDGES[1]) return 1;
+    return 2;
+  }
+
+  /* Середина отрезка стадии: нужна при возврате места чтения. */
+  function progressForStage(index) {
+    if (index <= 0) return STAGE_EDGES[0] / 2;
+    if (index === 1) return (STAGE_EDGES[0] + STAGE_EDGES[1]) / 2;
+    return (STAGE_EDGES[1] + 1) / 2;
+  }
+
+  function benchProgress() {
+    var box = bench.getBoundingClientRect();
+    var travel = box.height - window.innerHeight;
+    if (!isFinite(travel) || travel <= 0) return 0;
+    return Math.max(0, Math.min(1, -box.top / travel));
+  }
+
+  var pending = false;
+
+  function onScroll() {
+    if (pending) return;
+    pending = true;
+    window.requestAnimationFrame(function () {
+      pending = false;
+      updateScene();
+    });
+  }
+
+  function onResize() {
+    measureBar();
+    onScroll();
+  }
+
+  function updateScene() {
+    if (!bench || !sheet) return;
+
+    /* Сначала только измерения. */
+    var progress = benchProgress();
+    var theta = TOTAL_ANGLE * smoothstep(progress);
+    var radians = theta * Math.PI / 180;
+    /* lift — насколько половина ушла за вертикаль и легла поверх нижней.
+       Без него сложенный лист читался плоско: подсветка по синусу у самого
+       конца почти гасла, и в кадре оставался белый прямоугольник.
+       Объём даёт тень от края, а не затемнение бумаги: проба с прибавкой 0,04
+       дала средний цвет листа 0,90 при 0,86 у стола — лист растворялся в фоне.
+       Бумага остаётся светлой, меняется силуэт и тень под ним. */
+    var lift = smoothstep(Math.max(0, Math.min(1, (theta - 96) / 76)));
+    var shade = 0.42 * Math.abs(Math.sin(radians)) + 0.015 * lift;
+    var shadow = 0.55 - 0.3 * Math.abs(Math.sin(radians));
+    var index = stageIndex(progress);
+
+    /* Затем запись: пользовательские свойства, число угла и класс стадии. */
+    sheet.style.setProperty("--theta", theta.toFixed(2));
+    sheet.style.setProperty("--shade", shade.toFixed(3));
+    sheet.style.setProperty("--shadow", shadow.toFixed(3));
+    sheet.style.setProperty("--lift", lift.toFixed(3));
+    if (angle) angle.textContent = Math.round(theta) + "°";
+    for (var position = 0; position < stages.length; position += 1) {
+      stages[position].classList.toggle("is-current", position === index);
+    }
+    root.setAttribute("data-stage", String(index));
+    markFrame(index);
+  }
+
+  /* Высота липкой строки: измеряем, а не загадываем — она зависит от переносов на узком экране. */
+  function measureBar() {
+    if (!bar) return;
+    root.style.setProperty("--bar-h", bar.offsetHeight + "px");
+  }
+
+  /* ---------- раскладка: закреплённая сцена или статические кадры ---------- */
+
+  var live = false;
+
+  function canLive() {
+    return Boolean(wideQuery && wideQuery.matches) && !reduced();
+  }
+
+  function applyLayout() {
+    var shouldLive = canLive();
+    if (shouldLive === live) {
+      if (live) updateScene();
+      return;
+    }
+    live = shouldLive;
+    root.classList.toggle("is-live", live);
+    if (live) {
+      measureBar();
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onResize, { passive: true });
+      updateScene();
+    } else {
+      window.removeEventListener("scroll", onScroll, { passive: true });
+      window.removeEventListener("resize", onResize, { passive: true });
+      stages.forEach(function (stage) { stage.classList.remove("is-current"); });
+    }
+  }
+
+  /* ---------- место чтения при смене раскладки ---------- */
+
+  function nearestFrameIndex() {
+    var line = window.innerHeight * READING_LINE;
+    var best = 0;
+    var bestDistance = Infinity;
+    frameItems.forEach(function (item, index) {
+      var box = item.getBoundingClientRect();
+      var distance = Math.abs(box.top + box.height / 2 - line);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        best = index;
+      }
+    });
+    return best;
+  }
+
+  /* Отметка кадра — источник истины о месте чтения в статической раскладке.
+     На широком экране три кадра стоят в один ряд, и по вертикальному
+     расстоянию до линии чтения все они равны: спросить геометрию значит
+     получить первый кадр вместо нужного. */
+  function markFrame(index) {
+    if (!frameItems[index]) return;
+    frameItems.forEach(function (item, position) {
+      if (position === index) {
+        item.setAttribute("data-current", "true");
+        item.setAttribute("aria-current", "true");
+      } else {
+        item.removeAttribute("data-current");
+        item.removeAttribute("aria-current");
+      }
+    });
+  }
+
+  /* Кадры стоят столбиком (узкий экран) — тогда отметку можно вести за прокруткой.
+     В ряд они видны все сразу, и отметка остаётся там, откуда читатель пришёл. */
+  function framesStacked() {
+    if (frameItems.length < 2) return false;
+    var first = frameItems[0].getBoundingClientRect();
+    var second = frameItems[1].getBoundingClientRect();
+    return second.top - first.top > 1;
+  }
+
+  function readingIndex() {
+    if (live) return stageIndex(benchProgress());
+    var marked = frameItems.findIndex(function (item) { return item.hasAttribute("data-current"); });
+    if (marked >= 0 && !framesStacked()) return marked;
+    return nearestFrameIndex();
+  }
+
+  function onFramesScroll() {
+    if (!framesStacked()) return;
+    markFrame(nearestFrameIndex());
+  }
+
+  function scrollToProgress(progress) {
+    var box = bench.getBoundingClientRect();
+    var travel = box.height - window.innerHeight;
+    if (travel <= 0) return;
+    window.scrollTo({ top: window.scrollY + box.top + progress * travel, behavior: "auto" });
+  }
+
+  function scrollToFrame(index) {
+    var item = frameItems[index];
+    if (!item) return;
+    markFrame(index);
+    var box = item.getBoundingClientRect();
+    var line = window.innerHeight * READING_LINE;
+    window.scrollTo({ top: window.scrollY + box.top + box.height / 2 - line, behavior: "auto" });
+  }
+
+  /* Смена раскладки возвращает читателя к той же стадии. Возврат мгновенный:
+     плавная прокрутка сама читалась бы как движение. */
+  function switchLayout(action) {
+    var index = readingIndex();
+    var wasLive = live;
+    action();
+    if (live === wasLive) return;
+    if (live) {
+      scrollToProgress(progressForStage(index));
+      updateScene();
+    } else {
+      scrollToFrame(index);
+    }
+  }
+
+  if (wideQuery) {
+    var onLayoutQuery = function () { switchLayout(applyLayout); };
+    if (wideQuery.addEventListener) {
+      wideQuery.addEventListener("change", onLayoutQuery);
+    } else if (wideQuery.addListener) {
+      wideQuery.addListener(onLayoutQuery);
+    }
+  }
+
+  /* ---------- режим движения ---------- */
+
+  function renderMotion() {
+    root.setAttribute("data-motion", reduced() ? "reduced" : "full");
+
+    if (motionButton) {
+      motionButton.hidden = false;
+      motionButton.disabled = state.system;
+      motionButton.setAttribute("aria-pressed", state.manual ? "true" : "false");
+      motionButton.setAttribute("aria-describedby", "motion-note");
+    }
+    if (motionNote) {
+      if (state.system && state.manual) {
+        motionNote.textContent = "Движение уменьшено: системная настройка и ручной переключатель. Системную настройку переключатель не отменяет.";
+      } else if (state.system) {
+        motionNote.textContent = "Движение уменьшено системной настройкой — переключатель не действует.";
+      } else if (state.manual) {
+        motionNote.textContent = "Движение уменьшено вручную.";
+      } else {
+        motionNote.textContent = "Движение включено.";
+      }
+    }
+    applyLayout();
+  }
+
+  if (motionButton) {
+    motionButton.addEventListener("click", function () {
+      switchLayout(function () {
+        state.manual = !state.manual;
+        writeManual(state.manual);
+        renderMotion();
+      });
+    });
+  }
+
+  if (frames && frameItems.length) {
+    /* Статическая раскладка начинается с первого кадра: отметка должна быть
+       определена сразу, иначе возврат к сцене не знает, куда возвращаться. */
+    markFrame(0);
+    window.addEventListener("scroll", onFramesScroll, { passive: true });
+    window.addEventListener("resize", function () { markFrame(readingIndex()); }, { passive: true });
+  }
+
+  if (systemQuery) {
+    state.system = systemQuery.matches;
+    var onSystemChange = function (event) {
+      state.system = event.matches;
+      switchLayout(renderMotion);
+    };
+    if (systemQuery.addEventListener) {
+      systemQuery.addEventListener("change", onSystemChange);
+    } else if (systemQuery.addListener) {
+      systemQuery.addListener(onSystemChange);
+    }
+  }
+
+  state.manual = readManual();
+
+  /* ---------- схема сгиба ---------- */
+
+  var scheme = document.getElementById("scheme");
+  var foldButton = document.getElementById("fold-toggle");
+  var foldStatus = document.getElementById("fold-status");
+  var schemeState = document.getElementById("scheme-state");
+  var folded = false;
+
+  function renderFold() {
+    if (scheme) scheme.classList.toggle("is-folded", folded);
+    if (foldButton) foldButton.textContent = folded ? "Вернуть плоскость" : "Показать сгиб";
+    if (schemeState) {
+      schemeState.textContent = folded
+        ? "Лист показан сложенным: поднятая половина меняет силуэт."
+        : "Лист показан плоским: обе половины в одной плоскости.";
+    }
+    if (foldStatus) {
+      foldStatus.textContent = folded ? "Сгиб показан." : "Лист возвращён в плоскость.";
+    }
+  }
+
+  if (foldButton) {
+    foldButton.hidden = false;
+    foldButton.setAttribute("aria-describedby", "fold-status");
+    foldButton.addEventListener("click", function () {
+      folded = !folded;
+      renderFold();
+    });
+    renderFold();
+  }
+
+  renderMotion();
+  window.addEventListener("load", function () { if (live) updateScene(); }, { once: true });
+})();
+</script>
+</body>
+</html>

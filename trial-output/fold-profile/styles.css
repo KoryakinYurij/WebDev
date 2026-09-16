@@ -1,0 +1,296 @@
+/* Линия сгиба — arm B (profile). Направление: верстак и лист.
+   Стол холодного серого, единственный светлый объект — белый лист, один акцент — линия сгиба.
+   Роли шрифтов обратны arm A: без засечек в заголовках, засечки в чтении, моно для угла. */
+
+:root {
+  --table: #d7dbdd;
+  --table-deep: #c3c9cc;
+  --paper: #ffffff;
+  --ink: #16191c;
+  --muted: #4c5459;
+  --rule: #aeb5b8;
+  --accent: #8a1c2b;
+
+  --font-display: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-read: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+
+  --step--1: clamp(0.85rem, 0.81rem + 0.2vw, 0.94rem);
+  --step-0: clamp(1.02rem, 0.98rem + 0.25vw, 1.12rem);
+  --step-1: clamp(1.25rem, 1.15rem + 0.5vw, 1.45rem);
+  --step-2: clamp(1.6rem, 1.4rem + 1vw, 2.15rem);
+  --step-3: clamp(2.3rem, 1.7rem + 2.6vw, 3.9rem);
+
+  --measure: 36rem;
+  --gutter: clamp(1.1rem, 5vw, 3.5rem);
+  --space: clamp(2.4rem, 5vh + 1rem, 4.4rem);
+}
+
+* { box-sizing: border-box; }
+html { color-scheme: light; }
+
+body {
+  margin: 0;
+  background: var(--table);
+  color: var(--ink);
+  font-family: var(--font-read);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+}
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em; line-height: 1.08; margin: 0; }
+h1 { font-size: var(--step-3); }
+h2 { font-size: var(--step-2); margin-bottom: 0.7rem; }
+h3 { font-size: var(--step-1); font-weight: 700; }
+p { margin: 0 0 1em; }
+p:last-child { margin-bottom: 0; }
+a { color: inherit; }
+
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+.skip { position: absolute; left: -9999px; top: 0; background: var(--ink); color: var(--paper); padding: 0.6rem 1rem; z-index: 3; }
+.skip:focus { left: 0.5rem; top: 0.5rem; }
+
+.control {
+  min-height: 44px;
+  padding: 0.6rem 1.05rem;
+  font: inherit;
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  cursor: pointer;
+}
+.control:hover { background: var(--ink); color: var(--paper); }
+.control[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.control[disabled] { border-style: dashed; background: transparent; color: var(--muted); cursor: default; }
+
+/* ---------- верхняя строка ---------- */
+
+.bar {
+  display: grid;
+  gap: 0.5rem clamp(1rem, 4vw, 2.5rem);
+  align-items: baseline;
+  padding: 1.3rem var(--gutter) 1rem;
+  border-bottom: 1px solid var(--rule);
+}
+.bar__mark { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: var(--step-1); letter-spacing: -0.02em; }
+.bar__nav { display: flex; flex-wrap: wrap; gap: 0.35rem 1.4rem; font-family: var(--font-display); font-size: var(--step--1); }
+.bar__nav a { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--rule); padding-bottom: 0.1rem; }
+.bar__nav a:hover { color: var(--ink); border-bottom-color: var(--accent); }
+.bar__motion { margin: 0; display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; align-items: center; font-family: var(--font-display); font-size: var(--step--1); }
+.bar__note { color: var(--muted); }
+@media (min-width: 60rem) {
+  .bar { grid-template-columns: auto 1fr auto; }
+  .bar__nav { justify-content: center; }
+}
+
+/* ---------- первый экран ---------- */
+
+.hero { padding: calc(var(--space) * 0.7) var(--gutter) calc(var(--space) * 0.8); border-bottom: 1px solid var(--rule); }
+.hero > * { max-width: 44rem; }
+.hero__line { font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); margin-bottom: 0.7rem; }
+.hero__lead { font-size: var(--step-1); margin-top: 0.9rem; }
+.hero__action { margin: 1.5rem 0 0; }
+
+.action {
+  display: inline-block;
+  min-height: 44px;
+  padding: 0.8rem 1.3rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  background: var(--accent);
+  color: var(--paper);
+  border: 1px solid var(--accent);
+  text-decoration: none;
+}
+.action:hover { background: var(--ink); border-color: var(--ink); }
+
+/* ---------- верстак и сцена ---------- */
+
+.bench { border-bottom: 1px solid var(--rule); }
+
+.bench__view { display: none; }
+.frames { padding: var(--space) var(--gutter); }
+
+/* В закреплённом режиме верхняя строка становится липкой: иначе до переключателя
+   движения из середины сцены нужно было бы прокручивать всю секцию вверх.
+   Высота строки измеряется скриптом в --bar-h, чтобы сцена не заходила под неё. */
+html.is-live .bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--table);
+}
+html.is-live { scroll-padding-top: calc(var(--bar-h, 4.2rem) + 0.6rem); }
+
+html.is-live .bench { min-height: 300svh; }
+html.is-live .frames { display: none; }
+html.is-live .bench__view {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-content: center;
+  align-items: center;
+  position: sticky;
+  top: var(--bar-h, 4.2rem);
+  min-height: calc(100svh - var(--bar-h, 4.2rem));
+  padding: clamp(1.6rem, 5vh, 3rem) var(--gutter);
+}
+/* Раскладка закреплённой сцены: слева лист, справа рассказ о нём.
+   Без этого рассказ стоял в потоке после закреплённого окна и уезжал под него:
+   сцена играла без текста, который её объясняет. */
+@media (min-width: 62rem) and (min-height: 34rem) {
+  html.is-live .bench {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 32rem);
+    align-content: stretch;
+    align-items: start;
+  }
+  html.is-live .bench__scene { display: contents; }
+  html.is-live .bench__view { grid-column: 1; }
+  html.is-live .bench__story {
+    grid-column: 2;
+    position: sticky;
+    top: calc(var(--bar-h, 4.2rem) + clamp(1.6rem, 5vh, 3rem));
+    padding-right: var(--gutter);
+  }
+}
+
+/* лист */
+
+.readout { display: flex; gap: 0.6rem; align-items: baseline; justify-content: center; margin: 1.4rem 0 0; font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); }
+.readout__value { color: var(--ink); }
+
+.sheet {
+  position: relative;
+  width: min(30rem, 46vh);
+  aspect-ratio: 1 / 1.4;
+  margin: 0 auto;
+  perspective: 1400px;
+  perspective-origin: 50% 130%;
+  transform-style: preserve-3d;
+}
+.sheet__near, .sheet__far {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  display: block;
+}
+.sheet__near { bottom: 0; border-top: 0; }
+.sheet__far {
+  top: 0;
+  border-bottom: 0;
+  transform-origin: 50% 100%;
+  transform: rotateX(calc(var(--theta, 0) * -1deg));
+  transition: transform 90ms linear;
+}
+.sheet__shade {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: #0b0d10;
+  opacity: var(--shade, 0);
+  transition: opacity 90ms linear;
+}
+
+/* Край поднятой половины: тень ложится на нижнюю половину и на стол.
+   Проявляется только когда половина действительно ушла за вертикаль. */
+.sheet__edge {
+  position: absolute;
+  inset: 0;
+  display: block;
+  box-shadow: 0 6px 16px rgba(11, 13, 16, 0.26), 0 1px 3px rgba(11, 13, 16, 0.18);
+  opacity: var(--lift, 0);
+  transition: opacity 90ms linear;
+  pointer-events: none;
+}
+.sheet__crease {
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  top: 50%;
+  height: 2px;
+  display: block;
+  background: var(--accent);
+}
+.sheet__shadow {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: -1.6rem;
+  height: 1.6rem;
+  display: block;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(22, 25, 28, 0.34), rgba(22, 25, 28, 0));
+  opacity: var(--shadow, 0.5);
+  transition: opacity 90ms linear;
+}
+
+/* текстовая колонка сцены */
+
+.bench__story { max-width: 32rem; }
+.bench__intro { color: var(--muted); }
+.stages { list-style: none; margin: 1.6rem 0 0; padding: 0; display: grid; gap: 1.1rem; }
+.stage { padding-left: 1rem; border-left: 3px solid transparent; color: var(--muted); }
+.stage.is-current { border-left-color: var(--accent); color: var(--ink); }
+.stage h3 { margin-bottom: 0.25rem; }
+.stage p { margin: 0; font-size: var(--step--1); line-height: 1.5; }
+
+/* статические кадры */
+
+.frames__title { margin-bottom: 1.2rem; }
+.frames__list { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(1.2rem, 3vw, 2.4rem); }
+
+/* Отмеченный кадр — тот, на котором чтение остановилось до смены раскладки.
+   Линия над кадром показывает место без цвета и без анимации. */
+.frames__list li::before { content: ""; display: block; height: 2px; margin-bottom: 0.7rem; background: transparent; }
+.frames__list li[data-current="true"]::before { background: var(--accent); }
+.frames__list li[data-current="true"] figcaption { color: var(--ink); }
+@media (min-width: 48rem) { .frames__list { grid-template-columns: repeat(3, 1fr); } }
+.frames figure { margin: 0; }
+.frames svg { display: block; width: 100%; height: auto; }
+.frames figcaption { margin-top: 0.6rem; font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); }
+.frames__note { margin-top: 1.4rem; color: var(--muted); font-size: var(--step--1); max-width: var(--measure); }
+
+.f-sheet { fill: var(--paper); stroke: var(--ink); stroke-width: 1.2; }
+.f-far { fill: #f2f3f3; fill-opacity: 0.92; stroke: var(--ink); stroke-width: 1.2; }
+.f-crease { stroke: var(--accent); stroke-width: 2; }
+
+/* ---------- проба ---------- */
+
+.practice, .questions { padding: var(--space) var(--gutter); border-bottom: 1px solid var(--rule); }
+.practice > *, .questions > * { max-width: var(--measure); }
+.steps { margin: 1.1rem 0 1.3rem; padding-left: 1.3rem; display: grid; gap: 0.5rem; }
+.practice__note { color: var(--muted); }
+.scheme { margin-top: 2.4rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); }
+.scheme__state { color: var(--muted); font-size: var(--step--1); }
+.scheme__figure { margin: 1rem 0 0; }
+.scheme__figure svg { display: block; width: 100%; max-width: 34rem; height: auto; }
+.scheme__figure figcaption { margin-top: 0.6rem; color: var(--muted); font-size: var(--step--1); }
+.scheme__lift { opacity: 0; transition: opacity 200ms ease; }
+.scheme.is-folded .scheme__lift { opacity: 1; }
+.scheme__controls { display: flex; flex-wrap: wrap; gap: 0.8rem 1rem; align-items: center; margin: 1.1rem 0 0.8rem; }
+.scheme__live { color: var(--muted); font-size: var(--step--1); }
+.scheme__fallback { color: var(--muted); font-size: var(--step--1); }
+
+/* ---------- вопросы и подвал ---------- */
+
+.faq { margin: 0; display: grid; }
+.faq dt { font-family: var(--font-display); font-weight: 700; font-size: var(--step-1); padding-top: 1rem; border-top: 1px solid var(--rule); }
+.faq dd { margin: 0.3rem 0 0; color: var(--muted); }
+.foot { padding: 1.5rem var(--gutter) 3rem; color: var(--muted); font-size: var(--step--1); max-width: 44rem; }
+
+/* ---------- уменьшенное движение ---------- */
+
+html[data-motion="reduced"] .sheet__far,
+html[data-motion="reduced"] .sheet__shade,
+html[data-motion="reduced"] .sheet__shadow,
+html[data-motion="reduced"] .scheme__lift { transition: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet__far, .sheet__shade, .sheet__shadow, .scheme__lift { transition: none !important; }
+}
