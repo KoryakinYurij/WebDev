@@ -110,8 +110,17 @@
        дала средний цвет листа 0,90 при 0,86 у стола — лист растворялся в фоне.
        Бумага остаётся светлой, меняется силуэт и тень под ним. */
     var lift = smoothstep(Math.max(0, Math.min(1, (theta - 96) / 76)));
+    /* light — сколько света ловит лист. Лежа он освещён плашмя (мало),
+       у вертикали ловит лампу лицом (максимум), сложенный снова уходит в тень.
+       На этом держится вся драматургия кадра: тёмная комната и один
+       освещённый предмет, яркость которого меняет сам читатель. */
+    var light = Math.max(0.12, Math.min(1, 0.3 + 1.15 * Math.sin(radians)));
     var shade = 0.42 * Math.abs(Math.sin(radians)) + 0.015 * lift;
-    var shadow = 0.55 - 0.3 * Math.abs(Math.sin(radians));
+    var shadow = 0.62 - 0.24 * Math.abs(Math.sin(radians));
+    /* glow — свечение линии сгиба: сильнее всего на вертикали и у сложенного листа. */
+    var glow = Math.max(Math.abs(Math.sin(radians)), lift);
+    /* spread — тень растёт вместе с площадью поднятой половины. */
+    var spread = Math.abs(Math.sin(radians));
     var index = stageIndex(progress);
 
     /* Затем запись: пользовательские свойства, число угла и класс стадии. */
@@ -119,6 +128,9 @@
     sheet.style.setProperty("--shade", shade.toFixed(3));
     sheet.style.setProperty("--shadow", shadow.toFixed(3));
     sheet.style.setProperty("--lift", lift.toFixed(3));
+    sheet.style.setProperty("--light", light.toFixed(3));
+    sheet.style.setProperty("--glow", glow.toFixed(3));
+    sheet.style.setProperty("--spread", spread.toFixed(3));
     if (angle) angle.textContent = Math.round(theta) + "°";
     for (var position = 0; position < stages.length; position += 1) {
       stages[position].classList.toggle("is-current", position === index);

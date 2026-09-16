@@ -1,46 +1,74 @@
-/* Линия сгиба — arm B (profile). Направление: верстак и лист.
-   Стол холодного серого, единственный светлый объект — белый лист, один акцент — линия сгиба.
-   Роли шрифтов обратны arm A: без засечек в заголовках, засечки в чтении, моно для угла. */
+/* Линия сгиба — arm B (profile). Направление: ночная мастерская.
+   Комната почти чёрная, единственный светлый материал — бумага, лампа даёт одно пятно света.
+   Свет связан со сгибом: пока лист лежит, он ловит свет плашмя, когда встаёт — светится лицом.
+   Проза живёт на бумаге (тёмные чернила), сцена и служебные строки — на свету лампы. */
 
 :root {
-  --table: #d7dbdd;
-  --table-deep: #c3c9cc;
-  --paper: #ffffff;
-  --ink: #16191c;
-  --muted: #4c5459;
-  --rule: #aeb5b8;
-  --accent: #8a1c2b;
+  /* комната и лампа */
+  --room: #101215;
+  --room-deep: #0b0d0f;
+  --room-ink: #efece6;
+  --room-muted: #a9a59c;
+  --room-rule: #2a2e34;
+
+  /* бумага */
+  --paper: #f5f2ea;
+  --paper-edge: #d9d3c6;
+  --ink: #17181a;
+  --muted: #5b5f62;
+  --rule: #cfc9bc;
+
+  /* акцент: янтарь лампы на тёмном, тёмный янтарь на бумаге */
+  --accent: #e2a24a;
+  --accent-ink: #7d4f0d;
 
   --font-display: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-read: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
   --font-mono: ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
 
-  --step--1: clamp(0.85rem, 0.81rem + 0.2vw, 0.94rem);
-  --step-0: clamp(1.02rem, 0.98rem + 0.25vw, 1.12rem);
-  --step-1: clamp(1.25rem, 1.15rem + 0.5vw, 1.45rem);
-  --step-2: clamp(1.6rem, 1.4rem + 1vw, 2.15rem);
-  --step-3: clamp(2.3rem, 1.7rem + 2.6vw, 3.9rem);
+  --step--1: clamp(0.86rem, 0.82rem + 0.2vw, 0.95rem);
+  --step-0: clamp(1.03rem, 0.99rem + 0.25vw, 1.14rem);
+  --step-1: clamp(1.3rem, 1.2rem + 0.5vw, 1.55rem);
+  --step-2: clamp(1.7rem, 1.45rem + 1.2vw, 2.4rem);
+  --step-3: clamp(2.1rem, 1.5rem + 2.6vw, 3.4rem);
+  --step-4: clamp(2.6rem, 1.3rem + 5.4vw, 5.6rem);
 
   --measure: 36rem;
   --gutter: clamp(1.1rem, 5vw, 3.5rem);
-  --space: clamp(2.4rem, 5vh + 1rem, 4.4rem);
+  --space: clamp(2.6rem, 6vh + 1rem, 5rem);
 }
 
 * { box-sizing: border-box; }
-html { color-scheme: light; }
+html { color-scheme: dark; }
 
 body {
   margin: 0;
-  background: var(--table);
-  color: var(--ink);
+  background: var(--room);
+  color: var(--room-ink);
   font-family: var(--font-read);
   font-size: var(--step-0);
   line-height: 1.6;
   -webkit-text-size-adjust: 100%;
 }
 
-h1, h2, h3 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em; line-height: 1.08; margin: 0; }
-h1 { font-size: var(--step-3); }
+/* Тёмная комната: светлое пятно сверху и затемнение по краям.
+   Один слой на всю страницу, чтобы свет был общим, а не у каждой секции свой. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(120% 70% at 50% -10%, rgba(255, 226, 180, 0.08), transparent 62%),
+    radial-gradient(90% 60% at 50% 50%, rgba(255, 220, 170, 0.035), transparent 70%),
+    radial-gradient(140% 120% at 50% 40%, transparent 42%, rgba(0, 0, 0, 0.62) 100%);
+}
+
+main, header, footer { position: relative; z-index: 1; }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em; line-height: 1.06; margin: 0; }
+h1 { font-size: var(--step-4); }
 h2 { font-size: var(--step-2); margin-bottom: 0.7rem; }
 h3 { font-size: var(--step-1); font-weight: 700; }
 p { margin: 0 0 1em; }
@@ -49,7 +77,7 @@ a { color: inherit; }
 
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
-.skip { position: absolute; left: -9999px; top: 0; background: var(--ink); color: var(--paper); padding: 0.6rem 1rem; z-index: 3; }
+.skip { position: absolute; left: -9999px; top: 0; background: var(--paper); color: var(--ink); padding: 0.6rem 1rem; z-index: 4; }
 .skip:focus { left: 0.5rem; top: 0.5rem; }
 
 .control {
@@ -58,71 +86,116 @@ a { color: inherit; }
   font: inherit;
   font-family: var(--font-display);
   font-size: var(--step--1);
-  background: var(--paper);
-  color: var(--ink);
-  border: 1px solid var(--ink);
-  cursor: pointer;
+  font-weight: 700;
+  background: transparent;
+  color: var(--room-ink);
+  border: 1px solid var(--room-rule);
 }
-.control:hover { background: var(--ink); color: var(--paper); }
-.control[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
-.control[disabled] { border-style: dashed; background: transparent; color: var(--muted); cursor: default; }
+.control:hover { border-color: var(--accent); color: var(--accent); }
+.control[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
 
-/* ---------- верхняя строка ---------- */
+/* Бумага как материал интерфейса: на ней текст, и внутри неё роли цветов меняются.
+   Один список токенов на всё, что лежит на бумаге: панели и кадры. */
+.panel, .frames figure {
+  --ink: #17181a;
+  --muted: #5b5f62;
+  --rule: #cfc9bc;
+  --accent: var(--accent-ink);
+  color-scheme: light;
+  color: var(--ink);
+}
+.panel {
+  background: linear-gradient(178deg, #fbf9f4 0%, var(--paper) 46%, #ece7db 100%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- строка ---------- */
 
 .bar {
   display: grid;
-  gap: 0.5rem clamp(1rem, 4vw, 2.5rem);
-  align-items: baseline;
-  padding: 1.3rem var(--gutter) 1rem;
-  border-bottom: 1px solid var(--rule);
+  gap: 0.6rem 1.4rem;
+  align-items: center;
+  padding: 0.9rem var(--gutter);
+  border-bottom: 1px solid var(--room-rule);
+  background: var(--room-deep);
 }
-.bar__mark { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: var(--step-1); letter-spacing: -0.02em; }
-.bar__nav { display: flex; flex-wrap: wrap; gap: 0.35rem 1.4rem; font-family: var(--font-display); font-size: var(--step--1); }
-.bar__nav a { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--rule); padding-bottom: 0.1rem; }
-.bar__nav a:hover { color: var(--ink); border-bottom-color: var(--accent); }
-.bar__motion { margin: 0; display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; align-items: center; font-family: var(--font-display); font-size: var(--step--1); }
-.bar__note { color: var(--muted); }
-@media (min-width: 60rem) {
+.bar__mark { margin: 0; font-family: var(--font-display); font-weight: 800; letter-spacing: 0.02em; }
+.bar__nav { display: flex; flex-wrap: wrap; gap: 1.1rem; font-family: var(--font-display); font-size: var(--step--1); }
+.bar__nav a { text-decoration: none; color: var(--room-muted); border-bottom: 1px solid transparent; }
+.bar__nav a:hover { color: var(--room-ink); border-bottom-color: var(--accent); }
+.bar__motion { display: flex; flex-wrap: wrap; gap: 0.7rem 1rem; align-items: center; margin: 0; }
+.bar__note { margin: 0; font-family: var(--font-mono); font-size: var(--step--1); color: var(--room-muted); }
+
+@media (min-width: 48rem) {
   .bar { grid-template-columns: auto 1fr auto; }
   .bar__nav { justify-content: center; }
 }
 
 /* ---------- первый экран ---------- */
 
-.hero { padding: calc(var(--space) * 0.7) var(--gutter) calc(var(--space) * 0.8); border-bottom: 1px solid var(--rule); }
-.hero > * { max-width: 44rem; }
-.hero__line { font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); margin-bottom: 0.7rem; }
-.hero__lead { font-size: var(--step-1); margin-top: 0.9rem; }
-.hero__action { margin: 1.5rem 0 0; }
+.hero {
+  padding: clamp(3rem, 12vh, 8rem) var(--gutter) clamp(2.6rem, 8vh, 5rem);
+  position: relative;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: -4rem 0 auto 0;
+  height: 130%;
+  pointer-events: none;
+  background: radial-gradient(60% 75% at 22% 42%, rgba(255, 226, 180, 0.16), transparent 68%);
+}
+.hero > * { position: relative; }
+.hero__line {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.hero h1 { max-width: 30ch; text-wrap: balance; }
+.hero__lead { max-width: 40rem; margin-top: 1.2rem; color: var(--room-muted); font-size: var(--step-1); line-height: 1.5; }
+.hero__action { margin-top: 1.9rem; }
 
 .action {
   display: inline-block;
   min-height: 44px;
-  padding: 0.8rem 1.3rem;
+  padding: 0.9rem 1.5rem;
   font-family: var(--font-display);
   font-weight: 700;
-  background: var(--accent);
-  color: var(--paper);
-  border: 1px solid var(--accent);
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--paper);
   text-decoration: none;
+  box-shadow: 0 0 0 rgba(226, 162, 74, 0), 0 14px 30px rgba(0, 0, 0, 0.45);
+  transition: box-shadow 160ms ease, transform 160ms ease;
 }
-.action:hover { background: var(--ink); border-color: var(--ink); }
+.action:hover {
+  box-shadow: 0 0 26px rgba(226, 162, 74, 0.45), 0 14px 30px rgba(0, 0, 0, 0.5);
+  transform: translateY(-1px);
+}
 
-/* ---------- верстак и сцена ---------- */
+/* ---------- верстак: пятно лампы и лист ---------- */
 
-.bench { border-bottom: 1px solid var(--rule); }
+.bench { border-bottom: 1px solid var(--room-rule); position: relative; }
+.bench::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(38% 46% at 34% 55%, rgba(255, 226, 180, 0.1), transparent 70%);
+}
 
 .bench__view { display: none; }
 .frames { padding: var(--space) var(--gutter); }
 
-/* В закреплённом режиме верхняя строка становится липкой: иначе до переключателя
+/* В закреплённом режиме строка становится липкой: иначе до переключателя
    движения из середины сцены нужно было бы прокручивать всю секцию вверх.
    Высота строки измеряется скриптом в --bar-h, чтобы сцена не заходила под неё. */
 html.is-live .bar {
   position: sticky;
   top: 0;
-  z-index: 2;
-  background: var(--table);
+  z-index: 3;
 }
 html.is-live { scroll-padding-top: calc(var(--bar-h, 4.2rem) + 0.6rem); }
 
@@ -138,6 +211,17 @@ html.is-live .bench__view {
   min-height: calc(100svh - var(--bar-h, 4.2rem));
   padding: clamp(1.6rem, 5vh, 3rem) var(--gutter);
 }
+html.is-live .bench__view::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  background: radial-gradient(30% 40% at 26% 52%, rgba(255, 226, 180, 0.12), transparent 72%);
+}
+
 /* Раскладка закреплённой сцены: слева лист, справа рассказ о нём.
    Без этого рассказ стоял в потоке после закреплённого окна и уезжал под него:
    сцена играла без текста, который её объясняет. */
@@ -154,14 +238,14 @@ html.is-live .bench__view {
     grid-column: 2;
     position: sticky;
     top: calc(var(--bar-h, 4.2rem) + clamp(1.6rem, 5vh, 3rem));
-    padding-right: var(--gutter);
+    padding: clamp(1.4rem, 3vh, 2.2rem) clamp(1.3rem, 2.4vw, 2rem);
   }
 }
 
 /* лист */
 
-.readout { display: flex; gap: 0.6rem; align-items: baseline; justify-content: center; margin: 1.4rem 0 0; font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); }
-.readout__value { color: var(--ink); }
+.readout { display: flex; gap: 0.6rem; align-items: baseline; justify-content: center; margin: 1.4rem 0 0; font-family: var(--font-mono); font-size: var(--step--1); color: var(--room-muted); }
+.readout__value { color: var(--accent); font-weight: 700; }
 
 .sheet {
   position: relative;
@@ -177,9 +261,17 @@ html.is-live .bench__view {
   left: 0;
   width: 100%;
   height: 50%;
-  background: var(--paper);
-  border: 1px solid var(--rule);
   display: block;
+  border: 1px solid var(--paper-edge);
+  /* Бумага непрозрачна: она материал, а не подсветка. Яркость даёт лампа ниже. */
+  background: linear-gradient(180deg, #fffdf7 0%, #f7f2e6 62%, #efe9dc 100%);
+}
+/* Свет лампы: лежа лист освещён плашмя, у вертикали ловит свет лицом, сложенный
+   уходит в полутень. Яркость не превышает единицу, иначе бумага выцветает в белое
+   пятно без фактуры; тёплый свет добавляется внутренним свечением, а не пересветом. */
+.sheet__near, .sheet__far {
+  filter: brightness(calc(0.62 + 0.42 * var(--light, 0.4)));
+  box-shadow: inset 0 0 44px rgba(255, 231, 190, calc(0.55 * var(--light, 0.4)));
 }
 .sheet__near { bottom: 0; border-top: 0; }
 .sheet__far {
@@ -193,21 +285,33 @@ html.is-live .bench__view {
   position: absolute;
   inset: 0;
   display: block;
-  background: #0b0d10;
-  opacity: var(--shade, 0);
+  /* Градиент вместо плашки: у сгиба темнее, к свободному краю светлее. */
+  background: linear-gradient(180deg,
+    rgba(24, 20, 14, calc(var(--shade, 0) * 0.35)) 0%,
+    rgba(24, 20, 14, var(--shade, 0)) 100%);
   transition: opacity 90ms linear;
+  opacity: calc(0.6 + 0.4 * var(--lift, 0));
 }
-
 /* Край поднятой половины: тень ложится на нижнюю половину и на стол.
    Проявляется только когда половина действительно ушла за вертикаль. */
 .sheet__edge {
   position: absolute;
   inset: 0;
   display: block;
-  box-shadow: 0 6px 16px rgba(11, 13, 16, 0.26), 0 1px 3px rgba(11, 13, 16, 0.18);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.35);
   opacity: var(--lift, 0);
   transition: opacity 90ms linear;
   pointer-events: none;
+}
+/* Кромка листа: узкая светлая полоса, видна когда половина встаёт. */
+.sheet__far::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: rgba(255, 245, 225, calc(0.25 + 0.75 * var(--light, 0.4)));
 }
 .sheet__crease {
   position: absolute;
@@ -217,15 +321,17 @@ html.is-live .bench__view {
   height: 2px;
   display: block;
   background: var(--accent);
+  box-shadow: 0 0 calc(2px + 14px * var(--glow, 0)) rgba(226, 162, 74, calc(0.35 + 0.5 * var(--glow, 0)));
 }
 .sheet__shadow {
   position: absolute;
-  left: 6%;
-  right: 6%;
-  bottom: -1.6rem;
-  height: 1.6rem;
+  left: 50%;
+  transform: translateX(-50%) scaleX(calc(0.72 + 0.5 * var(--spread, 0.5)));
+  width: 88%;
+  bottom: -2.4rem;
+  height: 2.2rem;
   display: block;
-  background: radial-gradient(50% 50% at 50% 50%, rgba(22, 25, 28, 0.34), rgba(22, 25, 28, 0));
+  background: radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0) 72%);
   opacity: var(--shadow, 0.5);
   transition: opacity 90ms linear;
 }
@@ -249,21 +355,32 @@ html.is-live .bench__view {
    Линия над кадром показывает место без цвета и без анимации. */
 .frames__list li::before { content: ""; display: block; height: 2px; margin-bottom: 0.7rem; background: transparent; }
 .frames__list li[data-current="true"]::before { background: var(--accent); }
-.frames__list li[data-current="true"] figcaption { color: var(--ink); }
-@media (min-width: 48rem) { .frames__list { grid-template-columns: repeat(3, 1fr); } }
-.frames figure { margin: 0; }
+.frames__list li[data-current="true"] figcaption { color: var(--room-ink); }
+
+.frames figure {
+  margin: 0;
+  padding: clamp(0.9rem, 2vw, 1.5rem);
+  background: linear-gradient(178deg, #fbf9f4 0%, var(--paper) 46%, #ece7db 100%);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.45);
+}
+@media (min-width: 48rem) { .frames__list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .frames svg { display: block; width: 100%; height: auto; }
 .frames figcaption { margin-top: 0.6rem; font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); }
-.frames__note { margin-top: 1.4rem; color: var(--muted); font-size: var(--step--1); max-width: var(--measure); }
+.frames__note { margin-top: 1.4rem; color: var(--room-muted); font-size: var(--step--1); max-width: var(--measure); }
 
-.f-sheet { fill: var(--paper); stroke: var(--ink); stroke-width: 1.2; }
-.f-far { fill: #f2f3f3; fill-opacity: 0.92; stroke: var(--ink); stroke-width: 1.2; }
-.f-crease { stroke: var(--accent); stroke-width: 2; }
+/* Рисунки: бумага на тёмном фоне кадра. */
+.f-sheet { fill: #f7f4ec; stroke: #2a2a28; stroke-width: 1.2; }
+.f-far { fill: #ddd7c8; stroke: #2a2a28; stroke-width: 1.2; }
+.f-crease { stroke: #b8801f; stroke-width: 2; }
 
-/* ---------- проба ---------- */
+/* ---------- проба и вопросы: листы на тёмном столе ---------- */
 
-.practice, .questions { padding: var(--space) var(--gutter); border-bottom: 1px solid var(--rule); }
-.practice > *, .questions > * { max-width: var(--measure); }
+.practice, .questions { padding: var(--space) var(--gutter); border-bottom: 1px solid var(--room-rule); }
+.practice__sheet, .questions__sheet {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: clamp(1.6rem, 4vw, 3rem) clamp(1.3rem, 4vw, 3rem);
+}
 .steps { margin: 1.1rem 0 1.3rem; padding-left: 1.3rem; display: grid; gap: 0.5rem; }
 .practice__note { color: var(--muted); }
 .scheme { margin-top: 2.4rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); }
@@ -273,24 +390,23 @@ html.is-live .bench__view {
 .scheme__figure figcaption { margin-top: 0.6rem; color: var(--muted); font-size: var(--step--1); }
 .scheme__lift { opacity: 0; transition: opacity 200ms ease; }
 .scheme.is-folded .scheme__lift { opacity: 1; }
-.scheme__controls { display: flex; flex-wrap: wrap; gap: 0.8rem 1rem; align-items: center; margin: 1.1rem 0 0.8rem; }
-.scheme__live { color: var(--muted); font-size: var(--step--1); }
 .scheme__fallback { color: var(--muted); font-size: var(--step--1); }
+.scheme__live { font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); }
 
-/* ---------- вопросы и подвал ---------- */
+.faq { margin: 0; display: grid; gap: 1.1rem; }
+.faq dt { font-family: var(--font-display); font-weight: 700; }
+.faq dd { margin: 0.25rem 0 0; color: var(--muted); }
 
-.faq { margin: 0; display: grid; }
-.faq dt { font-family: var(--font-display); font-weight: 700; font-size: var(--step-1); padding-top: 1rem; border-top: 1px solid var(--rule); }
-.faq dd { margin: 0.3rem 0 0; color: var(--muted); }
-.foot { padding: 1.5rem var(--gutter) 3rem; color: var(--muted); font-size: var(--step--1); max-width: 44rem; }
+.foot { padding: var(--space) var(--gutter); color: var(--room-muted); font-size: var(--step--1); }
+.foot p { max-width: var(--measure); }
 
-/* ---------- уменьшенное движение ---------- */
-
-html[data-motion="reduced"] .sheet__far,
-html[data-motion="reduced"] .sheet__shade,
-html[data-motion="reduced"] .sheet__shadow,
-html[data-motion="reduced"] .scheme__lift { transition: none !important; }
+/* ---------- режимы движения ---------- */
 
 @media (prefers-reduced-motion: reduce) {
-  .sheet__far, .sheet__shade, .sheet__shadow, .scheme__lift { transition: none !important; }
+  *, *::before, *::after { transition-duration: 0s !important; animation-duration: 0s !important; }
+}
+
+html[data-motion="reduced"] *, html[data-motion="reduced"] *::before, html[data-motion="reduced"] *::after {
+  transition-duration: 0s !important;
+  animation-duration: 0s !important;
 }
