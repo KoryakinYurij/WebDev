@@ -20,6 +20,11 @@ REQUIRED_CHECKS = {f"T{number:02}" for number in range(1, 13)}
 VISUAL_AXES = {"clarity", "appropriateness", "composition_typography", "motion_purpose"}
 
 
+def relative_path(path):
+    """Workspace-relative path in the forward-slash form used by manifests and safe_path."""
+    return Path(path).relative_to(ROOT).as_posix()
+
+
 def require(condition, message):
     if not condition:
         raise ValueError(message)
@@ -259,7 +264,7 @@ def make_packet(relative, arm):
     word_count = len(packet.split())
     require(word_count <= registry["max_packet_words"],
             f"Packet exceeds word budget: {word_count} > {registry['max_packet_words']}")
-    tracked.append(str(Path(__file__).relative_to(ROOT)))
+    tracked.append(relative_path(Path(__file__)))
     manifest = {
         "schema_version": 2, "library_version": registry["version"], "brief_id": brief["id"], "arm": arm,
         "environment": registry["environment"], "selected_modules": selected_modules,
@@ -300,16 +305,16 @@ def validate_all(sources_only=False):
     briefs = sorted((ROOT / "web-library/experiments/briefs").glob("*.json"))
     identifiers = set()
     for path in briefs:
-        relative = str(path.relative_to(ROOT))
+        relative = relative_path(path)
         brief = read_brief(relative, registry)
         require(brief["id"] not in identifiers, f"Duplicate brief ID: {brief['id']}")
         identifiers.add(brief["id"])
         for arm in ARMS:
             make_packet(relative, arm)
-    brief_paths = {load_json(str(path.relative_to(ROOT)))["id"]: str(path.relative_to(ROOT)) for path in briefs}
+    brief_paths = {load_json(relative_path(path))["id"]: relative_path(path) for path in briefs}
     if not sources_only:
         for path in sorted((ROOT / "web-library/packets").glob("*.json")):
-            relative = str(path.relative_to(ROOT))
+            relative = relative_path(path)
             stored = load_json(relative)
             require(isinstance(stored, dict), f"Manifest must be an object: {relative}")
             require(stored.get("schema_version") == 2, f"Old manifest; rebuild packet: {relative}")
@@ -317,7 +322,7 @@ def validate_all(sources_only=False):
             packet, expected = make_packet(brief_paths[stored["brief_id"]], stored.get("arm"))
             require(path.stem == f"{stored['brief_id']}-{stored['arm']}", f"Unexpected manifest name: {relative}")
             require(stored == expected, f"Stale packet manifest; rebuild from sources: {relative}")
-            packet_path = str(path.with_suffix(".md").relative_to(ROOT))
+            packet_path = relative_path(path.with_suffix(".md"))
             require(read_text(packet_path) == packet, f"Stale packet; rebuild from sources: {packet_path}")
         for path in (ROOT / "web-library/packets").glob("*.md"):
             require(path.with_suffix(".json").is_file(), f"Packet without manifest: {path}")
@@ -433,7 +438,7 @@ def selfcheck():
     audit_source = "web-library/tools/audit_local.py.txt"
     if not (ROOT / audit_source).is_file():
         audit_source = "web-library/tools/audit_local.py"
-    for relative in (str(Path(__file__).relative_to(ROOT)), audit_source):
+    for relative in (relative_path(Path(__file__)), audit_source):
         case("syntax:" + relative, lambda relative=relative: ast.parse(read_text(relative)))
     case("deterministic", lambda: make_packet(brief_path, "profile") == packets["profile"])
     case("baseline_isolated", lambda: not packets["baseline"][1]["selected_modules"]
@@ -538,7 +543,7 @@ def selfcheck():
     case("whole_library", validate_all)
     return {"status": "pass", "count": len(checks), "checks": checks,
             "scope": "Reproducible local contract checks; synthetic accepted report exists only in memory",
-            "hash_policy": HASH_POLICY, "tool_text_sha256": digest(str(Path(__file__).relative_to(ROOT))),
+            "hash_policy": HASH_POLICY, "tool_text_sha256": digest(relative_path(Path(__file__))),
             "browser_validation": "not_run", "website_quality_experiment": "not_run"}
 
 

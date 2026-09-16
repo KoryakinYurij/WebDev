@@ -77,7 +77,7 @@
     "web-library/registry.json": "8d8b89b732c0cf695619679868b821dda17fa4d7f8d677222120dc6795e79c50",
     "web-library/resources/catalog.json": "c2404b84753d122fe14cc3272fb84dd18cfc0c243c3848e690e7ed845eed3c6b",
     "web-library/ENVIRONMENT.md": "e1fb141016b84428480a32ce8cae55490ced28a31de06b0c45609827fac56830",
-    "web-library/tools/library.py.txt": "d5d1771626af2a7fab0fea64ed9939cadca0e42ae29559af99c918aefc26e8f9"
+    "web-library/tools/library.py.txt": "b85c6b817265096000a855f44ea64c15cf3af03878d66dd6a2c5ea52a524af2d"
   },
   "packet_text_sha256": "52425b54f96a39cc9471e3b8ce019a2656b026bad44767d2be4f9415516dc7f3",
   "browser_validation": "not_run",
