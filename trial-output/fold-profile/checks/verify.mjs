@@ -60,7 +60,7 @@ check("S05", "сборка воспроизводима", buildA === buildB, `sh
 check("S06", "готовый экспорт соответствует сборке", delivered === buildA,
   delivered === buildA ? "совпадает" : "устарел после правки исходников: пересобрать");
 
-const tokens = Object.fromEntries([...css.matchAll(/--(table|paper|ink|muted|accent):\s*(#[0-9a-f]{6})/gi)]
+const tokens = Object.fromEntries([...css.matchAll(/--(room|room-ink|room-muted|paper|ink|muted|accent|accent-ink):\s*(#[0-9a-f]{6})/gi)]
   .map((match) => [match[1].toLowerCase(), match[2]]));
 function luminance(hex) {
   const channels = [1, 3, 5].map((offset) => parseInt(hex.slice(offset, offset + 2), 16) / 255)
@@ -72,11 +72,13 @@ function ratio(a, b) {
   return (light + 0.05) / (dark + 0.05);
 }
 const contrast = {
-  "текст на столе": ratio(tokens.ink, tokens.table),
-  "второстепенный текст на столе": ratio(tokens.muted, tokens.table),
-  "акцент на столе": ratio(tokens.accent, tokens.table),
-  "подпись кнопки": ratio(tokens.paper, tokens.accent),
-  "текст на листе": ratio(tokens.ink, tokens.paper)
+  "текст на тёмном": ratio(tokens["room-ink"], tokens.room),
+  "второстепенный текст на тёмном": ratio(tokens["room-muted"], tokens.room),
+  "акцент на тёмном": ratio(tokens.accent, tokens.room),
+  "чернила на бумаге": ratio(tokens.ink, tokens.paper),
+  "второстепенный текст на бумаге": ratio(tokens.muted, tokens.paper),
+  "акцент на бумаге": ratio(tokens["accent-ink"], tokens.paper),
+  "подпись на светлой кнопке": ratio(tokens.ink, tokens.paper)
 };
 const worst = Math.min(...Object.values(contrast));
 check("S07", "контраст по формулам WCAG", worst >= 4.5,
@@ -339,6 +341,35 @@ check("B23", "заголовок рассказа виден в кадре сц�
   storySight.every((item) => item.titleInside),
   storySight.map((item) => (item.titleInside ? "виден" : "вне экрана")).join("/"));
 await shot(page, "09-story-beside-scene");
+
+/* Тональный диапазон кадра. Единственная проверка, которая смотрит на пиксели
+   снимка, а не на стили: вопрос «есть ли в кадре тёмное и светлое» решается
+   цветом. Средний цвет области считает тот же инструмент, которым снимки читает
+   человек без графической панели. */
+const pngTool = path.join(workspace, "web-library/tools/png_text.py.txt");
+function meanColour(file, area) {
+  const output = execFileSync("python", [pngTool, file, "--mean", area.map(Math.round).join(",")], { encoding: "utf8" });
+  const hex = output.match(/#[0-9a-f]{6}/i);
+  if (!hex) throw new Error(`png_text не вернул цвет: ${output.trim()}`);
+  return hex[0];
+}
+await scene(0.5);
+const dramaAreas = await page.evaluate(() => {
+  const paper = document.querySelector(".sheet__near").getBoundingClientRect();
+  return {
+    paper: [paper.left + paper.width * 0.2, paper.top + paper.height * 0.3, paper.width * 0.6, paper.height * 0.4],
+    room: [Math.max(8, paper.left - 220), paper.top + paper.height * 0.1, 150, 150],
+  };
+});
+const dramaShot = path.join(arm, "evidence", "10-light-on-paper.png");
+await page.screenshot({ path: dramaShot });
+const paperTone = luminance(meanColour(dramaShot, dramaAreas.paper));
+const roomTone = luminance(meanColour(dramaShot, dramaAreas.room));
+const drama = (paperTone + 0.05) / (roomTone + 0.05);
+check("B24", "кадр держит тёмную комнату и освещённый лист",
+  roomTone <= 0.15 && paperTone >= 0.7 && drama >= 6,
+  `комната ${roomTone.toFixed(3)} (${meanColour(dramaShot, dramaAreas.room)}), `
+  + `лист ${paperTone.toFixed(3)} (${meanColour(dramaShot, dramaAreas.paper)}), отношение ${drama.toFixed(1)}:1`);
 
 /* переключатель движения доступен из середины сцены без прокрутки к началу */
 await scene(0.5);
